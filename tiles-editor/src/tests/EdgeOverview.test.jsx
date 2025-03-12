@@ -66,9 +66,6 @@ describe('EdgeOverview component and edge calculations', () => {
   });
   
   it('only updates edges after refresh button click in manual mode', () => {
-    // Create a modified tile to test updates
-    const modifiedTile = JSON.parse(JSON.stringify(customTile));
-    
     // Start with one tile
     const { container, rerender } = render(<EdgeOverview tiles={[customTile]} />);
     
