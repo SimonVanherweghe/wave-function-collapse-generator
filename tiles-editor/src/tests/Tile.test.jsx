@@ -16,16 +16,16 @@ describe('Tile component', () => {
     render(<Tile tile={defaultTile} onUpdate={handleUpdate} />);
     
     const cell = screen.getByTestId('cell-0-0');
-    // Initially white
-    expect(cell).toHaveStyle('background-color: white');
+    // Initially not active (white)
+    expect(cell).not.toHaveClass('active');
     
     // Simulate click on cell (0, 0)
     fireEvent.click(cell);
     
     // The update callback should now reflect that cell (0, 0) is true
     expect(updatedTile.grid[0][0]).toBe(true);
-    // Also check that the DOM style changed
-    expect(cell).toHaveStyle('background-color: black');
+    // Also check that the DOM class changed
+    expect(cell).toHaveClass('active');
   });
 
   it('updates rotation and mirror options on checkbox toggle', () => {

@@ -40,11 +40,11 @@ function Tile({ tile, onUpdate }) {
                 data-testid={`cell-${rowIndex}-${colIndex}`}
                 className="grid-cell"
                 onClick={() => handleCellClick(rowIndex, colIndex)}
+                className={`grid-cell ${cell ? 'active' : ''}`}
                 style={{ 
                   width: '20px', 
                   height: '20px', 
                   border: '1px solid black',
-                  backgroundColor: cell ? 'black' : 'white',
                   cursor: 'pointer'
                 }}
               />

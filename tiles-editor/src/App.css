@@ -94,6 +94,14 @@
   border: 1px solid #000;
 }
 
+.grid-cell {
+  background-color: white;
+}
+
+.grid-cell.active {
+  background-color: black;
+}
+
 .edge-count {
   font-size: 0.9rem;
   color: #666;
