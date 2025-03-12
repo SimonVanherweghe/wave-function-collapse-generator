@@ -16,10 +16,17 @@
 
 .left-section,
 .right-section {
-  flex: 1;
   padding: 1rem;
   box-sizing: border-box;
   overflow-y: auto;
+}
+
+.left-section {
+  flex: 2; /* 2 parts for tile overview */
+}
+
+.right-section {
+  flex: 1; /* 1 part for edge overview */
 }
 
 .left-section {
@@ -28,9 +35,9 @@
 
 /* Tile styles */
 .tiles-container {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
