@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import TileEditor from './components/TileEditor';
+import Tile from './components/Tile';
 import EdgeOverview from './components/EdgeOverview';
 import './App.css';
 
@@ -41,10 +41,9 @@ function App() {
           {tiles.map((tile, index) => (
             <div key={index} className="tile-wrapper">
               <h3>Tile {index + 1}</h3>
-              <TileEditor 
-                tile={tile} 
-                onUpdate={handleTileUpdate} 
-                index={index} 
+              <Tile 
+                tile={tile}
+                onUpdate={(updatedTile) => handleTileUpdate(index, updatedTile)}
               />
             </div>
           ))}
