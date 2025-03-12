@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 
 const EdgeOverview = ({ tiles }) => {
   const [edges, setEdges] = useState({});
-
-  // Extract edges from tiles
-  useEffect(() => {
+  const [autoUpdate, setAutoUpdate] = useState(true);
+  
+  // Calculate edges based on tiles
+  const calculateEdges = () => {
     const extractedEdges = {};
     
     tiles.forEach(tile => {
@@ -28,7 +29,14 @@ const EdgeOverview = ({ tiles }) => {
     });
     
     setEdges(extractedEdges);
-  }, [tiles]);
+  };
+
+  // Extract edges from tiles when in auto-update mode
+  useEffect(() => {
+    if (autoUpdate) {
+      calculateEdges();
+    }
+  }, [tiles, autoUpdate]);
 
   // Extract the four edges from a tile grid
   const extractEdges = (grid) => {
@@ -118,8 +126,43 @@ const EdgeOverview = ({ tiles }) => {
     );
   };
 
+  // Handle toggle of auto-update mode
+  const handleAutoUpdateToggle = (e) => {
+    setAutoUpdate(e.target.checked);
+    if (e.target.checked) {
+      // Immediately update when switching to auto mode
+      calculateEdges();
+    }
+  };
+
+  // Handle manual refresh button click
+  const handleRefresh = () => {
+    calculateEdges();
+  };
+
   return (
     <div className="edge-overview">
+      <div className="edge-controls" style={{ marginBottom: '1rem' }}>
+        <label>
+          <input
+            type="checkbox"
+            checked={autoUpdate}
+            onChange={handleAutoUpdateToggle}
+            data-testid="auto-update-checkbox"
+          />
+          Auto-update
+        </label>
+        {!autoUpdate && (
+          <button 
+            onClick={handleRefresh} 
+            className="refresh-button"
+            data-testid="refresh-button"
+            style={{ marginLeft: '1rem' }}
+          >
+            Refresh
+          </button>
+        )}
+      </div>
       <h3>Unique Edges</h3>
       <div className="edges-container">
         {Object.entries(edges).map(([edge, count]) => renderEdge(edge, count))}

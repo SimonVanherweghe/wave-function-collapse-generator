@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import EdgeOverview from '../components/EdgeOverview';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 describe('EdgeOverview component and edge calculations', () => {
   // Create a custom tile with a known grid.
@@ -44,6 +44,55 @@ describe('EdgeOverview component and edge calculations', () => {
     expect(edgeItems.length).toBe(1);
     
     // The count should now be 8 (4 edges per tile × 2 tiles).
+    expect(edgeItems[0].textContent).toContain('Count: 8');
+  });
+  
+  it('toggles auto-update mode correctly', () => {
+    render(<EdgeOverview tiles={[customTile]} />);
+    
+    // Auto-update should be enabled by default
+    const autoUpdateCheckbox = screen.getByTestId('auto-update-checkbox');
+    expect(autoUpdateCheckbox.checked).toBe(true);
+    
+    // Refresh button should not be visible in auto-update mode
+    expect(screen.queryByTestId('refresh-button')).not.toBeInTheDocument();
+    
+    // Toggle auto-update off
+    fireEvent.click(autoUpdateCheckbox);
+    expect(autoUpdateCheckbox.checked).toBe(false);
+    
+    // Refresh button should now be visible
+    expect(screen.getByTestId('refresh-button')).toBeInTheDocument();
+  });
+  
+  it('only updates edges after refresh button click in manual mode', () => {
+    // Create a modified tile to test updates
+    const modifiedTile = JSON.parse(JSON.stringify(customTile));
+    
+    // Start with one tile
+    const { container, rerender } = render(<EdgeOverview tiles={[customTile]} />);
+    
+    // Turn off auto-update
+    const autoUpdateCheckbox = screen.getByTestId('auto-update-checkbox');
+    fireEvent.click(autoUpdateCheckbox);
+    
+    // Initial state: one unique edge with count 4
+    let edgeItems = container.querySelectorAll('.edge-item');
+    expect(edgeItems.length).toBe(1);
+    expect(edgeItems[0].textContent).toContain('Count: 4');
+    
+    // Update props with two tiles, but don't refresh
+    rerender(<EdgeOverview tiles={[customTile, customTile]} />);
+    
+    // Edge count should still be 4 since we're in manual mode and haven't refreshed
+    edgeItems = container.querySelectorAll('.edge-item');
+    expect(edgeItems[0].textContent).toContain('Count: 4');
+    
+    // Click refresh button
+    fireEvent.click(screen.getByTestId('refresh-button'));
+    
+    // Now the edge count should update to 8
+    edgeItems = container.querySelectorAll('.edge-item');
     expect(edgeItems[0].textContent).toContain('Count: 8');
   });
 });
