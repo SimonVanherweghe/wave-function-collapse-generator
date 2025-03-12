@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 function Tile({ tile, onUpdate }) {
   const [grid, setGrid] = useState(tile.grid);
@@ -33,39 +33,38 @@ function Tile({ tile, onUpdate }) {
     <div className="tile-component">
       <div className="grid">
         {grid.map((row, rowIndex) => (
-          <div key={rowIndex} className="grid-row" style={{ display: 'flex' }}>
+          <div key={rowIndex} className="grid-row" style={{ display: "flex" }}>
             {row.map((cell, colIndex) => (
               <div
                 key={colIndex}
                 data-testid={`cell-${rowIndex}-${colIndex}`}
-                className="grid-cell"
                 onClick={() => handleCellClick(rowIndex, colIndex)}
-                className={`grid-cell ${cell ? 'active' : ''}`}
-                style={{ 
-                  width: '20px', 
-                  height: '20px', 
-                  border: '1px solid black',
-                  cursor: 'pointer'
+                className={`grid-cell ${cell ? "active" : ""}`}
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  border: "1px solid black",
+                  cursor: "pointer",
                 }}
               />
             ))}
           </div>
         ))}
       </div>
-      <div className="options" style={{ marginTop: '1rem' }}>
+      <div className="options" style={{ marginTop: "1rem" }}>
         <label>
-          <input 
-            type="checkbox" 
-            checked={rotationEnabled} 
+          <input
+            type="checkbox"
+            checked={rotationEnabled}
             onChange={handleRotationChange}
             data-testid="rotation-checkbox"
           />
           Rotation
         </label>
-        <label style={{ marginLeft: '1rem' }}>
-          <input 
-            type="checkbox" 
-            checked={mirrorEnabled} 
+        <label style={{ marginLeft: "1rem" }}>
+          <input
+            type="checkbox"
+            checked={mirrorEnabled}
             onChange={handleMirrorChange}
             data-testid="mirror-checkbox"
           />
