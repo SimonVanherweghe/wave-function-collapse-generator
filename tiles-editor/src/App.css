@@ -5,13 +5,13 @@
   text-align: center;
 }
 
-/* New styles for layout */
+/* Layout styles */
 .app-container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .left-section,
@@ -19,8 +19,82 @@
   flex: 1;
   padding: 1rem;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .left-section {
   border-right: 1px solid #ccc;
+}
+
+/* Tile styles */
+.tiles-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.tile-wrapper {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+}
+
+.tile-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tile-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.add-tile-button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-tile-button:hover {
+  background-color: #45a049;
+}
+
+/* Edge overview styles */
+.edges-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.edge-item {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.edge-visualization {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.edge-cell {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #000;
+}
+
+.edge-count {
+  font-size: 0.9rem;
+  color: #666;
 }
