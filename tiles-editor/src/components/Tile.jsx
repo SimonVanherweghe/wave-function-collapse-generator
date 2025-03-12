@@ -33,19 +33,13 @@ function Tile({ tile, onUpdate }) {
     <div className="tile-component">
       <div className="grid">
         {grid.map((row, rowIndex) => (
-          <div key={rowIndex} className="grid-row" style={{ display: "flex" }}>
+          <div key={rowIndex} className="grid-row">
             {row.map((cell, colIndex) => (
               <div
                 key={colIndex}
                 data-testid={`cell-${rowIndex}-${colIndex}`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 className={`grid-cell ${cell ? "active" : ""}`}
-                style={{
-                  width: "20px",
-                  height: "20px",
-                  border: "1px solid black",
-                  cursor: "pointer",
-                }}
               />
             ))}
           </div>

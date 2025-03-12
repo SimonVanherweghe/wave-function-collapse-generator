@@ -94,12 +94,32 @@
   border: 1px solid #000;
 }
 
+.grid-row {
+  display: flex;
+}
+
 .grid-cell {
+  width: 20px;
+  height: 20px;
+  border: 1px solid black;
+  cursor: pointer;
   background-color: white;
 }
 
 .grid-cell.active {
   background-color: black;
+}
+
+.edge-cell-black {
+  background-color: black;
+}
+
+.edge-cell-white {
+  background-color: white;
+}
+
+.refresh-button {
+  margin-left: 1rem;
 }
 
 .edge-count {

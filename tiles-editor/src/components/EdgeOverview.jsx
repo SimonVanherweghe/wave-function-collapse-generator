@@ -116,8 +116,7 @@ const EdgeOverview = ({ tiles }) => {
           {edgeArray.map((cell, index) => (
             <div 
               key={index} 
-              className="edge-cell" 
-              style={{ backgroundColor: cell ? 'black' : 'white' }}
+              className={`edge-cell ${cell ? "edge-cell-black" : "edge-cell-white"}`}
             />
           ))}
         </div>
@@ -157,7 +156,6 @@ const EdgeOverview = ({ tiles }) => {
             onClick={handleRefresh} 
             className="refresh-button"
             data-testid="refresh-button"
-            style={{ marginLeft: '1rem' }}
           >
             Refresh
           </button>
