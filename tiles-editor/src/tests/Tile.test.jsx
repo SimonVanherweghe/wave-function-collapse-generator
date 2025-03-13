@@ -15,7 +15,7 @@ describe('Tile component', () => {
 
     render(<Tile tile={defaultTile} tileId={0} onUpdate={handleUpdate} />);
     
-    const cell = screen.getByTestId('tile-0-cell-0-0');
+    const cell = screen.getByTestId('cell-0-0');
     // Initially not active (white)
     expect(cell).not.toHaveClass('active');
     

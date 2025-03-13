@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Tile from './components/Tile';
 import EdgeOverview from './components/EdgeOverview';
 import './App.css';
@@ -22,11 +22,13 @@ function App() {
   }, [tiles]);
 
   // Update a specific tile
-  const handleTileUpdate = (index, updatedTile) => {
-    const newTiles = [...tiles];
-    newTiles[index] = updatedTile;
-    setTiles(newTiles);
-  };
+  const handleTileUpdate = useCallback((index, updatedTile) => {
+    setTiles((prevTiles) => {
+      const newTiles = [...prevTiles];
+      newTiles[index] = updatedTile;
+      return newTiles;
+    });
+  }, []);
 
   // Add a new tile
   const handleAddTile = () => {
@@ -43,23 +45,29 @@ function App() {
       <div data-testid="tile-overview" className="left-section">
         <h2>Tile Overview</h2>
         <div className="tiles-container">
-          {tiles.map((tile, index) => (
-            <div key={index} className="tile-wrapper">
-              <h3>Tile {index + 1}</h3>
-              <Tile 
-                tile={tile}
-                tileId={index}
-                onUpdate={(updatedTile) => handleTileUpdate(index, updatedTile)}
-              />
-              <button 
-                onClick={() => handleRemoveTile(index)}
-                className="remove-tile-button"
-                data-testid={`remove-tile-${index}`}
-              >
-                Remove Tile
-              </button>
-            </div>
-          ))}
+          {tiles.map((tile, index) => {
+            const onUpdateTile = useCallback((updatedTile) => {
+              handleTileUpdate(index, updatedTile);
+            }, [handleTileUpdate, index]);
+            
+            return (
+              <div key={index} className="tile-wrapper">
+                <h3>Tile {index + 1}</h3>
+                <Tile 
+                  tile={tile}
+                  tileId={index}
+                  onUpdate={onUpdateTile}
+                />
+                <button 
+                  onClick={() => handleRemoveTile(index)}
+                  className="remove-tile-button"
+                  data-testid={`remove-tile-${index}`}
+                >
+                  Remove Tile
+                </button>
+              </div>
+            );
+          })}
         </div>
         <button onClick={handleAddTile} className="add-tile-button">
           Add Tile

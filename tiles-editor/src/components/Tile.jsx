@@ -10,7 +10,7 @@ function Tile({ tile, onUpdate }) {
     if (onUpdate) {
       onUpdate({ grid, rotationEnabled, mirrorEnabled });
     }
-  }, [grid, rotationEnabled, mirrorEnabled]);
+  }, [grid, rotationEnabled, mirrorEnabled, onUpdate]);
 
   const handleCellClick = (row, col) => {
     setGrid((prevGrid) => {
