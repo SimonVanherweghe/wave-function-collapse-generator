@@ -199,7 +199,6 @@
 
 /* For collapsed cells, display the tile preview */
 .wfc-cell-collapsed {
-  background-color: #8BC34A;
   font-weight: bold;
 }
 
