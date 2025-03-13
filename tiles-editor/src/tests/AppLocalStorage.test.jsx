@@ -1,11 +1,8 @@
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import App from '../App';
 
 describe('Local Storage Integration in App', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
 
   it('retrieves data from local storage on loading', () => {
     // Prepare a custom tile stored in localStorage.

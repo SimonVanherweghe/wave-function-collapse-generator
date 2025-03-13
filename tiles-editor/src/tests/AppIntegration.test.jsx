@@ -1,12 +1,8 @@
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import App from "../App";
 
 describe("App Integration Tests", () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
-
   it("updates EdgeOverview in real-time in auto-update mode", async () => {
     render(<App />);
 
