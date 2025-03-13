@@ -1,18 +1,17 @@
-
 // Given a tile object with a property `grid` (2D array), returns the requested edge
 export function getEdge(tile, side) {
   if (!tile || !tile.grid || tile.grid.length === 0) {
     throw new Error("Tile must have a non-empty grid");
   }
   switch (side) {
-    case 'top':
+    case "top":
       return [...tile.grid[0]]; // clone first row
-    case 'bottom':
+    case "bottom":
       return [...tile.grid[tile.grid.length - 1]]; // clone last row
-    case 'left':
-      return tile.grid.map(row => row[0]);
-    case 'right':
-      return tile.grid.map(row => row[row.length - 1]);
+    case "left":
+      return tile.grid.map((row) => row[0]);
+    case "right":
+      return tile.grid.map((row) => row[row.length - 1]);
     default:
       throw new Error(`Invalid side: ${side}`);
   }
@@ -31,12 +30,14 @@ function arraysEqual(a, b) {
 export function logGridState(grid) {
   console.log("Current grid state:");
   grid.forEach((row, i) => {
-    const rowStr = row.map(cell => 
-      cell.possibilities.length === 1 ? 
-      `[${cell.possibilities[0]}]` : 
-      `(${cell.possibilities.length})`
-    ).join(' ');
-    console.log(`Row ${i}: ${rowStr}`);
+    const rowStr = row
+      .map((cell) =>
+        cell.possibilities.length === 1
+          ? `[${cell.possibilities[0]}]`
+          : `(${cell.possibilities.length})`
+      )
+      .join(" ");
+    //console.log(`Row ${i}: ${rowStr}`);
   });
 }
 
@@ -72,14 +73,14 @@ export function edgesAreCompatible(tileOrEdge1, tileOrEdge2, side) {
 
   // Determine the complementary side for the second tile.
   let oppositeSide;
-  if (side === 'top') {
-    oppositeSide = 'bottom';
-  } else if (side === 'bottom') {
-    oppositeSide = 'top';
-  } else if (side === 'left') {
-    oppositeSide = 'right';
-  } else if (side === 'right') {
-    oppositeSide = 'left';
+  if (side === "top") {
+    oppositeSide = "bottom";
+  } else if (side === "bottom") {
+    oppositeSide = "top";
+  } else if (side === "left") {
+    oppositeSide = "right";
+  } else if (side === "right") {
+    oppositeSide = "left";
   } else {
     throw new Error(`Invalid side parameter: ${side}`);
   }
@@ -118,12 +119,12 @@ export function collapseCell(grid) {
   const { row, col } = findLowestEntropyCell(grid);
   // If no cell is found (or no candidate qualifies), return the grid unchanged.
   if (row === -1 || col === -1) return grid;
-  
+
   const cell = grid[row][col];
   // Randomly pick one possibility.
   const randomIndex = Math.floor(Math.random() * cell.possibilities.length);
   const chosen = cell.possibilities[randomIndex];
-  
+
   // Create a new grid with an updated cell.
   const newGrid = grid.map((r, i) =>
     r.map((cellObj, j) =>
@@ -143,29 +144,37 @@ export function collapseCell(grid) {
 export function propagateConstraints(grid, row, col, availableTiles) {
   const cell = grid[row][col];
   if (cell.possibilities.length !== 1) return; // should be collapsed
-  
+
   // Get the collapsed tile information.
   const selectedTileIndex = cell.possibilities[0];
   const collapsedTile = availableTiles[selectedTileIndex];
 
   if (!collapsedTile) {
-    console.error(`Tile at index ${selectedTileIndex} not found in availableTiles array`);
+    console.error(
+      `Tile at index ${selectedTileIndex} not found in availableTiles array`
+    );
     return;
   }
 
   // Define relative directions with the corresponding sides:
   const directions = [
-    { dr: -1, dc: 0, sideCollapsed: 'top', sideNeighbor: 'bottom' },
-    { dr: 1,  dc: 0, sideCollapsed: 'bottom', sideNeighbor: 'top' },
-    { dr: 0,  dc: -1, sideCollapsed: 'left', sideNeighbor: 'right' },
-    { dr: 0,  dc: 1, sideCollapsed: 'right', sideNeighbor: 'left' }
+    { dr: -1, dc: 0, sideCollapsed: "top", sideNeighbor: "bottom" },
+    { dr: 1, dc: 0, sideCollapsed: "bottom", sideNeighbor: "top" },
+    { dr: 0, dc: -1, sideCollapsed: "left", sideNeighbor: "right" },
+    { dr: 0, dc: 1, sideCollapsed: "right", sideNeighbor: "left" },
   ];
 
-  directions.forEach(dir => {
+  directions.forEach((dir) => {
     const newRow = row + dir.dr;
     const newCol = col + dir.dc;
     // Skip out-of-bound indices.
-    if (newRow < 0 || newRow >= grid.length || newCol < 0 || newCol >= grid[0].length) return;
+    if (
+      newRow < 0 ||
+      newRow >= grid.length ||
+      newCol < 0 ||
+      newCol >= grid[0].length
+    )
+      return;
 
     const neighborCell = grid[newRow][newCol];
     // If neighbor is already collapsed, skip.
@@ -176,31 +185,48 @@ export function propagateConstraints(grid, row, col, availableTiles) {
 
     // Get the edge of the collapsed tile that faces the neighbor
     const collapsedEdge = getEdge(collapsedTile, dir.sideCollapsed);
-    console.log(`Cell (${row},${col}) with tile ${selectedTileIndex} has ${dir.sideCollapsed} edge:`, collapsedEdge);
+    console.log(
+      `Cell (${row},${col}) with tile ${selectedTileIndex} has ${dir.sideCollapsed} edge:`,
+      collapsedEdge
+    );
 
     // Filter neighbor possibilities by keeping only those candidate indices for which
     // the edge of the collapsed tile on the given side is compatible with the candidate's complementary edge.
     const beforePossibilities = [...neighborCell.possibilities];
-    neighborCell.possibilities = neighborCell.possibilities.filter(candidateIndex => {
-      const candidateTile = availableTiles[candidateIndex];
-      if (!candidateTile) {
-        console.error(`Candidate tile at index ${candidateIndex} not found in availableTiles array`);
-        return false;
-      }
-      
-      // Use our edgesAreCompatible utility.
-      // For a neighbor on the right (for example), we pass side = 'right' so that:
-      // collapsedTile's right edge is compared with candidateTile's left edge.
-      const isCompatible = edgesAreCompatible(collapsedTile, candidateTile, dir.sideCollapsed);
-      
-      if (!isCompatible) {
-        console.log(`Tile ${candidateIndex} is not compatible with tile ${selectedTileIndex} on ${dir.sideCollapsed} edge`);
-      }
-      
-      return isCompatible;
-    });
+    neighborCell.possibilities = neighborCell.possibilities.filter(
+      (candidateIndex) => {
+        const candidateTile = availableTiles[candidateIndex];
+        if (!candidateTile) {
+          console.error(
+            `Candidate tile at index ${candidateIndex} not found in availableTiles array`
+          );
+          return false;
+        }
 
-    console.log(`Cell (${newRow},${newCol}) possibilities pruned from [${beforePossibilities.join(',')}] to [${neighborCell.possibilities.join(',')}]`);
+        // Use our edgesAreCompatible utility.
+        // For a neighbor on the right (for example), we pass side = 'right' so that:
+        // collapsedTile's right edge is compared with candidateTile's left edge.
+        const isCompatible = edgesAreCompatible(
+          collapsedTile,
+          candidateTile,
+          dir.sideCollapsed
+        );
+
+        if (!isCompatible) {
+          console.log(
+            `Tile ${candidateIndex} is not compatible with tile ${selectedTileIndex} on ${dir.sideCollapsed} edge`
+          );
+        }
+
+        return isCompatible;
+      }
+    );
+
+    console.log(
+      `Cell (${newRow},${newCol}) possibilities pruned from [${beforePossibilities.join(
+        ","
+      )}] to [${neighborCell.possibilities.join(",")}]`
+    );
 
     // If the neighbor's possibilities were pruned, we need to propagate constraints recursively.
     if (neighborCell.possibilities.length < oldLength) {
@@ -219,7 +245,9 @@ export function rotateTile(tile, times = 1) {
     const oldGrid = newTile.grid;
     const nRows = oldGrid.length;
     const nCols = oldGrid[0].length;
-    const rotated = Array.from({ length: nCols }, () => Array(nRows).fill(null));
+    const rotated = Array.from({ length: nCols }, () =>
+      Array(nRows).fill(null)
+    );
     for (let i = 0; i < nRows; i++) {
       for (let j = 0; j < nCols; j++) {
         rotated[j][nRows - 1 - i] = oldGrid[i][j];
@@ -233,6 +261,6 @@ export function rotateTile(tile, times = 1) {
 // Mirror a tile horizontally (flip left/right)
 export function mirrorTile(tile) {
   let newTile = JSON.parse(JSON.stringify(tile));
-  newTile.grid = newTile.grid.map(row => row.slice().reverse());
+  newTile.grid = newTile.grid.map((row) => row.slice().reverse());
   return newTile;
 }

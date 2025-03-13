@@ -23,6 +23,7 @@ function WFC({ tiles }) {
 
   // Use effectiveTiles which is either the passed tiles or a fallback array
   const effectiveTiles = useMemo(() => {
+    console.log("tiles changed");
     return tiles.length > 0 ? tiles : [fallbackTile];
   }, [tiles]);
 
@@ -240,7 +241,9 @@ function WFC({ tiles }) {
           const prev = historyStack.pop();
           currentGrid = prev.grid;
           backtracks++;
-          console.log(`Backtracked to previous state (backtrack #${backtracks})`);
+          console.log(
+            `Backtracked to previous state (backtrack #${backtracks})`
+          );
           // In a more complete solution, we would remove the previously tried possibility
           // and try a different one in that cell. For simplicity, we assume the history
           // already stored the "failed" collapse so that on backtracking, another collapse will occur.
@@ -291,7 +294,9 @@ function WFC({ tiles }) {
           const prev = historyStack.pop();
           currentGrid = prev.grid;
           backtracks++;
-          console.log(`Backtracked to previous state (backtrack #${backtracks})`);
+          console.log(
+            `Backtracked to previous state (backtrack #${backtracks})`
+          );
           continue;
         }
         // Randomly select from the available possibilities
@@ -324,7 +329,10 @@ function WFC({ tiles }) {
         currentGrid = newGrid;
       }
     } catch (error) {
-      console.error("Error occurred in runWFCAlgorithmWithBacktracking:", error);
+      console.error(
+        "Error occurred in runWFCAlgorithmWithBacktracking:",
+        error
+      );
     }
 
     if (iterations >= maxIterations) {
