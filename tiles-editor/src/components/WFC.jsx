@@ -313,11 +313,6 @@ function WFC({ tiles }) {
     );
   };
 
-  // Handler to collapse a single cell
-  const handleCollapseCell = () => {
-    const newGrid = collapseCell(grid);
-    setGrid(newGrid);
-  };
 
   return (
     <div className="wfc-container">
