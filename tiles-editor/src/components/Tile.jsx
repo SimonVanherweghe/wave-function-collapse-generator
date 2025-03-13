@@ -39,7 +39,7 @@ function Tile({ tile, onUpdate }) {
             {row.map((cell, colIndex) => (
               <div
                 key={colIndex}
-                data-testid={`cell-${rowIndex}-${colIndex}`}
+                data-testid={`tile-${tileId}-cell-${rowIndex}-${colIndex}`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 className={`grid-cell ${cell ? "active" : ""}`}
               />
