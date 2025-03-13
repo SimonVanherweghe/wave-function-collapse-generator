@@ -5,9 +5,14 @@ function WFC({ tiles }) {
   const numRows = 10;
   const numCols = 10;
   
-  // Initialize the grid (each cell starts as null)
+  // Compute possibility set from available tiles (using their indexes)
+  const possibilitySet = tiles.map((_, index) => index);
+
+  // Initialize the grid (each cell contains its possibilities)
   const [grid, setGrid] = useState(
-    Array.from({ length: numRows }, () => Array(numCols).fill(null))
+    Array.from({ length: numRows }, () =>
+      Array.from({ length: numCols }, () => ({ possibilities: [...possibilitySet] }))
+    )
   );
   
   // Handler for the Run WFC button (logic to be added later)
@@ -25,9 +30,9 @@ function WFC({ tiles }) {
               key={`${rowIndex}-${colIndex}`}
               data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
               className="wfc-cell"
-              style={{ width: '30px', height: '30px', border: '1px solid #ccc' }}
+              style={{ width: '30px', height: '30px', border: '1px solid #ccc', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
             >
-              {cell}
+              {cell.possibilities.length}
             </div>
           ))
         )}

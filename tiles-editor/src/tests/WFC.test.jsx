@@ -16,4 +16,24 @@ describe('WFC Component', () => {
     );
     expect(cells.length).toBe(100);
   });
+
+  it('initializes every grid cell with the full set of tile possibilities', () => {
+    // Create a dummy tiles array with 5 items (could be empty objects).
+    const dummyTiles = [ {}, {}, {}, {}, {} ];
+    
+    render(<WFC tiles={dummyTiles} />);
+    
+    // Expect grid dimensions: 10 x 10 cells
+    const cells = screen.getAllByTestId((content, element) =>
+      element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+    );
+    
+    // Check that there are 100 cells.
+    expect(cells.length).toBe(100);
+    
+    // For each cell, expect its inner text (possibility count) to equal dummyTiles.length (i.e., 5).
+    cells.forEach(cell => {
+      expect(cell.textContent).toBe('5');
+    });
+  });
 });
