@@ -128,7 +128,7 @@ export function collapseCell(grid) {
   const newGrid = grid.map((r, i) =>
     r.map((cellObj, j) =>
       i === row && j === col
-        ? { possibilities: [chosen] } // collapse this cell
+        ? { possibilities: [chosen], collapsed: true } // collapse this cell and mark it as collapsed
         : cellObj
     )
   );
