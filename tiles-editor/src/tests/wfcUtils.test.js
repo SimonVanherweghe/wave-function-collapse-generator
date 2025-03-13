@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getEdge, edgesAreCompatible, findLowestEntropyCell, collapseCell } from '../wfcUtils';
+import { getEdge, edgesAreCompatible, findLowestEntropyCell, collapseCell, propagateConstraints } from '../wfcUtils';
 
 describe('wfcUtils - getEdge', () => {
   const sampleTile = {
@@ -121,5 +121,73 @@ describe('WFC Collapse Logic', () => {
     // Since every cell is already collapsed (possibilities length === 1), the function should leave the grid unchanged.
     const newGrid = collapseCell(grid);
     expect(newGrid).toEqual(grid);
+  });
+});
+
+describe('Constraint Propagation', () => {
+  // A helper: create a dummy tile definition with a grid.
+  // For simplicity, our tile grids will be arrays of single numbers representing edges.
+  const createTile = (value) => ({
+    grid: [
+      [value, value, value],
+      [value, value, value],
+      [value, value, value],
+    ]
+  });
+
+  // For compatibility, we define that two tiles are compatible if their corresponding edges are equal.
+  // Our existing edgesAreCompatible function uses strict equality.
+
+  // Dummy availableTiles array:
+  const tileA = createTile(1); // All edges are 1.
+  const tileB = createTile(2); // All edges are 2.
+  const tileC = createTile(1); // Identical to tileA.
+  const availableTiles = [ tileA, tileB, tileC ];
+
+  it('prunes neighboring cells based on edge compatibility', () => {
+    // Create a 3x3 grid.
+    const grid = Array.from({ length: 3 }, () =>
+      Array.from({ length: 3 }, () => ({ possibilities: [0, 1, 2] }))
+    );
+    // Collapse the center cell (1,1) to tileA (index 0); tileA has edges value 1.
+    grid[1][1] = { possibilities: [0] };
+
+    // Before propagation, neighbor cells have possibility set of length 3.
+    expect(grid[1][0].possibilities.length).toBe(3);
+    expect(grid[0][1].possibilities.length).toBe(3);
+
+    // Run propagation from the collapsed cell.
+    propagateConstraints(grid, 1, 1, availableTiles);
+
+    // Since tileA is collapsed and its edge value is 1,
+    // only availableTiles with edge value 1 (tileA at index 0 and tileC at index 2) are compatible.
+    // Hence, each neighbor should prune to only possibilities [0,2].
+    const expectedPruned = [0, 2];
+
+    // Check a few neighbor cells.
+    expect(grid[1][0].possibilities).toEqual(expectedPruned);
+    expect(grid[0][1].possibilities).toEqual(expectedPruned);
+    expect(grid[1][2].possibilities).toEqual(expectedPruned);
+    expect(grid[2][1].possibilities).toEqual(expectedPruned);
+  });
+
+  it('recursively propagates changes', () => {
+    // Create a 3x3 grid with all cells full possibilities.
+    const grid = Array.from({ length: 3 }, () =>
+      Array.from({ length: 3 }, () => ({ possibilities: [0,1,2] }))
+    );
+    // Collapse the top-left cell (0,0) to tileB (index 1); tileB has edges 2.
+    grid[0][0] = { possibilities: [1] };
+
+    // Recursively propagate starting from (0,0)
+    propagateConstraints(grid, 0, 0, availableTiles);
+
+    // For a neighbor to be compatible with tileB (all edges value 2),
+    // only available tile with edges value 2 is tileB.
+    // So, the direct neighbors of (0,0) should be pruned to [1].
+    expect(grid[0][1].possibilities).toEqual([1]);
+    expect(grid[1][0].possibilities).toEqual([1]);
+    // And propagation should cascade: (1,1) becomes [1] because of its neighbor.
+    expect(grid[1][1].possibilities).toEqual([1]);
   });
 });

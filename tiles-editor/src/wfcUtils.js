@@ -121,3 +121,54 @@ export function collapseCell(grid) {
   );
   return newGrid;
 }
+
+/*
+  Recursively update neighbors' possibility sets based on the collapsed cell at (row, col).
+  It assumes that the cell at (row, col) is collapsed (its possibilities array length is exactly 1).
+  availableTiles is the array of available tile definitions.
+*/
+export function propagateConstraints(grid, row, col, availableTiles) {
+  const cell = grid[row][col];
+  if (cell.possibilities.length !== 1) return; // should be collapsed
+  
+  // Get the collapsed tile information.
+  const selectedTileIndex = cell.possibilities[0];
+  const collapsedTile = availableTiles[selectedTileIndex];
+
+  // Define relative directions with the corresponding sides:
+  const directions = [
+    { dr: -1, dc: 0, sideCollapsed: 'top', sideNeighbor: 'bottom' },
+    { dr: 1,  dc: 0, sideCollapsed: 'bottom', sideNeighbor: 'top' },
+    { dr: 0,  dc: -1, sideCollapsed: 'left', sideNeighbor: 'right' },
+    { dr: 0,  dc: 1, sideCollapsed: 'right', sideNeighbor: 'left' }
+  ];
+
+  directions.forEach(dir => {
+    const newRow = row + dir.dr;
+    const newCol = col + dir.dc;
+    // Skip out-of-bound indices.
+    if (newRow < 0 || newRow >= grid.length || newCol < 0 || newCol >= grid[0].length) return;
+
+    const neighborCell = grid[newRow][newCol];
+    // If neighbor is already collapsed, skip.
+    if (neighborCell.possibilities.length === 1) return;
+
+    // Store the current count to check if pruning occurs.
+    const oldLength = neighborCell.possibilities.length;
+
+    // Filter neighbor possibilities by keeping only those candidate indices for which
+    // the edge of the collapsed tile on the given side is compatible with the candidate's complementary edge.
+    neighborCell.possibilities = neighborCell.possibilities.filter(candidateIndex => {
+      const candidateTile = availableTiles[candidateIndex];
+      // Use our edgesAreCompatible utility.
+      // For a neighbor on the right (for example), we pass side = 'right' so that:
+      // collapsedTile's right edge is compared with candidateTile's left edge.
+      return edgesAreCompatible(collapsedTile, candidateTile, dir.sideCollapsed);
+    });
+
+    // If the neighbor's possibilities were pruned, we need to propagate constraints recursively.
+    if (neighborCell.possibilities.length < oldLength) {
+      propagateConstraints(grid, newRow, newCol, availableTiles);
+    }
+  });
+}
