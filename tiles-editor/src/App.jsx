@@ -30,8 +30,15 @@ function App() {
       </div>
     );
   }
-  const defaultTile = {
+  // Create two different default tiles for better WFC results
+  const defaultTileFalse = {
     grid: Array(5).fill(null).map(() => Array(5).fill(false)),
+    rotationEnabled: false,
+    mirrorEnabled: false,
+  };
+  
+  const defaultTileTrue = {
+    grid: Array(5).fill(null).map(() => Array(5).fill(true)),
     rotationEnabled: false,
     mirrorEnabled: false,
   };
@@ -39,7 +46,7 @@ function App() {
   const [tiles, setTiles] = useState(() => {
     // Load from localStorage if available
     const savedTiles = localStorage.getItem('tiles');
-    return savedTiles ? JSON.parse(savedTiles) : [defaultTile];
+    return savedTiles ? JSON.parse(savedTiles) : [defaultTileFalse, defaultTileTrue];
   });
 
   // Save tiles to localStorage whenever they change
@@ -58,7 +65,7 @@ function App() {
 
   // Add a new tile
   const handleAddTile = () => {
-    setTiles([...tiles, JSON.parse(JSON.stringify(defaultTile))]);
+    setTiles([...tiles, JSON.parse(JSON.stringify(defaultTileFalse))]);
   };
 
   // Remove a specific tile

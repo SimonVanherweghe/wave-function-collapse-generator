@@ -27,6 +27,19 @@ function arraysEqual(a, b) {
   return true;
 }
 
+// Helper function: logs the current state of the grid for debugging
+function logGridState(grid) {
+  console.log("Current grid state:");
+  grid.forEach((row, i) => {
+    const rowStr = row.map(cell => 
+      cell.possibilities.length === 1 ? 
+      `[${cell.possibilities[0]}]` : 
+      `(${cell.possibilities.length})`
+    ).join(' ');
+    console.log(`Row ${i}: ${rowStr}`);
+  });
+}
+
 /*
   edgesAreCompatible accepts either two complete tile objects or two already extracted edge arrays,
   plus a side parameter.
@@ -135,6 +148,11 @@ export function propagateConstraints(grid, row, col, availableTiles) {
   const selectedTileIndex = cell.possibilities[0];
   const collapsedTile = availableTiles[selectedTileIndex];
 
+  if (!collapsedTile) {
+    console.error(`Tile at index ${selectedTileIndex} not found in availableTiles array`);
+    return;
+  }
+
   // Define relative directions with the corresponding sides:
   const directions = [
     { dr: -1, dc: 0, sideCollapsed: 'top', sideNeighbor: 'bottom' },
@@ -156,15 +174,33 @@ export function propagateConstraints(grid, row, col, availableTiles) {
     // Store the current count to check if pruning occurs.
     const oldLength = neighborCell.possibilities.length;
 
+    // Get the edge of the collapsed tile that faces the neighbor
+    const collapsedEdge = getEdge(collapsedTile, dir.sideCollapsed);
+    console.log(`Cell (${row},${col}) with tile ${selectedTileIndex} has ${dir.sideCollapsed} edge:`, collapsedEdge);
+
     // Filter neighbor possibilities by keeping only those candidate indices for which
     // the edge of the collapsed tile on the given side is compatible with the candidate's complementary edge.
+    const beforePossibilities = [...neighborCell.possibilities];
     neighborCell.possibilities = neighborCell.possibilities.filter(candidateIndex => {
       const candidateTile = availableTiles[candidateIndex];
+      if (!candidateTile) {
+        console.error(`Candidate tile at index ${candidateIndex} not found in availableTiles array`);
+        return false;
+      }
+      
       // Use our edgesAreCompatible utility.
       // For a neighbor on the right (for example), we pass side = 'right' so that:
       // collapsedTile's right edge is compared with candidateTile's left edge.
-      return edgesAreCompatible(collapsedTile, candidateTile, dir.sideCollapsed);
+      const isCompatible = edgesAreCompatible(collapsedTile, candidateTile, dir.sideCollapsed);
+      
+      if (!isCompatible) {
+        console.log(`Tile ${candidateIndex} is not compatible with tile ${selectedTileIndex} on ${dir.sideCollapsed} edge`);
+      }
+      
+      return isCompatible;
     });
+
+    console.log(`Cell (${newRow},${newCol}) possibilities pruned from [${beforePossibilities.join(',')}] to [${neighborCell.possibilities.join(',')}]`);
 
     // If the neighbor's possibilities were pruned, we need to propagate constraints recursively.
     if (neighborCell.possibilities.length < oldLength) {
