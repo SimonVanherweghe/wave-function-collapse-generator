@@ -208,3 +208,31 @@ export function propagateConstraints(grid, row, col, availableTiles) {
     }
   });
 }
+// Rotate a tile's grid clockwise by 90 degrees, repeated 'times' times.
+export function rotateTile(tile, times = 1) {
+  // Deep clone the tile to avoid mutation.
+  let newTile = JSON.parse(JSON.stringify(tile));
+  // Normalize times to 0..3
+  times = times % 4;
+  for (let t = 0; t < times; t++) {
+    // Rotate the grid: for a grid M x N, newGrid[j][M - 1 - i] = grid[i][j]
+    const oldGrid = newTile.grid;
+    const nRows = oldGrid.length;
+    const nCols = oldGrid[0].length;
+    const rotated = Array.from({ length: nCols }, () => Array(nRows).fill(null));
+    for (let i = 0; i < nRows; i++) {
+      for (let j = 0; j < nCols; j++) {
+        rotated[j][nRows - 1 - i] = oldGrid[i][j];
+      }
+    }
+    newTile.grid = rotated;
+  }
+  return newTile;
+}
+
+// Mirror a tile horizontally (flip left/right)
+export function mirrorTile(tile) {
+  let newTile = JSON.parse(JSON.stringify(tile));
+  newTile.grid = newTile.grid.map(row => row.slice().reverse());
+  return newTile;
+}

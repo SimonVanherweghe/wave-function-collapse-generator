@@ -4,7 +4,9 @@ import {
   collapseCell,
   propagateConstraints,
   findLowestEntropyCell,
-  logGridState
+  logGridState,
+  rotateTile,
+  mirrorTile
 } from "../wfcUtils";
 
 function WFC({ tiles }) {
@@ -12,8 +14,37 @@ function WFC({ tiles }) {
   const numRows = 10;
   const numCols = 10;
 
-  // Always compute possibility set from the current tile list
-  const possibilitySet = useMemo(() => tiles.map((_, index) => index), [tiles]);
+  // Process the raw tile list to include rotated and mirrored variants if enabled.
+  const processedTiles = useMemo(() => {
+    let result = [];
+    tiles.forEach((tile) => {
+      // Always include the original tile.
+      result.push(tile);
+      
+      // If rotationEnabled, add rotated variants (only add unique ones)
+      if (tile.rotationEnabled) {
+        for (let i = 1; i < 4; i++) {
+          const rotated = rotateTile(tile, i);
+          // Check uniqueness by comparing stringified grids.
+          if (!result.some(t => JSON.stringify(t.grid) === JSON.stringify(rotated.grid))) {
+            result.push(rotated);
+          }
+        }
+      }
+      // If mirrorEnabled, add the mirrored variant.
+      if (tile.mirrorEnabled) {
+        const mirrored = mirrorTile(tile);
+        if (!result.some(t => JSON.stringify(t.grid) === JSON.stringify(mirrored.grid))) {
+          result.push(mirrored);
+        }
+      }
+    });
+    console.log("Processed Tiles:", result.length);
+    return result;
+  }, [tiles]);
+
+  // Always compute possibility set from the processed tile list
+  const possibilitySet = useMemo(() => processedTiles.map((_, index) => index), [processedTiles]);
 
   // Function to generate a fresh grid
   const generateGrid = () =>
@@ -27,10 +58,10 @@ function WFC({ tiles }) {
   // Initialize the grid
   const [grid, setGrid] = useState(generateGrid());
 
-  // If tiles change, reset the grid
+  // If processed tiles change, reset the grid
   useEffect(() => {
     setGrid(generateGrid());
-  }, [possibilitySet]); // possibilitySet changes when tiles change
+  }, [possibilitySet]); // possibilitySet changes when processedTiles change
 
   // Helper function to check if the grid is fully collapsed or if a contradiction occurs.
   const gridStatus = (grid) => {
@@ -56,7 +87,7 @@ function WFC({ tiles }) {
   // Original WFC algorithm without backtracking
   const runWFCAlgorithm = () => {
     console.log("Running WFC algorithm...");
-    console.log("Available tiles:", tiles.length);
+    console.log("Available tiles:", processedTiles.length);
 
     // Use a local copy of the grid state.
     let currentGrid = grid;
@@ -122,7 +153,7 @@ function WFC({ tiles }) {
           newGrid,
           collapsedCell.row,
           collapsedCell.col,
-          tiles
+          processedTiles
         );
         console.log("After propagation:");
         logGridState(newGrid);
@@ -143,7 +174,7 @@ function WFC({ tiles }) {
   // New backtracking version of the algorithm
   const runWFCAlgorithmWithBacktracking = () => {
     console.log("Running WFC algorithm with backtracking...");
-    console.log("Available tiles:", tiles.length);
+    console.log("Available tiles:", processedTiles.length);
     console.log("Initial possibility set:", possibilitySet);
 
     // Make a local copy of the grid.
@@ -255,7 +286,7 @@ function WFC({ tiles }) {
       );
       // Propagate constraints from the collapsed cell.
       console.log(`Propagating constraints from cell (${row}, ${col})`);
-      propagateConstraints(newGrid, row, col, tiles);
+      propagateConstraints(newGrid, row, col, processedTiles);
       console.log("After propagation:");
       logGridState(newGrid);
 
@@ -300,7 +331,7 @@ function WFC({ tiles }) {
                 className={`wfc-cell ${cell.collapsed ? 'wfc-cell-collapsed' : 'wfc-cell-uncollapsed'}`}
               >
                 {cell.collapsed
-                  ? <TilePreview tile={tiles[cell.possibilities[0]]} />
+                  ? <TilePreview tile={processedTiles[cell.possibilities[0]]} />
                   : cell.possibilities.length}
               </div>
             );
