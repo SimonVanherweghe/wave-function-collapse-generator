@@ -3,6 +3,7 @@ import {
   collapseCell,
   propagateConstraints,
   findLowestEntropyCell,
+  logGridState
 } from "../wfcUtils";
 
 function WFC({ tiles }) {

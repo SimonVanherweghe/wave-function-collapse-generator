@@ -28,7 +28,7 @@ function arraysEqual(a, b) {
 }
 
 // Helper function: logs the current state of the grid for debugging
-function logGridState(grid) {
+export function logGridState(grid) {
   console.log("Current grid state:");
   grid.forEach((row, i) => {
     const rowStr = row.map(cell => 
