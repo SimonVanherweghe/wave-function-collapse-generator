@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function Tile({ tile, tileId, onUpdate }) {
+function Tile({ tile, onUpdate }) {
   const [grid, setGrid] = useState(tile.grid);
   const [rotationEnabled, setRotationEnabled] = useState(tile.rotationEnabled);
   const [mirrorEnabled, setMirrorEnabled] = useState(tile.mirrorEnabled);
@@ -37,7 +37,7 @@ function Tile({ tile, tileId, onUpdate }) {
             {row.map((cell, colIndex) => (
               <div
                 key={colIndex}
-                data-testid={`tile-${tileId}-cell-${rowIndex}-${colIndex}`}
+                data-testid={`cell-${rowIndex}-${colIndex}`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 className={`grid-cell ${cell ? "active" : ""}`}
               />
