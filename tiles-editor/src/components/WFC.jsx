@@ -120,68 +120,72 @@ function WFC({ tiles }) {
     // Log initial grid state
     logGridState(currentGrid);
 
-    while (iterations < maxIterations) {
-      iterations++;
-      const { allCollapsed, contradiction } = gridStatus(currentGrid);
-      if (contradiction) {
-        console.error("Contradiction encountered – aborting algorithm");
-        break;
-      }
-      if (allCollapsed) {
-        console.log(
-          "All cells collapsed successfully after",
-          iterations,
-          "iterations"
-        );
-        break;
-      }
-
-      // Find cell with lowest entropy
-      const lowestEntropyCell = findLowestEntropyCell(currentGrid);
-      if (lowestEntropyCell.row === -1) {
-        console.log("No cells to collapse - algorithm complete");
-        break;
-      }
-      console.log(
-        `Iteration ${iterations}: Collapsing cell at (${lowestEntropyCell.row}, ${lowestEntropyCell.col})`
-      );
-
-      // Collapse one cell: use collapseCell which returns a new grid
-      const newGrid = collapseCell(currentGrid);
-
-      // Find which cell was collapsed.
-      let collapsedCell = null;
-      for (let i = 0; i < currentGrid.length; i++) {
-        for (let j = 0; j < currentGrid[0].length; j++) {
-          if (
-            currentGrid[i][j].possibilities.length > 1 &&
-            newGrid[i][j].possibilities.length === 1
-          ) {
-            collapsedCell = { row: i, col: j };
-            console.log(
-              `Cell (${i}, ${j}) collapsed to value: ${newGrid[i][j].possibilities[0]}`
-            );
-            break;
-          }
+    try {
+      while (iterations < maxIterations) {
+        iterations++;
+        const { allCollapsed, contradiction } = gridStatus(currentGrid);
+        if (contradiction) {
+          console.error("Contradiction encountered – aborting algorithm");
+          break;
         }
-        if (collapsedCell) break;
-      }
-      // Propagate constraints from the collapsed cell.
-      if (collapsedCell) {
+        if (allCollapsed) {
+          console.log(
+            "All cells collapsed successfully after",
+            iterations,
+            "iterations"
+          );
+          break;
+        }
+
+        // Find cell with lowest entropy
+        const lowestEntropyCell = findLowestEntropyCell(currentGrid);
+        if (lowestEntropyCell.row === -1) {
+          console.log("No cells to collapse - algorithm complete");
+          break;
+        }
         console.log(
-          `Propagating constraints from cell (${collapsedCell.row}, ${collapsedCell.col})`
+          `Iteration ${iterations}: Collapsing cell at (${lowestEntropyCell.row}, ${lowestEntropyCell.col})`
         );
-        propagateConstraints(
-          newGrid,
-          collapsedCell.row,
-          collapsedCell.col,
-          processedTiles
-        );
-        console.log("After propagation:");
-        logGridState(newGrid);
+
+        // Collapse one cell: use collapseCell which returns a new grid
+        const newGrid = collapseCell(currentGrid);
+
+        // Find which cell was collapsed.
+        let collapsedCell = null;
+        for (let i = 0; i < currentGrid.length; i++) {
+          for (let j = 0; j < currentGrid[0].length; j++) {
+            if (
+              currentGrid[i][j].possibilities.length > 1 &&
+              newGrid[i][j].possibilities.length === 1
+            ) {
+              collapsedCell = { row: i, col: j };
+              console.log(
+                `Cell (${i}, ${j}) collapsed to value: ${newGrid[i][j].possibilities[0]}`
+              );
+              break;
+            }
+          }
+          if (collapsedCell) break;
+        }
+        // Propagate constraints from the collapsed cell.
+        if (collapsedCell) {
+          console.log(
+            `Propagating constraints from cell (${collapsedCell.row}, ${collapsedCell.col})`
+          );
+          propagateConstraints(
+            newGrid,
+            collapsedCell.row,
+            collapsedCell.col,
+            processedTiles
+          );
+          console.log("After propagation:");
+          logGridState(newGrid);
+        }
+        // Update our current grid for next iteration.
+        currentGrid = newGrid;
       }
-      // Update our current grid for next iteration.
-      currentGrid = newGrid;
+    } catch (error) {
+      console.error("Error occurred in runWFCAlgorithm:", error);
     }
 
     if (iterations >= maxIterations) {
@@ -212,111 +216,115 @@ function WFC({ tiles }) {
     // Log initial grid state
     logGridState(currentGrid);
 
-    while (iterations < maxIterations) {
-      iterations++;
-      const { allCollapsed, contradiction } = gridStatus(currentGrid);
-      if (allCollapsed) {
-        console.log(
-          "All cells collapsed successfully after",
-          iterations,
-          "iterations with",
-          backtracks,
-          "backtracks"
-        );
-        break; // finished!
-      }
-      if (contradiction) {
-        // If contradiction occurs, backtrack if possible.
-        console.log("Contradiction detected - attempting to backtrack");
-        if (historyStack.length === 0 || backtracks >= maxBacktracks) {
-          console.error("Backtracking exhausted - contradiction unresolved");
-          break;
-        }
-        const prev = historyStack.pop();
-        currentGrid = prev.grid;
-        backtracks++;
-        console.log(`Backtracked to previous state (backtrack #${backtracks})`);
-        // In a more complete solution, we would remove the previously tried possibility
-        // and try a different one in that cell. For simplicity, we assume the history
-        // already stored the "failed" collapse so that on backtracking, another collapse will occur.
-        continue;
-      }
-      // Find cell with lowest entropy.
-      const { row, col } = findLowestEntropyCell(currentGrid);
-      if (row === -1) {
-        console.log("No cells to collapse - algorithm complete");
-        break; // nothing to collapse
-      }
-
-      console.log(
-        `Iteration ${iterations}: Processing cell at (${row}, ${col}) with ${currentGrid[row][col].possibilities.length} possibilities`
-      );
-
-      const cell = currentGrid[row][col];
-      // If the cell is ambiguous (possibilities.length > 1), try a possibility.
-      // Try the first possibility that has not been tried for this cell.
-      let triedPossibilities = [];
-      // See if we already have a record for this cell in history.
-      const existingRecord = historyStack.find(
-        (rec) => rec.row === row && rec.col === col
-      );
-      if (existingRecord) {
-        triedPossibilities = existingRecord.triedPossibilities;
-        console.log(
-          `Cell (${row}, ${col}) has been tried before with possibilities: ${triedPossibilities.join(
-            ", "
-          )}`
-        );
-      }
-      // Find a possibility not yet tried.
-      const possibleChoices = cell.possibilities.filter(
-        (p) => !triedPossibilities.includes(p)
-      );
-      if (possibleChoices.length === 0) {
-        // Nothing left to try in this cell: contradiction; backtrack.
-        console.log(
-          `No untried possibilities for cell (${row}, ${col}) - need to backtrack`
-        );
-        if (historyStack.length === 0 || backtracks >= maxBacktracks) {
-          console.error(
-            "No possibilities remain for cell - backtracking aborted"
+    try {
+      while (iterations < maxIterations) {
+        iterations++;
+        const { allCollapsed, contradiction } = gridStatus(currentGrid);
+        if (allCollapsed) {
+          console.log(
+            "All cells collapsed successfully after",
+            iterations,
+            "iterations with",
+            backtracks,
+            "backtracks"
           );
-          break;
+          break; // finished!
         }
-        const prev = historyStack.pop();
-        currentGrid = prev.grid;
-        backtracks++;
-        console.log(`Backtracked to previous state (backtrack #${backtracks})`);
-        continue;
+        if (contradiction) {
+          // If contradiction occurs, backtrack if possible.
+          console.log("Contradiction detected - attempting to backtrack");
+          if (historyStack.length === 0 || backtracks >= maxBacktracks) {
+            console.error("Backtracking exhausted - contradiction unresolved");
+            break;
+          }
+          const prev = historyStack.pop();
+          currentGrid = prev.grid;
+          backtracks++;
+          console.log(`Backtracked to previous state (backtrack #${backtracks})`);
+          // In a more complete solution, we would remove the previously tried possibility
+          // and try a different one in that cell. For simplicity, we assume the history
+          // already stored the "failed" collapse so that on backtracking, another collapse will occur.
+          continue;
+        }
+        // Find cell with lowest entropy.
+        const { row, col } = findLowestEntropyCell(currentGrid);
+        if (row === -1) {
+          console.log("No cells to collapse - algorithm complete");
+          break; // nothing to collapse
+        }
+
+        console.log(
+          `Iteration ${iterations}: Processing cell at (${row}, ${col}) with ${currentGrid[row][col].possibilities.length} possibilities`
+        );
+
+        const cell = currentGrid[row][col];
+        // If the cell is ambiguous (possibilities.length > 1), try a possibility.
+        // Try the first possibility that has not been tried for this cell.
+        let triedPossibilities = [];
+        // See if we already have a record for this cell in history.
+        const existingRecord = historyStack.find(
+          (rec) => rec.row === row && rec.col === col
+        );
+        if (existingRecord) {
+          triedPossibilities = existingRecord.triedPossibilities;
+          console.log(
+            `Cell (${row}, ${col}) has been tried before with possibilities: ${triedPossibilities.join(
+              ", "
+            )}`
+          );
+        }
+        // Find a possibility not yet tried.
+        const possibleChoices = cell.possibilities.filter(
+          (p) => !triedPossibilities.includes(p)
+        );
+        if (possibleChoices.length === 0) {
+          // Nothing left to try in this cell: contradiction; backtrack.
+          console.log(
+            `No untried possibilities for cell (${row}, ${col}) - need to backtrack`
+          );
+          if (historyStack.length === 0 || backtracks >= maxBacktracks) {
+            console.error(
+              "No possibilities remain for cell - backtracking aborted"
+            );
+            break;
+          }
+          const prev = historyStack.pop();
+          currentGrid = prev.grid;
+          backtracks++;
+          console.log(`Backtracked to previous state (backtrack #${backtracks})`);
+          continue;
+        }
+        // Randomly select from the available possibilities
+        const chosen =
+          possibleChoices[Math.floor(Math.random() * possibleChoices.length)];
+        console.log(`Collapsing cell (${row}, ${col}) to value: ${chosen}`);
+
+        // Save current state along with the fact that we are trying this possibility.
+        historyStack.push({
+          grid: JSON.parse(JSON.stringify(currentGrid)), // Deep clone the grid
+          row,
+          col,
+          triedPossibilities: [...triedPossibilities, chosen],
+        });
+        // Collapse the cell by forcing its possibilities to only the chosen.
+        const newGrid = currentGrid.map((r, i) =>
+          r.map((cellObj, j) =>
+            i === row && j === col
+              ? { possibilities: [chosen], collapsed: true }
+              : cellObj
+          )
+        );
+        // Propagate constraints from the collapsed cell.
+        console.log(`Propagating constraints from cell (${row}, ${col})`);
+        propagateConstraints(newGrid, row, col, processedTiles);
+        console.log("After propagation:");
+        logGridState(newGrid);
+
+        // Update currentGrid.
+        currentGrid = newGrid;
       }
-      // Randomly select from the available possibilities
-      const chosen =
-        possibleChoices[Math.floor(Math.random() * possibleChoices.length)];
-      console.log(`Collapsing cell (${row}, ${col}) to value: ${chosen}`);
-
-      // Save current state along with the fact that we are trying this possibility.
-      historyStack.push({
-        grid: JSON.parse(JSON.stringify(currentGrid)), // Deep clone the grid
-        row,
-        col,
-        triedPossibilities: [...triedPossibilities, chosen],
-      });
-      // Collapse the cell by forcing its possibilities to only the chosen.
-      const newGrid = currentGrid.map((r, i) =>
-        r.map((cellObj, j) =>
-          i === row && j === col
-            ? { possibilities: [chosen], collapsed: true }
-            : cellObj
-        )
-      );
-      // Propagate constraints from the collapsed cell.
-      console.log(`Propagating constraints from cell (${row}, ${col})`);
-      propagateConstraints(newGrid, row, col, processedTiles);
-      console.log("After propagation:");
-      logGridState(newGrid);
-
-      // Update currentGrid.
-      currentGrid = newGrid;
+    } catch (error) {
+      console.error("Error occurred in runWFCAlgorithmWithBacktracking:", error);
     }
 
     if (iterations >= maxIterations) {
