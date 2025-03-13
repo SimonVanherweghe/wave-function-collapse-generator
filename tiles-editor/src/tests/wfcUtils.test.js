@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getEdge, edgesAreCompatible, findLowestEntropyCell, collapseCell, propagateConstraints } from '../wfcUtils';
+import { getEdge, edgesAreCompatible, findLowestEntropyCell, collapseCell, propagateConstraints, rotateTile, mirrorTile } from '../wfcUtils';
 
 describe('wfcUtils - getEdge', () => {
   const sampleTile = {
