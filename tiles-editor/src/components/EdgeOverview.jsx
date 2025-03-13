@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState, useMemo } from 'react';
 
 const EdgeOverview = ({ tiles }) => {
-  const [edges, setEdges] = useState({});
   const [autoUpdate, setAutoUpdate] = useState(true);
   
-  // Calculate edges based on tiles
-  const calculateEdges = () => {
+  // Compute edges from tiles whenever tiles change
+  const autoComputedEdges = useMemo(() => {
     const extractedEdges = {};
     
     tiles.forEach(tile => {
@@ -28,15 +27,14 @@ const EdgeOverview = ({ tiles }) => {
       });
     });
     
-    setEdges(extractedEdges);
-  };
-
-  // Extract edges from tiles when in auto-update mode
-  useEffect(() => {
-    if (autoUpdate) {
-      calculateEdges();
-    }
-  }, [tiles, autoUpdate]);
+    return extractedEdges;
+  }, [tiles]);
+  
+  // Store manual edges when autoUpdate is off
+  const [manualEdges, setManualEdges] = useState(autoComputedEdges);
+  
+  // When in manual mode, choose which edges to render
+  const edgesToRender = autoUpdate ? autoComputedEdges : manualEdges;
 
   // Extract the four edges from a tile grid
   const extractEdges = (grid) => {
@@ -128,15 +126,11 @@ const EdgeOverview = ({ tiles }) => {
   // Handle toggle of auto-update mode
   const handleAutoUpdateToggle = (e) => {
     setAutoUpdate(e.target.checked);
-    if (e.target.checked) {
-      // Immediately update when switching to auto mode
-      calculateEdges();
-    }
   };
 
   // Handle manual refresh button click
   const handleRefresh = () => {
-    calculateEdges();
+    setManualEdges(autoComputedEdges);
   };
 
   return (
@@ -163,7 +157,7 @@ const EdgeOverview = ({ tiles }) => {
       </div>
       <h3>Unique Edges</h3>
       <div className="edges-container">
-        {Object.entries(edges).map(([edge, count]) => renderEdge(edge, count))}
+        {Object.entries(edgesToRender).map(([edge, count]) => renderEdge(edge, count))}
       </div>
     </div>
   );
