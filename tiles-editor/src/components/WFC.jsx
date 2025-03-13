@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collapseCell, propagateConstraints, findLowestEntropyCell } from '../wfcUtils';
 
 function WFC({ tiles }) {
@@ -6,15 +6,23 @@ function WFC({ tiles }) {
   const numRows = 10;
   const numCols = 10;
   
-  // Compute possibility set from available tiles (using their indexes)
-  const possibilitySet = tiles.map((_, index) => index);
-
-  // Initialize the grid (each cell contains its possibilities)
-  const [grid, setGrid] = useState(
+  // Always compute possibility set from the current tile list
+  const possibilitySet = useMemo(() => tiles.map((_, index) => index), [tiles]);
+  
+  // Function to generate a fresh grid
+  const generateGrid = () => (
     Array.from({ length: numRows }, () =>
       Array.from({ length: numCols }, () => ({ possibilities: [...possibilitySet] }))
     )
   );
+
+  // Initialize the grid
+  const [grid, setGrid] = useState(generateGrid());
+
+  // If tiles change, reset the grid
+  useEffect(() => {
+    setGrid(generateGrid());
+  }, [possibilitySet]); // possibilitySet changes when tiles change
   
   // Helper function to check if the grid is fully collapsed or if a contradiction occurs.
   const gridStatus = (grid) => {
