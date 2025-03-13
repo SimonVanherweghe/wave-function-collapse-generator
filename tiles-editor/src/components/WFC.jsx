@@ -14,10 +14,22 @@ function WFC({ tiles }) {
   const numRows = 10;
   const numCols = 10;
 
-  // Process the raw tile list to include rotated and mirrored variants if enabled.
+  // Define a fallback tile to use if no tiles are provided
+  const fallbackTile = {
+    grid: [[false]], // a minimal non-empty grid
+    rotationEnabled: false,
+    mirrorEnabled: false,
+  };
+
+  // Use effectiveTiles which is either the passed tiles or a fallback array
+  const effectiveTiles = useMemo(() => {
+    return tiles.length > 0 ? tiles : [fallbackTile];
+  }, [tiles]);
+
+  // Process the effective tile list to include rotated and mirrored variants if enabled.
   const processedTiles = useMemo(() => {
     let result = [];
-    tiles.forEach((tile) => {
+    effectiveTiles.forEach((tile) => {
       // Always include the original tile.
       result.push(tile);
       
@@ -41,7 +53,7 @@ function WFC({ tiles }) {
     });
     console.log("Processed Tiles:", result.length);
     return result;
-  }, [tiles]);
+  }, [effectiveTiles]);
 
   // Always compute possibility set from the processed tile list
   const possibilitySet = useMemo(() => processedTiles.map((_, index) => index), [processedTiles]);
