@@ -107,7 +107,7 @@ describe('WFC Integration', () => {
     });
   });
 
-  it('renders fallback TilePreview if a tile is removed after algorithm run', async () => {
+  it('updates the grid when a tile is removed after algorithm run', async () => {
     // Start with a dummy tile set with two tiles.
     const availableTiles = [createDummyTile(1), createDummyTile(1)];
     const { rerender } = render(<WFC tiles={availableTiles} />);
@@ -116,26 +116,27 @@ describe('WFC Integration', () => {
     const runButton = screen.getByTestId('run-wfc-button');
     fireEvent.click(runButton);
     
-    // Wait for some cells to collapse.
+    // Wait for the algorithm to complete.
     await waitFor(() => {
-      const collapsedCells = screen.getAllByTestId((content, element) =>
+      const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       ).filter(cell => cell.classList.contains('wfc-cell-collapsed'));
-      expect(collapsedCells.length).toBeGreaterThan(0);
+      expect(cells.length).toBeGreaterThan(0);
     });
     
-    // Remove one tile from the set and re-render.
-    const updatedTiles = [ availableTiles[1] ];
+    // Remove one tile from the availableTiles.
+    const updatedTiles = [ availableTiles[1] ];  // now one tile remains
     rerender(<WFC tiles={updatedTiles} />);
     
-    // Wait for the grid update.
+    // After reinitialization, check that every cell now shows possibility count equal to 1.
     await waitFor(() => {
-      const collapsedCells = screen.getAllByTestId((content, element) =>
+      const cellsAfterReset = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
-      ).filter(cell => cell.classList.contains('wfc-cell-collapsed'));
-      // Check that at least one collapsed cell now uses the fallback display (i.e. doesn't have a TilePreview).
-      const fallbackCells = collapsedCells.filter(cell => cell.querySelector('.tile-preview-fallback') !== null);
-      expect(fallbackCells.length).toBeGreaterThan(0);
+      );
+      cellsAfterReset.forEach(cell => {
+        expect(cell.textContent).toBe('1');
+        expect(cell).toHaveClass('wfc-cell-uncollapsed');
+      });
     });
   });
 });
