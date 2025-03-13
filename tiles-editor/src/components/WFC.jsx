@@ -332,7 +332,9 @@ function WFC({ tiles }) {
                 className={`wfc-cell ${cell.collapsed ? 'wfc-cell-collapsed' : 'wfc-cell-uncollapsed'}`}
               >
                 {cell.collapsed
-                  ? <TilePreview tile={processedTiles[cell.possibilities[0]]} />
+                  ? (processedTiles[cell.possibilities[0]]
+                      ? <TilePreview tile={processedTiles[cell.possibilities[0]]} />
+                      : <div className="tile-preview-fallback">?</div>)
                   : cell.possibilities.length}
               </div>
             );
