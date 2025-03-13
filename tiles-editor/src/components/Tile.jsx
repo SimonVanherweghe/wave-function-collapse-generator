@@ -55,7 +55,7 @@ function Tile({ tile, onUpdate }) {
           />
           Rotation
         </label>
-        <label style={{ marginLeft: "1rem" }}>
+        <label>
           <input
             type="checkbox"
             checked={mirrorEnabled}

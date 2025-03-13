@@ -36,16 +36,20 @@
 /* Tile styles */
 .tiles-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, 8.5rem);
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
 .tile-wrapper {
-  padding: 1rem;
+  padding: .5rem;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #f5f5f5;
+}
+
+.tile-wrapper h3 {
+  margin: .5em 0
 }
 
 .tile-editor {
@@ -68,6 +72,11 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.options label {
+  display: block;
+  text-align: left;
 }
 
 .add-tile-button:hover {
@@ -103,6 +112,7 @@
 
 .grid-row {
   display: flex;
+  justify-content: center;
 }
 
 .grid-cell {
