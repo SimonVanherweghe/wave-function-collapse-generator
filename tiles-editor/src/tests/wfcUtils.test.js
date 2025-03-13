@@ -92,18 +92,18 @@ describe('WFC Collapse Logic', () => {
     // Bottom-left: possibilities length = 2 (lowest entropy among non-collapsed)
     // Bottom-right: possibilities length = 1 (collapsed)
     const grid = [
-      [ { possibilities: [0, 1, 2] }, { possibilities: [0] } ],
-      [ { possibilities: [0, 1] }, { possibilities: [0] } ],
+      [ { possibilities: [0, 1, 2], collapsed: false }, { possibilities: [0], collapsed: true } ],
+      [ { possibilities: [0, 1], collapsed: false }, { possibilities: [0], collapsed: true } ],
     ];
     const cellIndex = findLowestEntropyCell(grid);
     expect(cellIndex).toEqual({ row: 1, col: 0 });
   });
 
   it('collapses the chosen cell to exactly one possibility and marks it as collapsed', () => {
-    // Use the same grid as before.
+    // Use the same grid as before, but mark cells that are already determined as collapsed.
     const grid = [
-      [ { possibilities: [0, 1, 2] }, { possibilities: [0] } ],
-      [ { possibilities: [0, 1] }, { possibilities: [0] } ],
+      [ { possibilities: [0, 1, 2], collapsed: false }, { possibilities: [0], collapsed: true } ],
+      [ { possibilities: [0, 1], collapsed: false }, { possibilities: [0], collapsed: true } ],
     ];
     const newGrid = collapseCell(grid);
     // The candidate cell (1,0) should be collapsed.
