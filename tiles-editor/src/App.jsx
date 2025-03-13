@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Tile from './components/Tile';
 import EdgeOverview from './components/EdgeOverview';
+import WFC from './components/WFC';
 import './App.css';
 
 function App() {
@@ -90,6 +91,9 @@ function App() {
       <div data-testid="edge-overview" className="right-section">
         <h2>Edge Overview</h2>
         <EdgeOverview tiles={tiles} />
+        
+        <h2>Wave Function Collapse</h2>
+        <WFC tiles={tiles} />
       </div>
     </div>
   );
