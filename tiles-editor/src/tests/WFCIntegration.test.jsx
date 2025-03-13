@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import WFC from '../components/WFC';
 
-// Helper function: create a dummy tile definition that uses a 3x3 grid.
+// Helper: create a dummy tile definition using a 3x3 grid.
 const createDummyTile = (value) => ({
   grid: [
     [value === 1, value === 1, value === 1],
@@ -11,41 +11,38 @@ const createDummyTile = (value) => ({
   ],
   rotationEnabled: false,
   mirrorEnabled: false
-  it('disables buttons when tiles are removed and enables them when tiles are added', async () => {
-    // Start with a valid tile set
-    const initialTiles = [createDummyTile(1), createDummyTile(2)];
-    const { rerender } = render(<WFC tiles={initialTiles} />);
-    
-    // Buttons should be enabled with valid tiles
-    expect(screen.getByTestId('run-wfc-button')).not.toBeDisabled();
-    expect(screen.getByTestId('run-wfc-backtracking-button')).not.toBeDisabled();
-    expect(screen.getByTestId('reset-button')).not.toBeDisabled();
-    
-    // Remove all tiles
-    rerender(<WFC tiles={[]} />);
-    
-    // Buttons should be disabled when no tiles are provided
-    await waitFor(() => {
-      expect(screen.getByTestId('run-wfc-button')).toBeDisabled();
-      expect(screen.getByTestId('run-wfc-backtracking-button')).toBeDisabled();
-      expect(screen.getByTestId('reset-button')).toBeDisabled();
-      expect(screen.getByText('Please add tiles to use the WFC algorithm')).toBeInTheDocument();
-    });
-    
-    // Add tiles back
-    rerender(<WFC tiles={initialTiles} />);
-    
-    // Buttons should be enabled again
-    await waitFor(() => {
-      expect(screen.getByTestId('run-wfc-button')).not.toBeDisabled();
-      expect(screen.getByTestId('run-wfc-backtracking-button')).not.toBeDisabled();
-      expect(screen.getByTestId('reset-button')).not.toBeDisabled();
-      expect(screen.queryByText('Please add tiles to use the WFC algorithm')).not.toBeInTheDocument();
-    });
-  });
 });
 
 describe('WFC Integration', () => {
+  it("disables buttons when tile set is empty and enables them when tiles are added", async () => {
+    const initialTiles = [createDummyTile(1), createDummyTile(2)];
+    const { rerender } = render(<WFC tiles={initialTiles} />);
+    
+    // Buttons should be enabled initially.
+    expect(screen.getByTestId("run-wfc-button")).not.toBeDisabled();
+    expect(screen.getByTestId("run-wfc-backtracking-button")).not.toBeDisabled();
+    expect(screen.getByTestId("reset-button")).not.toBeDisabled();
+    
+    // Remove all tiles.
+    rerender(<WFC tiles={[]} />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId("run-wfc-button")).toBeDisabled();
+      expect(screen.getByTestId("run-wfc-backtracking-button")).toBeDisabled();
+      expect(screen.getByTestId("reset-button")).toBeDisabled();
+      expect(screen.getByText("Please add tiles to use the WFC algorithm")).toBeInTheDocument();
+    });
+    
+    // Add tiles back.
+    rerender(<WFC tiles={initialTiles} />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId("run-wfc-button")).not.toBeDisabled();
+      expect(screen.getByTestId("run-wfc-backtracking-button")).not.toBeDisabled();
+      expect(screen.getByTestId("reset-button")).not.toBeDisabled();
+      expect(screen.queryByText("Please add tiles to use the WFC algorithm")).toBeNull();
+    });
+  });
   it('initializes the grid correctly with the given tile set', async () => {
     // Test the grid initialization behavior.
     const initialTiles = [createDummyTile(1), createDummyTile(2), createDummyTile(1)];

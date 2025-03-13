@@ -14,17 +14,13 @@ function WFC({ tiles }) {
   const numRows = 10;
   const numCols = 10;
 
-  // Define a fallback tile to use if no tiles are provided
-  const fallbackTile = {
-    grid: [[false]], // a minimal non-empty grid
-    rotationEnabled: false,
-    mirrorEnabled: false,
-  };
+  // Determine if we have tiles
+  const hasTiles = tiles && tiles.length > 0;
 
-  // Use effectiveTiles which is either the passed tiles or a fallback array
+  // Use effectiveTiles as the raw tiles array (no fallback)
   const effectiveTiles = useMemo(() => {
     console.log("tiles changed");
-    return tiles.length > 0 ? tiles : [fallbackTile];
+    return tiles;
   }, [tiles]);
 
   // Process the effective tile list to include rotated and mirrored variants if enabled.
@@ -109,6 +105,7 @@ function WFC({ tiles }) {
 
   // Original WFC algorithm without backtracking
   const runWFCAlgorithm = () => {
+    if (!hasTiles) return; // Prevent running algorithm if no tiles.
     console.log("Running WFC algorithm...");
     console.log("Available tiles:", processedTiles.length);
 
@@ -200,6 +197,7 @@ function WFC({ tiles }) {
 
   // New backtracking version of the algorithm
   const runWFCAlgorithmWithBacktracking = () => {
+    if (!hasTiles) return;
     console.log("Running WFC algorithm with backtracking...");
     console.log("Available tiles:", processedTiles.length);
     console.log("Initial possibility set:", possibilitySet);
@@ -348,8 +346,6 @@ function WFC({ tiles }) {
     setGrid(generateGrid());
   };
 
-  // Check if we're using the fallback tile (no real tiles provided)
-  const usingFallbackTiles = tiles.length === 0;
 
   return (
     <div className="wfc-container">
@@ -377,25 +373,25 @@ function WFC({ tiles }) {
       <button 
         onClick={runWFCAlgorithm} 
         data-testid="run-wfc-button"
-        disabled={usingFallbackTiles}
+        disabled={!hasTiles}
       >
         Run WFC
       </button>
       <button
         onClick={runWFCAlgorithmWithBacktracking}
         data-testid="run-wfc-backtracking-button"
-        disabled={usingFallbackTiles}
+        disabled={!hasTiles}
       >
         Run WFC with Backtracking
       </button>
       <button 
         onClick={resetGrid} 
         data-testid="reset-button"
-        disabled={usingFallbackTiles}
+        disabled={!hasTiles}
       >
         Reset
       </button>
-      {usingFallbackTiles && (
+      {!hasTiles && (
         <div className="wfc-warning">
           Please add tiles to use the WFC algorithm
         </div>
