@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getEdge, edgesAreCompatible } from '../wfcUtils';
+import { getEdge, edgesAreCompatible, findLowestEntropyCell, collapseCell } from '../wfcUtils';
 
 describe('wfcUtils - getEdge', () => {
   const sampleTile = {
@@ -82,4 +82,44 @@ describe('wfcUtils - edgesAreCompatible', () => {
 
   // Additional test for rotation/mirroring can be added once that logic is implemented.
   // For now, since our utility does a straightforward check, we keep the test simple.
+});
+
+describe('WFC Collapse Logic', () => {
+  it('identifies the cell with the lowest entropy', () => {
+    // Define a 2x2 grid manually:
+    // Top-left: possibilities length = 3
+    // Top-right: possibilities length = 1 (already collapsed)
+    // Bottom-left: possibilities length = 2 (lowest entropy among non-collapsed)
+    // Bottom-right: possibilities length = 1 (collapsed)
+    const grid = [
+      [ { possibilities: [0, 1, 2] }, { possibilities: [0] } ],
+      [ { possibilities: [0, 1] }, { possibilities: [0] } ],
+    ];
+    const cellIndex = findLowestEntropyCell(grid);
+    expect(cellIndex).toEqual({ row: 1, col: 0 });
+  });
+
+  it('collapses the chosen cell to exactly one possibility', () => {
+    // Use the same grid as before.
+    const grid = [
+      [ { possibilities: [0, 1, 2] }, { possibilities: [0] } ],
+      [ { possibilities: [0, 1] }, { possibilities: [0] } ],
+    ];
+    const newGrid = collapseCell(grid);
+    // The candidate cell (1,0) should be collapsed.
+    const collapsedCell = newGrid[1][0];
+    expect(collapsedCell.possibilities.length).toBe(1);
+    // The chosen value should come from the original possibilities.
+    expect([0, 1]).toContain(collapsedCell.possibilities[0]);
+  });
+
+  it('does not collapse cells that are already collapsed', () => {
+    const grid = [
+      [ { possibilities: [0] }, { possibilities: [1] } ],
+      [ { possibilities: [2] }, { possibilities: [3] } ],
+    ];
+    // Since every cell is already collapsed (possibilities length === 1), the function should leave the grid unchanged.
+    const newGrid = collapseCell(grid);
+    expect(newGrid).toEqual(grid);
+  });
 });

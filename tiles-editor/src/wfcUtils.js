@@ -79,3 +79,45 @@ export function edgesAreCompatible(tileOrEdge1, tileOrEdge2, side) {
 
   return arraysEqual(edge1, edge2);
 }
+
+// Given a grid (2D array of cell objects, where each cell has a 'possibilities' array),
+// find the cell with the smallest number of possibilities greater than 1.
+export function findLowestEntropyCell(grid) {
+  let minEntropy = Infinity;
+  let selected = { row: -1, col: -1 };
+  grid.forEach((row, i) => {
+    row.forEach((cell, j) => {
+      const count = cell.possibilities.length;
+      // Only consider cells that are not yet collapsed (i.e. possibilities length > 1)
+      if (count > 1 && count < minEntropy) {
+        minEntropy = count;
+        selected = { row: i, col: j };
+      }
+    });
+  });
+  return selected;
+}
+
+// Given a grid, collapse the cell with the lowest entropy by randomly choosing one possibility.
+// Returns a new grid (immutable update) with one cell collapsed.
+export function collapseCell(grid) {
+  // Find the cell to collapse.
+  const { row, col } = findLowestEntropyCell(grid);
+  // If no cell is found (or no candidate qualifies), return the grid unchanged.
+  if (row === -1 || col === -1) return grid;
+  
+  const cell = grid[row][col];
+  // Randomly pick one possibility.
+  const randomIndex = Math.floor(Math.random() * cell.possibilities.length);
+  const chosen = cell.possibilities[randomIndex];
+  
+  // Create a new grid with an updated cell.
+  const newGrid = grid.map((r, i) =>
+    r.map((cellObj, j) =>
+      i === row && j === col
+        ? { possibilities: [chosen] } // collapse this cell
+        : cellObj
+    )
+  );
+  return newGrid;
+}
