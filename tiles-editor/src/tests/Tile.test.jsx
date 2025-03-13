@@ -13,9 +13,9 @@ describe('Tile component', () => {
     let updatedTile = null;
     const handleUpdate = (tile) => { updatedTile = tile; };
 
-    render(<Tile tile={defaultTile} onUpdate={handleUpdate} />);
+    render(<Tile tile={defaultTile} tileId={0} onUpdate={handleUpdate} />);
     
-    const cell = screen.getByTestId('cell-0-0');
+    const cell = screen.getByTestId('tile-0-cell-0-0');
     // Initially not active (white)
     expect(cell).not.toHaveClass('active');
     
@@ -32,7 +32,7 @@ describe('Tile component', () => {
     let updatedTile = null;
     const handleUpdate = (tile) => { updatedTile = tile; };
 
-    render(<Tile tile={defaultTile} onUpdate={handleUpdate} />);
+    render(<Tile tile={defaultTile} tileId={0} onUpdate={handleUpdate} />);
     
     const rotationCheckbox = screen.getByTestId('rotation-checkbox');
     const mirrorCheckbox = screen.getByTestId('mirror-checkbox');

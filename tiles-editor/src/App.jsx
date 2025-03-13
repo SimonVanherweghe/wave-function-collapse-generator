@@ -43,6 +43,7 @@ function App() {
               <h3>Tile {index + 1}</h3>
               <Tile 
                 tile={tile}
+                tileId={index}
                 onUpdate={(updatedTile) => handleTileUpdate(index, updatedTile)}
               />
             </div>
