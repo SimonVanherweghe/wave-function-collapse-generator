@@ -78,10 +78,15 @@ function WFC({ tiles }) {
     setGrid(currentGrid);
   };
 
-  // Handler for the Run WFC button
-  const runWFC = () => {
-    // Placeholder: later this will trigger the algorithm.
-    console.log('Running WFC algorithm');
+  // Add a reset function to reinitialize the grid
+  const resetGrid = () => {
+    setGrid(
+      Array.from({ length: numRows }, () =>
+        Array.from({ length: numCols }, () => ({
+          possibilities: [...possibilitySet]
+        }))
+      )
+    );
   };
   
   // Handler to collapse a single cell
@@ -94,16 +99,28 @@ function WFC({ tiles }) {
     <div className="wfc-container">
       <div className="wfc-grid" style={{ display: 'grid', gridTemplateColumns: `repeat(${numCols}, 30px)`, gap: '2px' }}>
         {grid.map((row, rowIndex) =>
-          row.map((cell, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
-              className="wfc-cell"
-              style={{ width: '30px', height: '30px', border: '1px solid #ccc', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-            >
-              {cell.possibilities.length}
-            </div>
-          ))
+          row.map((cell, colIndex) => {
+            const isCollapsed = cell.possibilities.length === 1;
+            return (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
+                className="wfc-cell"
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  border: '1px solid #ccc',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: isCollapsed ? '#8BC34A' : 'transparent', // collapsed cells get a green background
+                  fontWeight: isCollapsed ? 'bold' : 'normal'
+                }}
+              >
+                {isCollapsed ? cell.possibilities[0] : cell.possibilities.length}
+              </div>
+            );
+          })
         )}
       </div>
       <button onClick={runWFCAlgorithm} data-testid="run-wfc-button">
@@ -111,6 +128,9 @@ function WFC({ tiles }) {
       </button>
       <button onClick={handleCollapseCell} data-testid="collapse-cell-button">
         Collapse Cell
+      </button>
+      <button onClick={resetGrid} data-testid="reset-button">
+        Reset
       </button>
     </div>
   );
