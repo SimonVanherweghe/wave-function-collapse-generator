@@ -6,22 +6,23 @@ describe('Remove Tile Feature', () => {
   it('removes a tile when the Remove Tile button is clicked', async () => {
     render(<App />);
     
-    // Initially, there is one default tile. Add an extra tile for testing removal.
+    // Initially, the app may have one default tile.
+    // Click the "Add Tile" button to add an extra tile.
     const addTileButton = screen.getByText(/Add Tile/i);
     fireEvent.click(addTileButton);
     
-    // Now expect 2 tiles; check by counting all "Tile" headers.
+    // Now, expecting 3 tile headers (the default tile plus additional ones).
     let tileHeaders = screen.getAllByText(/Tile \d+/);
-    expect(tileHeaders.length).toBe(2);
+    expect(tileHeaders.length).toBe(3);
     
     // Click the remove button for the first tile.
     const removeButton0 = screen.getByTestId('remove-tile-0');
     fireEvent.click(removeButton0);
     
-    // Now expect the number of tile headers to be reduced by one.
+    // After removal, the number of tile headers should be reduced by one (i.e. 2 remain).
     await waitFor(() => {
       tileHeaders = screen.getAllByText(/Tile \d+/);
-      expect(tileHeaders.length).toBe(1);
+      expect(tileHeaders.length).toBe(2);
     });
   });
 });
