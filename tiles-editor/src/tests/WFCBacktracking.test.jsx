@@ -39,9 +39,9 @@ describe('WFC Backtracking Algorithm', () => {
       // In this contradiction scenario, our simple backtracking will try to force a collapse.
       // Verify that no cell remains with an empty possibility set.
       cells.forEach(cell => {
-        // Every cell must display either a "0" or "1" since we have two tiles.
-        // (It is acceptable if all cells collapse to one possibility if backtracking resolved it.)
-        expect(["0", "1"]).toContain(cell.textContent);
+        // Every cell should be collapsed and contain a tile preview
+        expect(cell).toHaveClass('wfc-cell-collapsed');
+        expect(cell.querySelector('.tile-preview')).not.toBeNull();
       });
     });
   });
@@ -66,8 +66,9 @@ describe('WFC Backtracking Algorithm', () => {
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
       cells.forEach(cell => {
-        // Each cell should be collapsed to a single possibility ("0", "1", or "2")
-        expect(cell.textContent.length).toBe(1);
+        // Each cell should be collapsed and contain a tile preview
+        expect(cell).toHaveClass('wfc-cell-collapsed');
+        expect(cell.querySelector('.tile-preview')).not.toBeNull();
       });
     });
   });

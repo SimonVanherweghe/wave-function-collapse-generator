@@ -31,6 +31,64 @@ describe('wfcUtils - getEdge', () => {
   });
 });
 
+describe('Tile Processing for Rotation/Mirroring', () => {
+  it('includes rotated variants when rotationEnabled is true', () => {
+    const tile = {
+      grid: [
+        [true, false],
+        [false, true]
+      ],
+      rotationEnabled: true,
+      mirrorEnabled: false,
+    };
+    
+    // Process the tile using the same logic used in WFC.jsx:
+    const processed = [];
+    // Always add original tile.
+    processed.push(tile);
+    // Add rotated variants.
+    for (let i = 1; i < 4; i++) {
+      const rotated = rotateTile(tile, i);
+      processed.push(rotated);
+    }
+    
+    // Remove duplicates.
+    const unique = processed.filter((t, idx) =>
+      processed.findIndex((x) => JSON.stringify(x.grid) === JSON.stringify(t.grid)) === idx
+    );
+    
+    // Expect at least 2 variants (if not all rotations are unique)
+    expect(unique.length).toBeGreaterThan(1);
+  });
+  
+  it('includes mirrored variants when mirrorEnabled is true', () => {
+    const tile = {
+      grid: [
+        [true, false],
+        [false, false]
+      ],
+      rotationEnabled: false,
+      mirrorEnabled: true,
+    };
+    
+    // Process the tile using the same logic used in WFC.jsx:
+    const processed = [];
+    // Always add original tile.
+    processed.push(tile);
+    // Add mirrored variant.
+    const mirrored = mirrorTile(tile);
+    processed.push(mirrored);
+    
+    // Remove duplicates.
+    const unique = processed.filter((t, idx) =>
+      processed.findIndex((x) => JSON.stringify(x.grid) === JSON.stringify(t.grid)) === idx
+    );
+    
+    // Expect 2 variants (original + mirrored)
+    expect(unique.length).toBe(2);
+  });
+});
+
 describe('wfcUtils - edgesAreCompatible', () => {
   const tileA = {
     grid: [

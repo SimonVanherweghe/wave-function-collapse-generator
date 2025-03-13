@@ -18,9 +18,9 @@ describe('WFC Visualization and Reset', () => {
       expect(cell.textContent).toBe('4');
     });
     
-    // Click the "Collapse Cell" button to collapse one cell.
-    const collapseButton = screen.getByTestId('collapse-cell-button');
-    fireEvent.click(collapseButton);
+    // Trigger the algorithm using the "Run WFC" button.
+    const runButton = screen.getByTestId('run-wfc-button');
+    fireEvent.click(runButton);
     
     // Wait for the grid update.
     await waitFor(() => {

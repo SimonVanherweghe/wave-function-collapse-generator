@@ -49,9 +49,8 @@ describe('WFC Integration with Updated Tiles', () => {
       // Every cell should be collapsed (possibility count === 1) 
       // and display the selected tile index.
       cells.forEach(cell => {
-        expect(cell.textContent).not.toBe('2');  // It should not show the initial count.
-        // Instead, each cell shows a single digit, which must be one of the available tile indices.
-        expect(['0', '1']).toContain(cell.textContent);
+        expect(cell).toHaveClass('wfc-cell-collapsed');
+        expect(cell.querySelector('.tile-preview')).not.toBeNull();
       });
     });
   });
@@ -82,6 +81,37 @@ describe('WFC Integration with Updated Tiles', () => {
         // Now each cell should show "3" (three possibilities)
         expect(cell.textContent).toBe('3');
       });
+    });
+  });
+  
+  it('renders fallback TilePreview if a tile is removed after algorithm run', async () => {
+    // Use a dummy tile set with two tiles.
+    const availableTiles = [
+      createDummyTile(1),
+      createDummyTile(1)
+    ];
+    const { rerender } = render(<WFC tiles={availableTiles} />);
+    const runButton = screen.getByTestId('run-wfc-button');
+    fireEvent.click(runButton);
+    
+    await waitFor(() => {
+      const collapsedCells = screen.getAllByTestId((content, element) =>
+        element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+      ).filter(cell => cell.classList.contains('wfc-cell-collapsed'));
+      expect(collapsedCells.length).toBeGreaterThan(0);
+    });
+    
+    // Now simulate removal of a tile; pass a tiles array with one tile removed.
+    const updatedTiles = [ availableTiles[1] ];
+    rerender(<WFC tiles={updatedTiles} />);
+    
+    await waitFor(() => {
+      const collapsedCells = screen.getAllByTestId((content, element) =>
+        element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+      ).filter(cell => cell.classList.contains('wfc-cell-collapsed'));
+      // For at least one cell, the TilePreview should not be rendered because its tile is now missing.
+      const fallbackCells = collapsedCells.filter(cell => cell.querySelector('.tile-preview-fallback') !== null);
+      expect(fallbackCells.length).toBeGreaterThan(0);
     });
   });
 });
