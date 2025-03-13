@@ -31,7 +31,10 @@ describe("EdgeOverview component and edge calculations", () => {
     expect(edgeItems.length).toBe(1);
 
     // The count should be 4 (four edges for one tile).
-    expect(edgeItems[0].textContent).toContain("Count: 4");
+    expect(
+      edgeItems[0].textContent.includes("Count: 4") ||
+      edgeItems[0].querySelector(".edge-count")?.textContent.includes("Count: 4")
+    ).toBe(true);
   });
 
   it("aggregates edges from multiple tiles", () => {
@@ -46,7 +49,10 @@ describe("EdgeOverview component and edge calculations", () => {
     expect(edgeItems.length).toBe(1);
 
     // The count should now be 8 (4 edges per tile × 2 tiles).
-    expect(edgeItems[0].textContent).toContain("Count: 8");
+    expect(
+      edgeItems[0].textContent.includes("Count: 8") ||
+      edgeItems[0].querySelector(".edge-count")?.textContent.includes("Count: 8")
+    ).toBe(true);
   });
 
   it("toggles auto-update mode correctly", () => {
@@ -87,13 +93,19 @@ describe("EdgeOverview component and edge calculations", () => {
 
     // Edge count should still be 4 since we're in manual mode and haven't refreshed
     edgeItems = container.querySelectorAll(".edge-item");
-    expect(edgeItems[0].textContent).toContain("Count: 4");
+    expect(
+      edgeItems[0].textContent.includes("Count: 4") ||
+      edgeItems[0].querySelector(".edge-count")?.textContent.includes("Count: 4")
+    ).toBe(true);
 
     // Click refresh button
     fireEvent.click(screen.getByTestId("refresh-button"));
 
     // Now the edge count should update to 8
     edgeItems = container.querySelectorAll(".edge-item");
-    expect(edgeItems[0].textContent).toContain("Count: 8");
+    expect(
+      edgeItems[0].textContent.includes("Count: 8") ||
+      edgeItems[0].querySelector(".edge-count")?.textContent.includes("Count: 8")
+    ).toBe(true);
   });
 });
