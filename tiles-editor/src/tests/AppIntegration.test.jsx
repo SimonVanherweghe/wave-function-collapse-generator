@@ -5,64 +5,63 @@ import App from '../App';
 describe('App Integration Tests', () => {
   it('updates EdgeOverview in real-time in auto-update mode', async () => {
     render(<App />);
-    // By default, auto-update mode is enabled.
-    // With one default tile (all false), the unique edge "00000" should have a count of 4.
-    await waitFor(() => {
-      expect(screen.getByText(/Count: 4/)).toBeInTheDocument();
-    });
     
-    // Add a tile via the "Add Tile" button.
+    // By default, auto-update is enabled.
+    // For a default tile, expecting the unique edge to have a count "Count: 4"
+    await waitFor(() => {
+      expect(screen.getByText((content) => content.includes("Count: 4"))).toBeInTheDocument();
+    });
+
+    // Add a new tile via the "Add Tile" button.
     const addTileButton = screen.getByRole('button', { name: /add tile/i });
     fireEvent.click(addTileButton);
-    
-    // With two default tiles, the "00000" edge should now have a count of 8.
+
+    // With two default tiles, total edges count should update to "Count: 8".
     await waitFor(() => {
-      expect(screen.getByText(/Count: 8/)).toBeInTheDocument();
+      expect(screen.getByText((content) => content.includes("Count: 8"))).toBeInTheDocument();
     });
-    
-    // Edit the first tile: toggle the top-left cell (cell 0,0).
-    const cell00 = screen.getByTestId('cell-0-0');
-    fireEvent.click(cell00);
-    
+
+    // Edit the first tile: toggle the top-left cell (tile 0, row 0, col 0).
+    const cell = screen.getByTestId('tile-0-cell-0-0');
+    fireEvent.click(cell);
+
     // In auto-update mode, the edge overview should update automatically.
-    // Since toggling a cell will alter at least one edge, we expect more than one unique edge entry.
+    // Since changing a cell can change the edge pattern, expect more than one unique edge.
     await waitFor(() => {
-      // Expect at least 2 different edge entries when the tile is modified.
-      const edgeItems = screen.getAllByText(/Count:/);
+      const edgeItems = screen.getAllByText((content) => content.includes("Count:"));
       expect(edgeItems.length).toBeGreaterThan(1);
     });
   });
 
   it('does not update EdgeOverview in manual mode until refresh is clicked', async () => {
     render(<App />);
-    
-    // Toggle auto-update off in the EdgeOverview.
+
+    // Toggle auto-update off using the test ID.
     const autoUpdateCheckbox = screen.getByTestId('auto-update-checkbox');
     fireEvent.click(autoUpdateCheckbox);
     expect(autoUpdateCheckbox.checked).toBe(false);
-    
-    // With one default tile, aggregated edges should show a count of 4.
+
+    // With one tile, the unique edge count should be "Count: 4" initially.
     await waitFor(() => {
-      expect(screen.getByText(/Count: 4/)).toBeInTheDocument();
+      expect(screen.getByText((content) => content.includes("Count: 4"))).toBeInTheDocument();
     });
-    
-    // Add a tile. Since auto-update is off, EdgeOverview should NOT update automatically.
+
+    // Add a new tile.
     const addTileButton = screen.getByRole('button', { name: /add tile/i });
     fireEvent.click(addTileButton);
-    
-    // Give a short time for any inadvertent updates (which should not happen).
-    await new Promise((res) => setTimeout(res, 300));
-    // Still showing the initial count.
-    let edgeItem = screen.getByText(/Count: 4/);
+
+    // Since auto-update is off, the EdgeOverview remains unchanged (still "Count: 4").
+    await new Promise((resolve) => setTimeout(resolve, 300)); // wait momentarily
+    let edgeItem = screen.getByText((content) => content.includes("Count: 4"));
     expect(edgeItem).toBeInTheDocument();
-    
-    // Now, click the Refresh button.
+
+    // Click the Refresh button.
     const refreshButton = screen.getByTestId('refresh-button');
     fireEvent.click(refreshButton);
-    
-    // After clicking refresh, with two default tiles the same edge ("00000") should now have count 8.
+
+    // After refresh, the edge count should update (now "Count: 8" for two default tiles).
     await waitFor(() => {
-      expect(screen.getByText(/Count: 8/)).toBeInTheDocument();
+      expect(screen.getByText((content) => content.includes("Count: 8"))).toBeInTheDocument();
     });
   });
 });
