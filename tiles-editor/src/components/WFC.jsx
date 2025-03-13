@@ -342,9 +342,6 @@ function WFC({ tiles }) {
       >
         Run WFC with Backtracking
       </button>
-      <button onClick={handleCollapseCell} data-testid="collapse-cell-button">
-        Collapse Cell
-      </button>
       <button onClick={resetGrid} data-testid="reset-button">
         Reset
       </button>
