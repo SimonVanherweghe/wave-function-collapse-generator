@@ -6,7 +6,7 @@ import {
   findLowestEntropyCell,
   logGridState,
   rotateTile,
-  mirrorTile
+  mirrorTile,
 } from "../wfcUtils";
 
 function WFC({ tiles }) {
@@ -32,13 +32,17 @@ function WFC({ tiles }) {
     effectiveTiles.forEach((tile) => {
       // Always include the original tile.
       result.push(tile);
-      
+
       // If rotationEnabled, add rotated variants (only add unique ones)
       if (tile.rotationEnabled) {
         for (let i = 1; i < 4; i++) {
           const rotated = rotateTile(tile, i);
           // Check uniqueness by comparing stringified grids.
-          if (!result.some(t => JSON.stringify(t.grid) === JSON.stringify(rotated.grid))) {
+          if (
+            !result.some(
+              (t) => JSON.stringify(t.grid) === JSON.stringify(rotated.grid)
+            )
+          ) {
             result.push(rotated);
           }
         }
@@ -46,17 +50,23 @@ function WFC({ tiles }) {
       // If mirrorEnabled, add the mirrored variant.
       if (tile.mirrorEnabled) {
         const mirrored = mirrorTile(tile);
-        if (!result.some(t => JSON.stringify(t.grid) === JSON.stringify(mirrored.grid))) {
+        if (
+          !result.some(
+            (t) => JSON.stringify(t.grid) === JSON.stringify(mirrored.grid)
+          )
+        ) {
           result.push(mirrored);
         }
       }
     });
-    console.log("Processed Tiles:", result.length);
     return result;
   }, [effectiveTiles]);
 
   // Always compute possibility set from the processed tile list
-  const possibilitySet = useMemo(() => processedTiles.map((_, index) => index), [processedTiles]);
+  const possibilitySet = useMemo(
+    () => processedTiles.map((_, index) => index),
+    [processedTiles]
+  );
 
   // Function to generate a fresh grid
   const generateGrid = () =>
@@ -280,7 +290,8 @@ function WFC({ tiles }) {
         continue;
       }
       // Randomly select from the available possibilities
-      const chosen = possibleChoices[Math.floor(Math.random() * possibleChoices.length)];
+      const chosen =
+        possibleChoices[Math.floor(Math.random() * possibleChoices.length)];
       console.log(`Collapsing cell (${row}, ${col}) to value: ${chosen}`);
 
       // Save current state along with the fact that we are trying this possibility.
@@ -293,7 +304,9 @@ function WFC({ tiles }) {
       // Collapse the cell by forcing its possibilities to only the chosen.
       const newGrid = currentGrid.map((r, i) =>
         r.map((cellObj, j) =>
-          i === row && j === col ? { possibilities: [chosen], collapsed: true } : cellObj
+          i === row && j === col
+            ? { possibilities: [chosen], collapsed: true }
+            : cellObj
         )
       );
       // Propagate constraints from the collapsed cell.
@@ -319,7 +332,6 @@ function WFC({ tiles }) {
     setGrid(generateGrid());
   };
 
-
   return (
     <div className="wfc-container">
       <div className="wfc-grid">
@@ -329,13 +341,19 @@ function WFC({ tiles }) {
               <div
                 key={`${rowIndex}-${colIndex}`}
                 data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
-                className={`wfc-cell ${cell.collapsed ? 'wfc-cell-collapsed' : 'wfc-cell-uncollapsed'}`}
+                className={`wfc-cell ${
+                  cell.collapsed ? "wfc-cell-collapsed" : "wfc-cell-uncollapsed"
+                }`}
               >
-                {cell.collapsed
-                  ? (processedTiles[cell.possibilities[0]]
-                      ? <TilePreview tile={processedTiles[cell.possibilities[0]]} />
-                      : <div className="tile-preview-fallback">?</div>)
-                  : cell.possibilities.length}
+                {cell.collapsed ? (
+                  processedTiles[cell.possibilities[0]] ? (
+                    <TilePreview tile={processedTiles[cell.possibilities[0]]} />
+                  ) : (
+                    <div className="tile-preview-fallback">?</div>
+                  )
+                ) : (
+                  cell.possibilities.length
+                )}
               </div>
             );
           })
