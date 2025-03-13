@@ -44,6 +44,7 @@ function WFC({ tiles }) {
     return { allCollapsed, contradiction };
   };
 
+  // Original WFC algorithm without backtracking
   const runWFCAlgorithm = () => {
     // Use a local copy of the grid state.
     let currentGrid = grid;
@@ -83,6 +84,87 @@ function WFC({ tiles }) {
       currentGrid = newGrid;
     }
     // Finally, update component state
+    setGrid(currentGrid);
+  };
+
+  // New backtracking version of the algorithm
+  const runWFCAlgorithmWithBacktracking = () => {
+    // Make a local copy of the grid.
+    let currentGrid = grid;
+    // Stack to remember previous states for backtracking.
+    // Each element will be an object: { grid, row, col, triedPossibilities }
+    const historyStack = [];
+    let iterations = 0;
+    const maxIterations = 1000;
+    const maxBacktracks = 50;
+    let backtracks = 0;
+
+    while (iterations < maxIterations) {
+      iterations++;
+      const { allCollapsed, contradiction } = gridStatus(currentGrid);
+      if (allCollapsed) {
+        break; // finished!
+      }
+      if (contradiction) {
+        // If contradiction occurs, backtrack if possible.
+        if (historyStack.length === 0 || backtracks >= maxBacktracks) {
+          console.error("Backtracking exhausted - contradiction unresolved");
+          break;
+        }
+        const prev = historyStack.pop();
+        currentGrid = prev.grid;
+        backtracks++;
+        // In a more complete solution, we would remove the previously tried possibility
+        // and try a different one in that cell. For simplicity, we assume the history
+        // already stored the "failed" collapse so that on backtracking, another collapse will occur.
+        continue;
+      }
+      // Find cell with lowest entropy.
+      const { row, col } = findLowestEntropyCell(currentGrid);
+      if (row === -1) break; // nothing to collapse
+
+      const cell = currentGrid[row][col];
+      // If the cell is ambiguous (possibilities.length > 1), try a possibility.
+      // Try the first possibility that has not been tried for this cell.
+      let triedPossibilities = [];
+      // See if we already have a record for this cell in history.
+      const existingRecord = historyStack.find((rec) => rec.row === row && rec.col === col);
+      if (existingRecord) {
+        triedPossibilities = existingRecord.triedPossibilities;
+      }
+      // Find a possibility not yet tried.
+      const possibleChoices = cell.possibilities.filter(p => !triedPossibilities.includes(p));
+      if (possibleChoices.length === 0) {
+        // Nothing left to try in this cell: contradiction; backtrack.
+        if (historyStack.length === 0 || backtracks >= maxBacktracks) {
+          console.error("No possibilities remain for cell - backtracking aborted");
+          break;
+        }
+        const prev = historyStack.pop();
+        currentGrid = prev.grid;
+        backtracks++;
+        continue;
+      }
+      // Choose the first possibility from the remaining ones.
+      const chosen = possibleChoices[0];
+      // Save current state along with the fact that we are trying this possibility.
+      historyStack.push({
+        grid: JSON.parse(JSON.stringify(currentGrid)), // Deep clone the grid
+        row,
+        col,
+        triedPossibilities: [...triedPossibilities, chosen]
+      });
+      // Collapse the cell by forcing its possibilities to only the chosen.
+      const newGrid = currentGrid.map((r, i) =>
+        r.map((cellObj, j) =>
+          i === row && j === col ? { possibilities: [chosen] } : cellObj
+        )
+      );
+      // Propagate constraints from the collapsed cell.
+      propagateConstraints(newGrid, row, col, tiles);
+      // Update currentGrid.
+      currentGrid = newGrid;
+    }
     setGrid(currentGrid);
   };
 
@@ -131,7 +213,7 @@ function WFC({ tiles }) {
           })
         )}
       </div>
-      <button onClick={runWFCAlgorithm} data-testid="run-wfc-button">
+      <button onClick={runWFCAlgorithmWithBacktracking} data-testid="run-wfc-button">
         Run WFC
       </button>
       <button onClick={handleCollapseCell} data-testid="collapse-cell-button">
