@@ -1,20 +1,25 @@
-import { useState, useEffect, useMemo } from 'react';
-import { collapseCell, propagateConstraints, findLowestEntropyCell } from '../wfcUtils';
+import { useState, useEffect, useMemo } from "react";
+import {
+  collapseCell,
+  propagateConstraints,
+  findLowestEntropyCell,
+} from "../wfcUtils";
 
 function WFC({ tiles }) {
   // Define grid dimensions
   const numRows = 10;
   const numCols = 10;
-  
+
   // Always compute possibility set from the current tile list
   const possibilitySet = useMemo(() => tiles.map((_, index) => index), [tiles]);
-  
+
   // Function to generate a fresh grid
-  const generateGrid = () => (
+  const generateGrid = () =>
     Array.from({ length: numRows }, () =>
-      Array.from({ length: numCols }, () => ({ possibilities: [...possibilitySet] }))
-    )
-  );
+      Array.from({ length: numCols }, () => ({
+        possibilities: [...possibilitySet],
+      }))
+    );
 
   // Initialize the grid
   const [grid, setGrid] = useState(generateGrid());
@@ -23,7 +28,7 @@ function WFC({ tiles }) {
   useEffect(() => {
     setGrid(generateGrid());
   }, [possibilitySet]); // possibilitySet changes when tiles change
-  
+
   // Helper function to check if the grid is fully collapsed or if a contradiction occurs.
   const gridStatus = (grid) => {
     let allCollapsed = true;
@@ -48,16 +53,16 @@ function WFC({ tiles }) {
   const runWFCAlgorithm = () => {
     console.log("Running WFC algorithm...");
     console.log("Available tiles:", tiles.length);
-    
+
     // Use a local copy of the grid state.
     let currentGrid = grid;
     // Safety counter to avoid infinite loops.
     let iterations = 0;
     const maxIterations = 1000;
-    
+
     // Log initial grid state
     logGridState(currentGrid);
-    
+
     while (iterations < maxIterations) {
       iterations++;
       const { allCollapsed, contradiction } = gridStatus(currentGrid);
@@ -66,29 +71,39 @@ function WFC({ tiles }) {
         break;
       }
       if (allCollapsed) {
-        console.log("All cells collapsed successfully after", iterations, "iterations");
+        console.log(
+          "All cells collapsed successfully after",
+          iterations,
+          "iterations"
+        );
         break;
       }
-      
+
       // Find cell with lowest entropy
       const lowestEntropyCell = findLowestEntropyCell(currentGrid);
       if (lowestEntropyCell.row === -1) {
         console.log("No cells to collapse - algorithm complete");
         break;
       }
-      console.log(`Iteration ${iterations}: Collapsing cell at (${lowestEntropyCell.row}, ${lowestEntropyCell.col})`);
-      
+      console.log(
+        `Iteration ${iterations}: Collapsing cell at (${lowestEntropyCell.row}, ${lowestEntropyCell.col})`
+      );
+
       // Collapse one cell: use collapseCell which returns a new grid
       const newGrid = collapseCell(currentGrid);
-      
+
       // Find which cell was collapsed.
       let collapsedCell = null;
       for (let i = 0; i < currentGrid.length; i++) {
         for (let j = 0; j < currentGrid[0].length; j++) {
-          if (currentGrid[i][j].possibilities.length > 1 &&
-              newGrid[i][j].possibilities.length === 1) {
+          if (
+            currentGrid[i][j].possibilities.length > 1 &&
+            newGrid[i][j].possibilities.length === 1
+          ) {
             collapsedCell = { row: i, col: j };
-            console.log(`Cell (${i}, ${j}) collapsed to value: ${newGrid[i][j].possibilities[0]}`);
+            console.log(
+              `Cell (${i}, ${j}) collapsed to value: ${newGrid[i][j].possibilities[0]}`
+            );
             break;
           }
         }
@@ -96,19 +111,26 @@ function WFC({ tiles }) {
       }
       // Propagate constraints from the collapsed cell.
       if (collapsedCell) {
-        console.log(`Propagating constraints from cell (${collapsedCell.row}, ${collapsedCell.col})`);
-        propagateConstraints(newGrid, collapsedCell.row, collapsedCell.col, tiles);
+        console.log(
+          `Propagating constraints from cell (${collapsedCell.row}, ${collapsedCell.col})`
+        );
+        propagateConstraints(
+          newGrid,
+          collapsedCell.row,
+          collapsedCell.col,
+          tiles
+        );
         console.log("After propagation:");
         logGridState(newGrid);
       }
       // Update our current grid for next iteration.
       currentGrid = newGrid;
     }
-    
+
     if (iterations >= maxIterations) {
       console.log("Reached maximum iterations without full collapse");
     }
-    
+
     // Finally, update component state
     setGrid(currentGrid);
     console.log("WFC algorithm completed");
@@ -119,7 +141,7 @@ function WFC({ tiles }) {
     console.log("Running WFC algorithm with backtracking...");
     console.log("Available tiles:", tiles.length);
     console.log("Initial possibility set:", possibilitySet);
-    
+
     // Make a local copy of the grid.
     let currentGrid = grid;
     // Stack to remember previous states for backtracking.
@@ -137,7 +159,13 @@ function WFC({ tiles }) {
       iterations++;
       const { allCollapsed, contradiction } = gridStatus(currentGrid);
       if (allCollapsed) {
-        console.log("All cells collapsed successfully after", iterations, "iterations with", backtracks, "backtracks");
+        console.log(
+          "All cells collapsed successfully after",
+          iterations,
+          "iterations with",
+          backtracks,
+          "backtracks"
+        );
         break; // finished!
       }
       if (contradiction) {
@@ -163,25 +191,39 @@ function WFC({ tiles }) {
         break; // nothing to collapse
       }
 
-      console.log(`Iteration ${iterations}: Processing cell at (${row}, ${col}) with ${currentGrid[row][col].possibilities.length} possibilities`);
-      
+      console.log(
+        `Iteration ${iterations}: Processing cell at (${row}, ${col}) with ${currentGrid[row][col].possibilities.length} possibilities`
+      );
+
       const cell = currentGrid[row][col];
       // If the cell is ambiguous (possibilities.length > 1), try a possibility.
       // Try the first possibility that has not been tried for this cell.
       let triedPossibilities = [];
       // See if we already have a record for this cell in history.
-      const existingRecord = historyStack.find((rec) => rec.row === row && rec.col === col);
+      const existingRecord = historyStack.find(
+        (rec) => rec.row === row && rec.col === col
+      );
       if (existingRecord) {
         triedPossibilities = existingRecord.triedPossibilities;
-        console.log(`Cell (${row}, ${col}) has been tried before with possibilities: ${triedPossibilities.join(', ')}`);
+        console.log(
+          `Cell (${row}, ${col}) has been tried before with possibilities: ${triedPossibilities.join(
+            ", "
+          )}`
+        );
       }
       // Find a possibility not yet tried.
-      const possibleChoices = cell.possibilities.filter(p => !triedPossibilities.includes(p));
+      const possibleChoices = cell.possibilities.filter(
+        (p) => !triedPossibilities.includes(p)
+      );
       if (possibleChoices.length === 0) {
         // Nothing left to try in this cell: contradiction; backtrack.
-        console.log(`No untried possibilities for cell (${row}, ${col}) - need to backtrack`);
+        console.log(
+          `No untried possibilities for cell (${row}, ${col}) - need to backtrack`
+        );
         if (historyStack.length === 0 || backtracks >= maxBacktracks) {
-          console.error("No possibilities remain for cell - backtracking aborted");
+          console.error(
+            "No possibilities remain for cell - backtracking aborted"
+          );
           break;
         }
         const prev = historyStack.pop();
@@ -193,13 +235,13 @@ function WFC({ tiles }) {
       // Choose the first possibility from the remaining ones.
       const chosen = possibleChoices[0];
       console.log(`Collapsing cell (${row}, ${col}) to value: ${chosen}`);
-      
+
       // Save current state along with the fact that we are trying this possibility.
       historyStack.push({
         grid: JSON.parse(JSON.stringify(currentGrid)), // Deep clone the grid
         row,
         col,
-        triedPossibilities: [...triedPossibilities, chosen]
+        triedPossibilities: [...triedPossibilities, chosen],
       });
       // Collapse the cell by forcing its possibilities to only the chosen.
       const newGrid = currentGrid.map((r, i) =>
@@ -212,15 +254,15 @@ function WFC({ tiles }) {
       propagateConstraints(newGrid, row, col, tiles);
       console.log("After propagation:");
       logGridState(newGrid);
-      
+
       // Update currentGrid.
       currentGrid = newGrid;
     }
-    
+
     if (iterations >= maxIterations) {
       console.log("Reached maximum iterations without full collapse");
     }
-    
+
     setGrid(currentGrid);
     console.log("WFC algorithm with backtracking completed");
   };
@@ -230,12 +272,12 @@ function WFC({ tiles }) {
     setGrid(
       Array.from({ length: numRows }, () =>
         Array.from({ length: numCols }, () => ({
-          possibilities: [...possibilitySet]
+          possibilities: [...possibilitySet],
         }))
       )
     );
   };
-  
+
   // Handler to collapse a single cell
   const handleCollapseCell = () => {
     const newGrid = collapseCell(grid);
@@ -244,7 +286,14 @@ function WFC({ tiles }) {
 
   return (
     <div className="wfc-container">
-      <div className="wfc-grid" style={{ display: 'grid', gridTemplateColumns: `repeat(${numCols}, 30px)`, gap: '2px' }}>
+      <div
+        className="wfc-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${numCols}, 30px)`,
+          gap: "2px",
+        }}
+      >
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const isCollapsed = cell.possibilities.length === 1;
@@ -254,17 +303,19 @@ function WFC({ tiles }) {
                 data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
                 className="wfc-cell"
                 style={{
-                  width: '30px',
-                  height: '30px',
-                  border: '1px solid #ccc',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: isCollapsed ? '#8BC34A' : 'transparent', // collapsed cells get a green background
-                  fontWeight: isCollapsed ? 'bold' : 'normal'
+                  width: "30px",
+                  height: "30px",
+                  border: "1px solid #ccc",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: isCollapsed ? "#8BC34A" : "transparent", // collapsed cells get a green background
+                  fontWeight: isCollapsed ? "bold" : "normal",
                 }}
               >
-                {isCollapsed ? cell.possibilities[0] : cell.possibilities.length}
+                {isCollapsed
+                  ? cell.possibilities[0]
+                  : cell.possibilities.length}
               </div>
             );
           })
@@ -273,7 +324,10 @@ function WFC({ tiles }) {
       <button onClick={runWFCAlgorithm} data-testid="run-wfc-button">
         Run WFC
       </button>
-      <button onClick={runWFCAlgorithmWithBacktracking} data-testid="run-wfc-backtracking-button">
+      <button
+        onClick={runWFCAlgorithmWithBacktracking}
+        data-testid="run-wfc-backtracking-button"
+      >
         Run WFC with Backtracking
       </button>
       <button onClick={handleCollapseCell} data-testid="collapse-cell-button">
