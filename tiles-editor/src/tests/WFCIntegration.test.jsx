@@ -9,7 +9,9 @@ const createDummyTile = (value) => ({
     [value === 1, value === 1, value === 1],
     [value === 1, value === 1, value === 1],
     [value === 1, value === 1, value === 1],
-  ]
+  ],
+  rotationEnabled: false,
+  mirrorEnabled: false
 });
 
 describe('WFC Full Run', () => {
@@ -28,13 +30,14 @@ describe('WFC Full Run', () => {
     const runButton = screen.getByTestId('run-wfc-button');
     fireEvent.click(runButton);
     
-    // Wait for state update. Look for every cell to be collapsed (showing the tile index)
+    // Wait for state update. Look for every cell to be collapsed (showing the tile preview)
     await waitFor(() => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // Check that all cells contain a tile preview element
+      // Check that all cells are marked as collapsed and contain a tile preview
       cells.forEach(cell => {
+        expect(cell).toHaveClass('wfc-cell-collapsed');
         expect(cell.querySelector('.tile-preview')).not.toBeNull();
       });
     });
@@ -60,8 +63,9 @@ describe('WFC Full Run', () => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // We expect all cells to contain a tile preview element
+      // We expect all cells to be marked as collapsed and contain a tile preview
       cells.forEach(cell => {
+        expect(cell).toHaveClass('wfc-cell-collapsed');
         expect(cell.querySelector('.tile-preview')).not.toBeNull();
       });
     });

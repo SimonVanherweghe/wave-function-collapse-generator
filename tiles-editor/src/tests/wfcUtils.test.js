@@ -134,7 +134,9 @@ describe('Constraint Propagation', () => {
       [value === 1, value === 1, value === 1],
       [value === 1, value === 1, value === 1],
       [value === 1, value === 1, value === 1],
-    ]
+    ],
+    rotationEnabled: false,
+    mirrorEnabled: false
   });
 
   // For compatibility, we define that two tiles are compatible if their corresponding edges are equal.
