@@ -7,8 +7,14 @@ describe('WFC Component', () => {
     // When no tiles are provided, the fallback tile is used.
     render(<WFC tiles={[]} />);
     
-    // Check that the "Run WFC" button is rendered.
+    // Check that the "Run WFC" button is rendered but disabled.
     expect(screen.getByTestId('run-wfc-button')).toBeInTheDocument();
+    expect(screen.getByTestId('run-wfc-button')).toBeDisabled();
+    expect(screen.getByTestId('run-wfc-backtracking-button')).toBeDisabled();
+    expect(screen.getByTestId('reset-button')).toBeDisabled();
+    
+    // Check that the warning message is displayed
+    expect(screen.getByText('Please add tiles to use the WFC algorithm')).toBeInTheDocument();
     
     // Check that the grid has 100 cells in total.
     const cells = screen.getAllByTestId((content, element) =>
@@ -41,6 +47,11 @@ describe('WFC Component', () => {
       expect(cell).toHaveClass('wfc-cell-uncollapsed');
       expect(cell).not.toHaveClass('wfc-cell-collapsed');
     });
+    
+    // Buttons should be enabled when tiles are provided
+    expect(screen.getByTestId('run-wfc-button')).not.toBeDisabled();
+    expect(screen.getByTestId('run-wfc-backtracking-button')).not.toBeDisabled();
+    expect(screen.getByTestId('reset-button')).not.toBeDisabled();
   });
 
   it('displays possibility count for uncollapsed cells when only one tile is present', () => {

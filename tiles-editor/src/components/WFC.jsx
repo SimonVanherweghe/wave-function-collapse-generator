@@ -348,6 +348,9 @@ function WFC({ tiles }) {
     setGrid(generateGrid());
   };
 
+  // Check if we're using the fallback tile (no real tiles provided)
+  const usingFallbackTiles = tiles.length === 0;
+
   return (
     <div className="wfc-container">
       <div className="wfc-grid">
@@ -371,18 +374,32 @@ function WFC({ tiles }) {
           })
         )}
       </div>
-      <button onClick={runWFCAlgorithm} data-testid="run-wfc-button">
+      <button 
+        onClick={runWFCAlgorithm} 
+        data-testid="run-wfc-button"
+        disabled={usingFallbackTiles}
+      >
         Run WFC
       </button>
       <button
         onClick={runWFCAlgorithmWithBacktracking}
         data-testid="run-wfc-backtracking-button"
+        disabled={usingFallbackTiles}
       >
         Run WFC with Backtracking
       </button>
-      <button onClick={resetGrid} data-testid="reset-button">
+      <button 
+        onClick={resetGrid} 
+        data-testid="reset-button"
+        disabled={usingFallbackTiles}
+      >
         Reset
       </button>
+      {usingFallbackTiles && (
+        <div className="wfc-warning">
+          Please add tiles to use the WFC algorithm
+        </div>
+      )}
     </div>
   );
 }

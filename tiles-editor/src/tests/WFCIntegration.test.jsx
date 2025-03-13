@@ -11,6 +11,38 @@ const createDummyTile = (value) => ({
   ],
   rotationEnabled: false,
   mirrorEnabled: false
+  it('disables buttons when tiles are removed and enables them when tiles are added', async () => {
+    // Start with a valid tile set
+    const initialTiles = [createDummyTile(1), createDummyTile(2)];
+    const { rerender } = render(<WFC tiles={initialTiles} />);
+    
+    // Buttons should be enabled with valid tiles
+    expect(screen.getByTestId('run-wfc-button')).not.toBeDisabled();
+    expect(screen.getByTestId('run-wfc-backtracking-button')).not.toBeDisabled();
+    expect(screen.getByTestId('reset-button')).not.toBeDisabled();
+    
+    // Remove all tiles
+    rerender(<WFC tiles={[]} />);
+    
+    // Buttons should be disabled when no tiles are provided
+    await waitFor(() => {
+      expect(screen.getByTestId('run-wfc-button')).toBeDisabled();
+      expect(screen.getByTestId('run-wfc-backtracking-button')).toBeDisabled();
+      expect(screen.getByTestId('reset-button')).toBeDisabled();
+      expect(screen.getByText('Please add tiles to use the WFC algorithm')).toBeInTheDocument();
+    });
+    
+    // Add tiles back
+    rerender(<WFC tiles={initialTiles} />);
+    
+    // Buttons should be enabled again
+    await waitFor(() => {
+      expect(screen.getByTestId('run-wfc-button')).not.toBeDisabled();
+      expect(screen.getByTestId('run-wfc-backtracking-button')).not.toBeDisabled();
+      expect(screen.getByTestId('reset-button')).not.toBeDisabled();
+      expect(screen.queryByText('Please add tiles to use the WFC algorithm')).not.toBeInTheDocument();
+    });
+  });
 });
 
 describe('WFC Integration', () => {
@@ -91,6 +123,9 @@ describe('WFC Integration', () => {
     cells.forEach(cell => {
       expect(cell.textContent).toBe('2');
     });
+    
+    // Buttons should be enabled with valid tiles
+    expect(screen.getByTestId('run-wfc-button')).not.toBeDisabled();
     
     // Update tile set by adding one more tile.
     const updatedTiles = [createDummyTile(1), createDummyTile(2), createDummyTile(1)];
