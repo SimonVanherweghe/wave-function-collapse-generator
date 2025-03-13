@@ -3,8 +3,8 @@ import WFC from '../components/WFC';
 import { describe, it, expect } from 'vitest';
 
 describe('WFC Component', () => {
-  it('renders correctly and initializes a 10x10 grid', () => {
-    // Provide a dummy empty tiles list to satisfy the prop.
+  it('renders correctly and initializes a 10x10 grid', async () => {
+    // When no tiles are provided, the fallback tile is used.
     render(<WFC tiles={[]} />);
     
     // Check that the "Run WFC" button is rendered.
@@ -18,7 +18,8 @@ describe('WFC Component', () => {
   });
 
   it('initializes every grid cell with the full set of tile possibilities', () => {
-    // Create a dummy tiles array with 5 items with rotation/mirror disabled
+    // Create a dummy tiles array with 5 items with rotation/mirror disabled.
+    // (Since rotationEnabled is false, processedTiles equals dummyTiles and possibility count is 5.)
     const dummyTiles = Array(5).fill(null).map(() => ({
       grid: [[false]],
       rotationEnabled: false,
@@ -27,27 +28,28 @@ describe('WFC Component', () => {
     
     render(<WFC tiles={dummyTiles} />);
     
-    // Expect grid dimensions: 10 x 10 cells
+    // We expect 10 x 10 grid cells.
     const cells = screen.getAllByTestId((content, element) =>
       element.getAttribute('data-testid')?.startsWith('wfc-cell-')
     );
-    
-    // Check that there are 100 cells.
     expect(cells.length).toBe(100);
     
-    // For each cell, expect its inner text (possibility count) to equal dummyTiles.length (i.e., 5).
+    // Each uncollapsed cell should show its possibility count.
+    // Since dummyTiles remains unprocessed (no rotation/mirror), possibility count equals 5.
     cells.forEach(cell => {
-      expect(cell.textContent).toBe('5');
+      expect(cell.textContent).toBe('5'); // each cell shows "5" because possibilitySet = [0,1,2,3,4]
+      expect(cell).toHaveClass('wfc-cell-uncollapsed');
+      expect(cell).not.toHaveClass('wfc-cell-collapsed');
     });
   });
 
-  it('displays possibility count for uncollapsed cells even with single possibility', () => {
-    // Create a dummy tiles array with just 1 item with rotation/mirror disabled
-    const dummyTiles = [ { 
+  it('displays possibility count for uncollapsed cells when only one tile is present', () => {
+    // Create a dummy tile array with one tile.
+    const dummyTiles = [{
       grid: [[false, false], [false, false]],
       rotationEnabled: false,
       mirrorEnabled: false
-    } ];
+    }];
     
     render(<WFC tiles={dummyTiles} />);
     
@@ -55,11 +57,9 @@ describe('WFC Component', () => {
       element.getAttribute('data-testid')?.startsWith('wfc-cell-')
     );
     
-    // Even though each cell has only one possibility [0],
-    // they should display "1" (the count) because they're not collapsed
+    // Each cell should show "1" because possibilitySet = [0].
     cells.forEach(cell => {
       expect(cell.textContent).toBe('1');
-      // Verify the cell is not marked as collapsed
       expect(cell).toHaveClass('wfc-cell-uncollapsed');
       expect(cell).not.toHaveClass('wfc-cell-collapsed');
     });

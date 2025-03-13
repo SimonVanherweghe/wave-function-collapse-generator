@@ -2,8 +2,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import WFC from '../components/WFC';
 
-// A helper function: create a dummy tile definition with a known grid.
-// For clarity, our dummy tile grid will have uniform edge values.
+// Helper function: Create a dummy tile definition that uses a 3x3 grid.
+// For clarity, we use a boolean grid. When value is 1 the entire grid will be true.
 const createDummyTile = (value) => ({
   grid: [
     [value === 1, value === 1, value === 1],
@@ -15,27 +15,25 @@ const createDummyTile = (value) => ({
 });
 
 describe('WFC Full Run', () => {
-  it('collapses the entire grid successfully', async () => {
+  it('collapses the entire grid successfully and displays a tile preview in collapsed cells', async () => {
     // Create a dummy availableTiles array.
-    // For a successful run, provide at least one tile that is compatible with itself.
+    // For a successful run, we use two compatible tiles (both with grid all true).
     const availableTiles = [
       createDummyTile(1),
-      createDummyTile(1)  // All tiles have edges "1"
+      createDummyTile(1)
     ];
-    // Render the WFC component with these available tiles.
-    // It uses the tiles prop for possibility set initialization.
     render(<WFC tiles={availableTiles} />);
     
-    // Click the Run WFC button.
+    // Find and click the "Run WFC" button.
     const runButton = screen.getByTestId('run-wfc-button');
     fireEvent.click(runButton);
     
-    // Wait for state update. Look for every cell to be collapsed (showing the tile preview)
+    // Wait until all cells are collapsed.
     await waitFor(() => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // Check that all cells are marked as collapsed and contain a tile preview
+      // Check that every cell is marked as collapsed and contains a TilePreview (.tile-preview element).
       cells.forEach(cell => {
         expect(cell).toHaveClass('wfc-cell-collapsed');
         expect(cell.querySelector('.tile-preview')).not.toBeNull();
@@ -43,19 +41,16 @@ describe('WFC Full Run', () => {
     });
   });
 
-  it('collapses grid with incompatible tiles by forcing consistency', async () => {
-    // In this test, we provide two tiles that are incompatible with each other.
-    // With the current implementation, the algorithm will still collapse the grid
-    // by forcing consistency (favoring one tile over the other).
+  it('collapses grid with incompatible tiles by forcing consistency (backtracking if needed)', async () => {
+    // In this test, we provide two tiles that are incompatible.
+    // With our current algorithm, it forces consistency by favoring one tile over the other.
     const tileA = createDummyTile(1);
     const tileB = createDummyTile(2);
     const availableTiles = [tileA, tileB];
-    
-    // Render the WFC component.
     render(<WFC tiles={availableTiles} />);
     
-    // Click Run WFC button.
-    const runButton = screen.getByTestId('run-wfc-button');
+    // Run the algorithm with backtracking.
+    const runButton = screen.getByTestId('run-wfc-backtracking-button');
     fireEvent.click(runButton);
     
     // Wait for the algorithm to finish.
@@ -63,7 +58,7 @@ describe('WFC Full Run', () => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // We expect all cells to be marked as collapsed and contain a tile preview
+      // All cells should be collapsed and contain a TilePreview.
       cells.forEach(cell => {
         expect(cell).toHaveClass('wfc-cell-collapsed');
         expect(cell.querySelector('.tile-preview')).not.toBeNull();
