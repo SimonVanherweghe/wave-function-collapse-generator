@@ -1,5 +1,77 @@
 import { useState, useMemo } from "react";
 
+// Helper functions moved outside component to prevent recreation on each render
+const extractEdges = (grid) => {
+  const top = grid[0].map((cell) => (cell ? 1 : 0));
+  const right = grid.map((row) => (row[4] ? 1 : 0));
+  const bottom = grid[4].map((cell) => (cell ? 1 : 0)).reverse();
+  const left = grid.map((row) => (row[0] ? 1 : 0)).reverse();
+
+  return [top, right, bottom, left];
+};
+
+// Rotate a tile grid by 90 degrees * times
+const rotateTile = (grid, times) => {
+  let result = JSON.parse(JSON.stringify(grid));
+
+  for (let t = 0; t < times; t++) {
+    const newGrid = Array(5)
+      .fill(null)
+      .map(() => Array(5).fill(false));
+
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 5; j++) {
+        newGrid[j][4 - i] = result[i][j];
+      }
+    }
+
+    result = newGrid;
+  }
+
+  return result;
+};
+
+// Mirror a tile grid horizontally
+const mirrorTile = (grid) => {
+  const newGrid = Array(5)
+    .fill(null)
+    .map(() => Array(5).fill(false));
+
+  for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
+      newGrid[i][4 - j] = grid[i][j];
+    }
+  }
+
+  return newGrid;
+};
+
+// Get all variations of a tile based on rotation and mirroring
+const getTileVariations = (tile) => {
+  const variations = [{ grid: tile.grid }];
+
+  if (tile.rotationEnabled) {
+    // Add rotated variations
+    for (let i = 1; i < 4; i++) {
+      variations.push({
+        grid: rotateTile(tile.grid, i),
+      });
+    }
+  }
+
+  if (tile.mirrorEnabled) {
+    // Add mirrored variations
+    const currentVariations = [...variations];
+    currentVariations.forEach((variation) => {
+      variations.push({
+        grid: mirrorTile(variation.grid),
+      });
+    });
+  }
+
+  return variations;
+};
+
 const EdgeOverview = ({ tiles }) => {
   const [autoUpdate, setAutoUpdate] = useState(true);
 
@@ -35,78 +107,6 @@ const EdgeOverview = ({ tiles }) => {
 
   // When in manual mode, choose which edges to render
   const edgesToRender = autoUpdate ? autoComputedEdges : manualEdges;
-
-  // Extract the four edges from a tile grid
-  const extractEdges = (grid) => {
-    const top = grid[0].map((cell) => (cell ? 1 : 0));
-    const right = grid.map((row) => (row[4] ? 1 : 0));
-    const bottom = grid[4].map((cell) => (cell ? 1 : 0)).reverse();
-    const left = grid.map((row) => (row[0] ? 1 : 0)).reverse();
-
-    return [top, right, bottom, left];
-  };
-
-  // Get all variations of a tile based on rotation and mirroring
-  const getTileVariations = (tile) => {
-    const variations = [{ grid: tile.grid }];
-
-    if (tile.rotationEnabled) {
-      // Add rotated variations
-      for (let i = 1; i < 4; i++) {
-        variations.push({
-          grid: rotateTile(tile.grid, i),
-        });
-      }
-    }
-
-    if (tile.mirrorEnabled) {
-      // Add mirrored variations
-      const currentVariations = [...variations];
-      currentVariations.forEach((variation) => {
-        variations.push({
-          grid: mirrorTile(variation.grid),
-        });
-      });
-    }
-
-    return variations;
-  };
-
-  // Rotate a tile grid by 90 degrees * times
-  const rotateTile = (grid, times) => {
-    let result = JSON.parse(JSON.stringify(grid));
-
-    for (let t = 0; t < times; t++) {
-      const newGrid = Array(5)
-        .fill(null)
-        .map(() => Array(5).fill(false));
-
-      for (let i = 0; i < 5; i++) {
-        for (let j = 0; j < 5; j++) {
-          newGrid[j][4 - i] = result[i][j];
-        }
-      }
-
-      result = newGrid;
-    }
-
-    return result;
-  };
-
-  // Mirror a tile grid horizontally
-  const mirrorTile = (grid) => {
-    const newGrid = Array(5)
-      .fill(null)
-      .map(() => Array(5).fill(false));
-
-    for (let i = 0; i < 5; i++) {
-      for (let j = 0; j < 5; j++) {
-        newGrid[i][4 - j] = grid[i][j];
-      }
-    }
-
-    return newGrid;
-  };
 
   // Render edge visualization
   const renderEdge = (edge, count) => {
