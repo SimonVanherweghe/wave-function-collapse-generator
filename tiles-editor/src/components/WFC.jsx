@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { collapseCell } from '../wfcUtils';
 
 function WFC({ tiles }) {
   // Define grid dimensions
@@ -20,6 +21,12 @@ function WFC({ tiles }) {
     // Placeholder: later this will trigger the algorithm.
     console.log('Running WFC algorithm');
   };
+  
+  // Handler to collapse a single cell
+  const handleCollapseCell = () => {
+    const newGrid = collapseCell(grid);
+    setGrid(newGrid);
+  };
 
   return (
     <div className="wfc-container">
@@ -39,6 +46,9 @@ function WFC({ tiles }) {
       </div>
       <button onClick={runWFC} data-testid="run-wfc-button">
         Run WFC
+      </button>
+      <button onClick={handleCollapseCell} data-testid="collapse-cell-button">
+        Collapse Cell
       </button>
     </div>
   );
