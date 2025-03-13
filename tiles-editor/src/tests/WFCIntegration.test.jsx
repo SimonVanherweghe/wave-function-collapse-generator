@@ -2,8 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import WFC from '../components/WFC';
 
-// Helper function: Create a dummy tile definition that uses a 3x3 grid.
-// For clarity, we use a boolean grid. When value is 1 the entire grid will be true.
+// Helper function: create a dummy tile definition that uses a 3x3 grid.
 const createDummyTile = (value) => ({
   grid: [
     [value === 1, value === 1, value === 1],
@@ -14,26 +13,40 @@ const createDummyTile = (value) => ({
   mirrorEnabled: false
 });
 
-describe('WFC Full Run', () => {
-  it('collapses the entire grid successfully and displays a tile preview in collapsed cells', async () => {
-    // Create a dummy availableTiles array.
-    // For a successful run, we use two compatible tiles (both with grid all true).
-    const availableTiles = [
-      createDummyTile(1),
-      createDummyTile(1)
-    ];
+describe('WFC Integration', () => {
+  it('initializes the grid correctly with the given tile set', async () => {
+    // Test the grid initialization behavior.
+    const initialTiles = [createDummyTile(1), createDummyTile(2), createDummyTile(1)];
+    render(<WFC tiles={initialTiles} />);
+    
+    // Expect each grid cell to display possibility count equal to processedTiles.length.
+    // Since rotation and mirror are disabled, processedTiles length equals initialTiles.length (3).
+    const cells = screen.getAllByTestId((content, element) =>
+      element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+    );
+    expect(cells.length).toBe(100);
+    cells.forEach(cell => {
+      expect(cell.textContent).toBe('3');
+      expect(cell).toHaveClass('wfc-cell-uncollapsed');
+    });
+  });
+
+  it('collapses the entire grid successfully and displays tile previews in collapsed cells', async () => {
+    // For a successful run, use two compatible tiles.
+    const availableTiles = [createDummyTile(1), createDummyTile(1)];
     render(<WFC tiles={availableTiles} />);
     
-    // Find and click the "Run WFC" button.
+    // Click the Run WFC button.
     const runButton = screen.getByTestId('run-wfc-button');
     fireEvent.click(runButton);
     
-    // Wait until all cells are collapsed.
+    // Wait until the algorithm completes.
     await waitFor(() => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // Check that every cell is marked as collapsed and contains a TilePreview (.tile-preview element).
+      // Check that every cell is collapsed (using the collapsed CSS class)
+      // and that each cell contains a TilePreview element.
       cells.forEach(cell => {
         expect(cell).toHaveClass('wfc-cell-collapsed');
         expect(cell.querySelector('.tile-preview')).not.toBeNull();
@@ -42,27 +55,87 @@ describe('WFC Full Run', () => {
   });
 
   it('collapses grid with incompatible tiles by forcing consistency (backtracking if needed)', async () => {
-    // In this test, we provide two tiles that are incompatible.
-    // With our current algorithm, it forces consistency by favoring one tile over the other.
+    // Provide two tiles that are incompatible.
     const tileA = createDummyTile(1);
     const tileB = createDummyTile(2);
     const availableTiles = [tileA, tileB];
     render(<WFC tiles={availableTiles} />);
     
-    // Run the algorithm with backtracking.
-    const runButton = screen.getByTestId('run-wfc-backtracking-button');
-    fireEvent.click(runButton);
+    // Use the backtracking algorithm if available.
+    // Assume we have a "runWFC-backtracking-button" when backtracking is enabled.
+    const runBacktrackingButton = screen.getByTestId('run-wfc-backtracking-button');
+    fireEvent.click(runBacktrackingButton);
     
     // Wait for the algorithm to finish.
     await waitFor(() => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // All cells should be collapsed and contain a TilePreview.
       cells.forEach(cell => {
+        // Each cell should be collapsed and display a tile preview.
         expect(cell).toHaveClass('wfc-cell-collapsed');
         expect(cell.querySelector('.tile-preview')).not.toBeNull();
       });
+    });
+  });
+
+  it('updates when new tiles are added even after initial run', async () => {
+    // Render the component with an initial tile set
+    const initialTiles = [createDummyTile(1), createDummyTile(2)];
+    const { rerender } = render(<WFC tiles={initialTiles} />);
+    
+    // Initially, each cell shows a possibility count of 2.
+    let cells = screen.getAllByTestId((content, element) =>
+      element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+    );
+    cells.forEach(cell => {
+      expect(cell.textContent).toBe('2');
+    });
+    
+    // Update tile set by adding one more tile.
+    const updatedTiles = [createDummyTile(1), createDummyTile(2), createDummyTile(1)];
+    rerender(<WFC tiles={updatedTiles} />);
+    
+    // Wait for grid to reinitialize (cells should show possibility count of 3).
+    await waitFor(() => {
+      cells = screen.getAllByTestId((content, element) =>
+        element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+      );
+      cells.forEach(cell => {
+        expect(cell.textContent).toBe('3');
+      });
+    });
+  });
+
+  it('renders fallback TilePreview if a tile is removed after algorithm run', async () => {
+    // Start with a dummy tile set with two tiles.
+    const availableTiles = [createDummyTile(1), createDummyTile(1)];
+    const { rerender } = render(<WFC tiles={availableTiles} />);
+    
+    // Run the algorithm.
+    const runButton = screen.getByTestId('run-wfc-button');
+    fireEvent.click(runButton);
+    
+    // Wait for some cells to collapse.
+    await waitFor(() => {
+      const collapsedCells = screen.getAllByTestId((content, element) =>
+        element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+      ).filter(cell => cell.classList.contains('wfc-cell-collapsed'));
+      expect(collapsedCells.length).toBeGreaterThan(0);
+    });
+    
+    // Remove one tile from the set and re-render.
+    const updatedTiles = [ availableTiles[1] ];
+    rerender(<WFC tiles={updatedTiles} />);
+    
+    // Wait for the grid update.
+    await waitFor(() => {
+      const collapsedCells = screen.getAllByTestId((content, element) =>
+        element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+      ).filter(cell => cell.classList.contains('wfc-cell-collapsed'));
+      // Check that at least one collapsed cell now uses the fallback display (i.e. doesn't have a TilePreview).
+      const fallbackCells = collapsedCells.filter(cell => cell.querySelector('.tile-preview-fallback') !== null);
+      expect(fallbackCells.length).toBeGreaterThan(0);
     });
   });
 });
