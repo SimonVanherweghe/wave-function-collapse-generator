@@ -19,6 +19,7 @@ function WFC({ tiles }) {
     Array.from({ length: numRows }, () =>
       Array.from({ length: numCols }, () => ({
         possibilities: [...possibilitySet],
+        collapsed: false, // Add collapsed flag, initially false
       }))
     );
 
@@ -36,12 +37,13 @@ function WFC({ tiles }) {
     let contradiction = false;
     for (let i = 0; i < grid.length; i++) {
       for (let j = 0; j < grid[0].length; j++) {
-        const len = grid[i][j].possibilities.length;
+        const cell = grid[i][j];
+        const len = cell.possibilities.length;
         if (len === 0) {
           contradiction = true;
           break;
         }
-        if (len > 1) {
+        if (!cell.collapsed) {
           allCollapsed = false;
         }
       }
@@ -297,7 +299,6 @@ function WFC({ tiles }) {
       >
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
-            const isCollapsed = cell.possibilities.length === 1;
             return (
               <div
                 key={`${rowIndex}-${colIndex}`}
@@ -310,11 +311,11 @@ function WFC({ tiles }) {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: isCollapsed ? "#8BC34A" : "transparent", // collapsed cells get a green background
-                  fontWeight: isCollapsed ? "bold" : "normal",
+                  backgroundColor: cell.collapsed ? "#8BC34A" : "transparent", // collapsed cells get a green background
+                  fontWeight: cell.collapsed ? "bold" : "normal",
                 }}
               >
-                {isCollapsed
+                {cell.collapsed
                   ? cell.possibilities[0]
                   : cell.possibilities.length}
               </div>

@@ -36,4 +36,21 @@ describe('WFC Component', () => {
       expect(cell.textContent).toBe('5');
     });
   });
+
+  it('displays possibility count for uncollapsed cells even with single possibility', () => {
+    // Create a dummy tiles array with just 1 item
+    const dummyTiles = [ {} ];
+    
+    render(<WFC tiles={dummyTiles} />);
+    
+    const cells = screen.getAllByTestId((content, element) =>
+      element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+    );
+    
+    // Even though each cell has only one possibility [0],
+    // they should display "1" (the count) because they're not collapsed
+    cells.forEach(cell => {
+      expect(cell.textContent).toBe('1');
+    });
+  });
 });

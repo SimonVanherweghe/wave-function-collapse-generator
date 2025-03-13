@@ -28,12 +28,12 @@ describe('WFC Full Run', () => {
     const runButton = screen.getByTestId('run-wfc-button');
     fireEvent.click(runButton);
     
-    // Wait for state update. Look for every cell to be collapsed (possibility count === 1)
+    // Wait for state update. Look for every cell to be collapsed (showing the tile index)
     await waitFor(() => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // Check that all cells display a single possibility (either "0" or "1")
+      // Check that all cells display a tile index (either "0" or "1")
       cells.forEach(cell => {
         expect(["0", "1"]).toContain(cell.textContent);
       });
@@ -60,7 +60,7 @@ describe('WFC Full Run', () => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // We expect all cells to be collapsed to either "0" or "1"
+      // We expect all cells to be collapsed to either "0" or "1" (tile indices)
       cells.forEach(cell => {
         expect(["0", "1"]).toContain(cell.textContent);
       });

@@ -94,15 +94,15 @@ export function edgesAreCompatible(tileOrEdge1, tileOrEdge2, side) {
 }
 
 // Given a grid (2D array of cell objects, where each cell has a 'possibilities' array),
-// find the cell with the smallest number of possibilities greater than 1.
+// find the cell with the smallest number of possibilities that is not yet collapsed.
 export function findLowestEntropyCell(grid) {
   let minEntropy = Infinity;
   let selected = { row: -1, col: -1 };
   grid.forEach((row, i) => {
     row.forEach((cell, j) => {
       const count = cell.possibilities.length;
-      // Only consider cells that are not yet collapsed (i.e. possibilities length > 1)
-      if (count > 1 && count < minEntropy) {
+      // Only consider cells that are not yet collapsed
+      if (!cell.collapsed && count < minEntropy) {
         minEntropy = count;
         selected = { row: i, col: j };
       }

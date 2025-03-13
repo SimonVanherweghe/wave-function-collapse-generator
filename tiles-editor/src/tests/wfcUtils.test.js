@@ -99,7 +99,7 @@ describe('WFC Collapse Logic', () => {
     expect(cellIndex).toEqual({ row: 1, col: 0 });
   });
 
-  it('collapses the chosen cell to exactly one possibility', () => {
+  it('collapses the chosen cell to exactly one possibility and marks it as collapsed', () => {
     // Use the same grid as before.
     const grid = [
       [ { possibilities: [0, 1, 2] }, { possibilities: [0] } ],
@@ -111,14 +111,16 @@ describe('WFC Collapse Logic', () => {
     expect(collapsedCell.possibilities.length).toBe(1);
     // The chosen value should come from the original possibilities.
     expect([0, 1]).toContain(collapsedCell.possibilities[0]);
+    // The cell should be marked as collapsed
+    expect(collapsedCell.collapsed).toBe(true);
   });
 
   it('does not collapse cells that are already collapsed', () => {
     const grid = [
-      [ { possibilities: [0] }, { possibilities: [1] } ],
-      [ { possibilities: [2] }, { possibilities: [3] } ],
+      [ { possibilities: [0], collapsed: true }, { possibilities: [1], collapsed: true } ],
+      [ { possibilities: [2], collapsed: true }, { possibilities: [3], collapsed: true } ],
     ];
-    // Since every cell is already collapsed (possibilities length === 1), the function should leave the grid unchanged.
+    // Since every cell is already collapsed, the function should leave the grid unchanged.
     const newGrid = collapseCell(grid);
     expect(newGrid).toEqual(grid);
   });
