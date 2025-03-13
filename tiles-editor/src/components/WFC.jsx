@@ -293,7 +293,7 @@ function WFC({ tiles }) {
       // Collapse the cell by forcing its possibilities to only the chosen.
       const newGrid = currentGrid.map((r, i) =>
         r.map((cellObj, j) =>
-          i === row && j === col ? { possibilities: [chosen] } : cellObj
+          i === row && j === col ? { possibilities: [chosen], collapsed: true } : cellObj
         )
       );
       // Propagate constraints from the collapsed cell.
