@@ -33,6 +33,11 @@ function App() {
     setTiles([...tiles, JSON.parse(JSON.stringify(defaultTile))]);
   };
 
+  // Remove a specific tile
+  const handleRemoveTile = (index) => {
+    setTiles(tiles.filter((tile, i) => i !== index));
+  };
+
   return (
     <div className="app-container">
       <div data-testid="tile-overview" className="left-section">
@@ -46,6 +51,13 @@ function App() {
                 tileId={index}
                 onUpdate={(updatedTile) => handleTileUpdate(index, updatedTile)}
               />
+              <button 
+                onClick={() => handleRemoveTile(index)}
+                className="remove-tile-button"
+                data-testid={`remove-tile-${index}`}
+              >
+                Remove Tile
+              </button>
             </div>
           ))}
         </div>
