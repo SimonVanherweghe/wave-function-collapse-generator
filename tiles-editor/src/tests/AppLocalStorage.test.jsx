@@ -29,7 +29,7 @@ describe('Local Storage Integration in App', () => {
   it('updates local storage when a tile is updated', async () => {
     // Render App with its default tile.
     render(<App />);
-    const cell = screen.getByTestId('cell-0-0');
+    const cell = screen.getByTestId('tile-0-cell-0-0');
 
     // Click the first cell, toggling its state
     fireEvent.click(cell);
