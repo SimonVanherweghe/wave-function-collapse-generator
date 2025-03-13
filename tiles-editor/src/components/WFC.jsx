@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import TilePreview from "./TilePreview";
 import {
   collapseCell,
   propagateConstraints,
@@ -316,7 +317,7 @@ function WFC({ tiles }) {
                 }}
               >
                 {cell.collapsed
-                  ? cell.possibilities[0]
+                  ? <TilePreview tile={tiles[cell.possibilities[0]]} />
                   : cell.possibilities.length}
               </div>
             );

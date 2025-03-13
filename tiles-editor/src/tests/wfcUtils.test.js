@@ -131,9 +131,9 @@ describe('Constraint Propagation', () => {
   // For simplicity, our tile grids will be arrays of single numbers representing edges.
   const createTile = (value) => ({
     grid: [
-      [value, value, value],
-      [value, value, value],
-      [value, value, value],
+      [value === 1, value === 1, value === 1],
+      [value === 1, value === 1, value === 1],
+      [value === 1, value === 1, value === 1],
     ]
   });
 

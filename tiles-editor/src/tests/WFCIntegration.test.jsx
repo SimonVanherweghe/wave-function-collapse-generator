@@ -6,9 +6,9 @@ import WFC from '../components/WFC';
 // For clarity, our dummy tile grid will have uniform edge values.
 const createDummyTile = (value) => ({
   grid: [
-    [value, value, value],
-    [value, value, value],
-    [value, value, value],
+    [value === 1, value === 1, value === 1],
+    [value === 1, value === 1, value === 1],
+    [value === 1, value === 1, value === 1],
   ]
 });
 
@@ -33,9 +33,9 @@ describe('WFC Full Run', () => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // Check that all cells display a tile index (either "0" or "1")
+      // Check that all cells contain a tile preview element
       cells.forEach(cell => {
-        expect(["0", "1"]).toContain(cell.textContent);
+        expect(cell.querySelector('.tile-preview')).not.toBeNull();
       });
     });
   });
@@ -60,9 +60,9 @@ describe('WFC Full Run', () => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // We expect all cells to be collapsed to either "0" or "1" (tile indices)
+      // We expect all cells to contain a tile preview element
       cells.forEach(cell => {
-        expect(["0", "1"]).toContain(cell.textContent);
+        expect(cell.querySelector('.tile-preview')).not.toBeNull();
       });
     });
   });

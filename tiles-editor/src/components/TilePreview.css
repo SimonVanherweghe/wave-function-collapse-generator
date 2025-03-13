@@ -1,0 +1,19 @@
+.tile-preview {
+  display: grid;
+  grid-template-columns: repeat(5, 6px); /* assuming a 5x5 tile; adjust as needed */
+  gap: 1px;
+}
+
+.tile-preview-row {
+  display: contents;
+}
+
+.tile-preview-cell {
+  width: 6px;
+  height: 6px;
+  background-color: #ccc;
+}
+
+.tile-preview-cell.active {
+  background-color: #333;
+}

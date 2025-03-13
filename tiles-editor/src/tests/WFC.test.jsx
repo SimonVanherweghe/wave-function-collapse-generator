@@ -39,7 +39,7 @@ describe('WFC Component', () => {
 
   it('displays possibility count for uncollapsed cells even with single possibility', () => {
     // Create a dummy tiles array with just 1 item
-    const dummyTiles = [ {} ];
+    const dummyTiles = [ { grid: [[false, false], [false, false]] } ];
     
     render(<WFC tiles={dummyTiles} />);
     
