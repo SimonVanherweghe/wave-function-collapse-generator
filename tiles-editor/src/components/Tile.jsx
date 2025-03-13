@@ -1,32 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 function Tile({ tile, onUpdate }) {
   const [grid, setGrid] = useState(tile.grid);
   const [rotationEnabled, setRotationEnabled] = useState(tile.rotationEnabled);
   const [mirrorEnabled, setMirrorEnabled] = useState(tile.mirrorEnabled);
 
-  // Whenever any state changes, notify the parent via onUpdate callback
-  useEffect(() => {
-    if (onUpdate) {
-      onUpdate({ grid, rotationEnabled, mirrorEnabled });
-    }
-  }, [grid, rotationEnabled, mirrorEnabled, onUpdate]);
-
   const handleCellClick = (row, col) => {
-    setGrid((prevGrid) => {
-      // Create a deep copy of the grid
-      const newGrid = prevGrid.map((r) => r.slice());
-      newGrid[row][col] = !newGrid[row][col];
-      return newGrid;
-    });
+    const newGrid = grid.map((r, i) =>
+      i === row ? r.map((cell, j) => (j === col ? !cell : cell)) : r
+    );
+    setGrid(newGrid);
+    if (onUpdate) {
+      onUpdate({ grid: newGrid, rotationEnabled, mirrorEnabled });
+    }
   };
 
   const handleRotationChange = (e) => {
-    setRotationEnabled(e.target.checked);
+    const newRotation = e.target.checked;
+    setRotationEnabled(newRotation);
+    if (onUpdate) {
+      onUpdate({ grid, rotationEnabled: newRotation, mirrorEnabled });
+    }
   };
 
   const handleMirrorChange = (e) => {
-    setMirrorEnabled(e.target.checked);
+    const newMirror = e.target.checked;
+    setMirrorEnabled(newMirror);
+    if (onUpdate) {
+      onUpdate({ grid, rotationEnabled, mirrorEnabled: newMirror });
+    }
   };
 
   return (
