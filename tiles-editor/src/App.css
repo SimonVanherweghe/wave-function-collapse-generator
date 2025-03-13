@@ -171,6 +171,9 @@
 }
 
 .wfc-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 30px);
+  gap: 2px;
   margin-bottom: 1.5rem;
   background-color: white;
   padding: 1rem;
@@ -179,7 +182,25 @@
 }
 
 .wfc-cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   transition: background-color 0.2s ease;
+}
+
+/* For uncollapsed cells display possibility count */
+.wfc-cell-uncollapsed {
+  background-color: transparent;
+  font-weight: normal;
+}
+
+/* For collapsed cells, display the tile preview */
+.wfc-cell-collapsed {
+  background-color: #8BC34A;
+  font-weight: bold;
 }
 
 .wfc-cell:hover {

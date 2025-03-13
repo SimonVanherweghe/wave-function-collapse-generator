@@ -290,31 +290,14 @@ function WFC({ tiles }) {
 
   return (
     <div className="wfc-container">
-      <div
-        className="wfc-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${numCols}, 30px)`,
-          gap: "2px",
-        }}
-      >
+      <div className="wfc-grid">
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             return (
               <div
                 key={`${rowIndex}-${colIndex}`}
                 data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
-                className="wfc-cell"
-                style={{
-                  width: "30px",
-                  height: "30px",
-                  border: "1px solid #ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: cell.collapsed ? "#8BC34A" : "transparent", // collapsed cells get a green background
-                  fontWeight: cell.collapsed ? "bold" : "normal",
-                }}
+                className={`wfc-cell ${cell.collapsed ? 'wfc-cell-collapsed' : 'wfc-cell-uncollapsed'}`}
               >
                 {cell.collapsed
                   ? <TilePreview tile={tiles[cell.possibilities[0]]} />
