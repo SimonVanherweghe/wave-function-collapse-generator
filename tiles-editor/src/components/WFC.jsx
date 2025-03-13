@@ -304,13 +304,7 @@ function WFC({ tiles }) {
 
   // Add a reset function to reinitialize the grid
   const resetGrid = () => {
-    setGrid(
-      Array.from({ length: numRows }, () =>
-        Array.from({ length: numCols }, () => ({
-          possibilities: [...possibilitySet],
-        }))
-      )
-    );
+    setGrid(generateGrid());
   };
 
 
