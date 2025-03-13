@@ -279,8 +279,8 @@ function WFC({ tiles }) {
         console.log(`Backtracked to previous state (backtrack #${backtracks})`);
         continue;
       }
-      // Choose the first possibility from the remaining ones.
-      const chosen = possibleChoices[0];
+      // Randomly select from the available possibilities
+      const chosen = possibleChoices[Math.floor(Math.random() * possibleChoices.length)];
       console.log(`Collapsing cell (${row}, ${col}) to value: ${chosen}`);
 
       // Save current state along with the fact that we are trying this possibility.
