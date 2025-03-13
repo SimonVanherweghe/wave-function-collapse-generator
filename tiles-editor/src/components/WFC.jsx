@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { collapseCell } from '../wfcUtils';
+import { collapseCell, propagateConstraints, findLowestEntropyCell } from '../wfcUtils';
 
 function WFC({ tiles }) {
   // Define grid dimensions
@@ -16,7 +16,69 @@ function WFC({ tiles }) {
     )
   );
   
-  // Handler for the Run WFC button (logic to be added later)
+  // Helper function to check if the grid is fully collapsed or if a contradiction occurs.
+  const gridStatus = (grid) => {
+    let allCollapsed = true;
+    let contradiction = false;
+    for (let i = 0; i < grid.length; i++) {
+      for (let j = 0; j < grid[0].length; j++) {
+        const len = grid[i][j].possibilities.length;
+        if (len === 0) {
+          contradiction = true;
+          break;
+        }
+        if (len > 1) {
+          allCollapsed = false;
+        }
+      }
+      if (contradiction) break;
+    }
+    return { allCollapsed, contradiction };
+  };
+
+  const runWFCAlgorithm = () => {
+    // Use a local copy of the grid state.
+    let currentGrid = grid;
+    // Safety counter to avoid infinite loops.
+    let iterations = 0;
+    const maxIterations = 1000;
+    while (iterations < maxIterations) {
+      iterations++;
+      const { allCollapsed, contradiction } = gridStatus(currentGrid);
+      if (contradiction) {
+        console.error("Contradiction encountered – aborting algorithm");
+        break;
+      }
+      if (allCollapsed) {
+        break;
+      }
+      // Collapse one cell: use collapseCell which returns a new grid
+      const newGrid = collapseCell(currentGrid);
+      
+      // Find which cell was collapsed.
+      let collapsedCell = null;
+      for (let i = 0; i < currentGrid.length; i++) {
+        for (let j = 0; j < currentGrid[0].length; j++) {
+          if (currentGrid[i][j].possibilities.length > 1 &&
+              newGrid[i][j].possibilities.length === 1) {
+            collapsedCell = { row: i, col: j };
+            break;
+          }
+        }
+        if (collapsedCell) break;
+      }
+      // Propagate constraints from the collapsed cell.
+      if (collapsedCell) {
+        propagateConstraints(newGrid, collapsedCell.row, collapsedCell.col, tiles);
+      }
+      // Update our current grid for next iteration.
+      currentGrid = newGrid;
+    }
+    // Finally, update component state
+    setGrid(currentGrid);
+  };
+
+  // Handler for the Run WFC button
   const runWFC = () => {
     // Placeholder: later this will trigger the algorithm.
     console.log('Running WFC algorithm');
@@ -44,7 +106,7 @@ function WFC({ tiles }) {
           ))
         )}
       </div>
-      <button onClick={runWFC} data-testid="run-wfc-button">
+      <button onClick={runWFCAlgorithm} data-testid="run-wfc-button">
         Run WFC
       </button>
       <button onClick={handleCollapseCell} data-testid="collapse-cell-button">
