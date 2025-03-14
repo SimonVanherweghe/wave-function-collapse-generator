@@ -82,6 +82,11 @@ function WFC({ tiles }) {
     setGrid(generateGrid());
   }, [possibilitySet]); // possibilitySet changes when processedTiles change
 
+  // When the tiles prop changes, always reset the grid so that no old collapsed cells remain
+  useEffect(() => {
+    setGrid(generateGrid());
+  }, [tiles]);
+
   // Helper function to check if the grid is fully collapsed or if a contradiction occurs.
   const gridStatus = (grid) => {
     let allCollapsed = true;
