@@ -96,7 +96,7 @@ function App() {
         <EdgeOverview tiles={tiles} />
 
         <h2>Wave Function Collapse</h2>
-        <WFC tiles={tiles} />
+        <WFC tiles={tiles} key={JSON.stringify(tiles)} />
       </div>
     </div>
   );

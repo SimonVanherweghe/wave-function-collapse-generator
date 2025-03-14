@@ -29,7 +29,7 @@ function arraysEqual(a, b) {
 // Helper function: logs the current state of the grid for debugging
 export function logGridState(grid) {
   console.log("Current grid state:");
-  grid.forEach((row, i) => {
+  /* grid.forEach((row, i) => {
     const rowStr = row
       .map((cell) =>
         cell.possibilities.length === 1
@@ -38,7 +38,7 @@ export function logGridState(grid) {
       )
       .join(" ");
     //console.log(`Row ${i}: ${rowStr}`);
-  });
+  }); */
 }
 
 /*

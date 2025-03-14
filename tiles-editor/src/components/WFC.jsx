@@ -1,13 +1,13 @@
-import { useState, useEffect, useMemo } from "react";
-import TilePreview from "./TilePreview";
+import { useState } from "react";
 import {
   collapseCell,
-  propagateConstraints,
   findLowestEntropyCell,
   logGridState,
-  rotateTile,
   mirrorTile,
+  propagateConstraints,
+  rotateTile,
 } from "../wfcUtils";
+import TilePreview from "./TilePreview";
 
 function WFC({ tiles }) {
   // Define grid dimensions
@@ -17,53 +17,41 @@ function WFC({ tiles }) {
   // Determine if we have tiles
   const hasTiles = tiles && tiles.length > 0;
 
-  // Use effectiveTiles as the raw tiles array (no fallback)
-  const effectiveTiles = useMemo(() => {
-    console.log("tiles changed");
-    return tiles;
-  }, [tiles]);
-
   // Process the effective tile list to include rotated and mirrored variants if enabled.
-  const processedTiles = useMemo(() => {
-    let result = [];
-    effectiveTiles.forEach((tile) => {
-      // Always include the original tile.
-      result.push(tile);
+  let processedTiles = [];
+  tiles.forEach((tile) => {
+    // Always include the original tile.
+    processedTiles.push(tile);
 
-      // If rotationEnabled, add rotated variants (only add unique ones)
-      if (tile.rotationEnabled) {
-        for (let i = 1; i < 4; i++) {
-          const rotated = rotateTile(tile, i);
-          // Check uniqueness by comparing stringified grids.
-          if (
-            !result.some(
-              (t) => JSON.stringify(t.grid) === JSON.stringify(rotated.grid)
-            )
-          ) {
-            result.push(rotated);
-          }
-        }
-      }
-      // If mirrorEnabled, add the mirrored variant.
-      if (tile.mirrorEnabled) {
-        const mirrored = mirrorTile(tile);
+    // If rotationEnabled, add rotated variants (only add unique ones)
+    if (tile.rotationEnabled) {
+      for (let i = 1; i < 4; i++) {
+        const rotated = rotateTile(tile, i);
+        // Check uniqueness by comparing stringified grids.
         if (
-          !result.some(
-            (t) => JSON.stringify(t.grid) === JSON.stringify(mirrored.grid)
+          !processedTiles.some(
+            (t) => JSON.stringify(t.grid) === JSON.stringify(rotated.grid)
           )
         ) {
-          result.push(mirrored);
+          processedTiles.push(rotated);
         }
       }
-    });
-    return result;
-  }, [effectiveTiles]);
+    }
+    // If mirrorEnabled, add the mirrored variant.
+    if (tile.mirrorEnabled) {
+      const mirrored = mirrorTile(tile);
+      if (
+        !processedTiles.some(
+          (t) => JSON.stringify(t.grid) === JSON.stringify(mirrored.grid)
+        )
+      ) {
+        processedTiles.push(mirrored);
+      }
+    }
+  });
 
   // Always compute possibility set from the processed tile list
-  const possibilitySet = useMemo(
-    () => processedTiles.map((_, index) => index),
-    [processedTiles]
-  );
+  const possibilitySet = processedTiles.map((_, index) => index);
 
   // Function to generate a fresh grid
   const generateGrid = () =>
@@ -76,16 +64,6 @@ function WFC({ tiles }) {
 
   // Initialize the grid
   const [grid, setGrid] = useState(generateGrid());
-
-  // If processed tiles change, reset the grid
-  useEffect(() => {
-    setGrid(generateGrid());
-  }, [possibilitySet]); // possibilitySet changes when processedTiles change
-
-  // When the tiles prop changes, always reset the grid so that no old collapsed cells remain
-  useEffect(() => {
-    setGrid(generateGrid());
-  }, [tiles]);
 
   // Helper function to check if the grid is fully collapsed or if a contradiction occurs.
   const gridStatus = (grid) => {
@@ -351,7 +329,6 @@ function WFC({ tiles }) {
     setGrid(generateGrid());
   };
 
-
   return (
     <div className="wfc-container">
       <div className="wfc-grid">
@@ -375,8 +352,8 @@ function WFC({ tiles }) {
           })
         )}
       </div>
-      <button 
-        onClick={runWFCAlgorithm} 
+      <button
+        onClick={runWFCAlgorithm}
         data-testid="run-wfc-button"
         disabled={!hasTiles}
       >
@@ -389,8 +366,8 @@ function WFC({ tiles }) {
       >
         Run WFC with Backtracking
       </button>
-      <button 
-        onClick={resetGrid} 
+      <button
+        onClick={resetGrid}
         data-testid="reset-button"
         disabled={!hasTiles}
       >
