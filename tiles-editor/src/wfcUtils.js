@@ -17,6 +17,8 @@ export function getEdge(tile, side) {
   }
 }
 
+//edit test
+
 // Helper function: checks if two arrays are strictly equal element‐by‐element.
 function arraysEqual(a, b) {
   if (a.length !== b.length) return false;
