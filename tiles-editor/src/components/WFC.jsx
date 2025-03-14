@@ -330,7 +330,7 @@ function WFC({ tiles }) {
   };
 
   return (
-    <div className="wfc-container">
+    <div className="wfc-container" key={JSON.stringify(tiles)}>
       <div className="wfc-grid">
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => {

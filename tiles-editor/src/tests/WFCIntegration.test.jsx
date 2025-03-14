@@ -108,40 +108,44 @@ describe('WFC Integration', () => {
     });
   });
 
-  it('updates when new tiles are added even after initial run', async () => {
-    // Render the component with an initial tile set
-    const initialTiles = [createDummyTile(1), createDummyTile(2)];
+  it('updates when new tiles are added even after an initial run, resulting in a fresh grid', async () => {
+    const initialTiles = [ createDummyTile(1), createDummyTile(2) ];
     const { rerender } = render(<WFC tiles={initialTiles} />);
     
-    // Initially, each cell shows a possibility count of 2.
-    let cells = screen.getAllByTestId((content, element) =>
-      element.getAttribute('data-testid')?.startsWith('wfc-cell-')
-    );
-    cells.forEach(cell => {
-      expect(cell.textContent).toBe('2');
+    // Run the algorithm.
+    const runButton = screen.getByTestId('run-wfc-button');
+    fireEvent.click(runButton);
+    
+    // Wait for some cells to collapse.
+    await waitFor(() => {
+      const collapsedCells = screen.getAllByTestId((content, element) =>
+        element.getAttribute("data-testid")?.startsWith("wfc-cell-")
+      ).filter(cell => cell.classList.contains("wfc-cell-collapsed"));
+      expect(collapsedCells.length).toBeGreaterThan(0);
     });
     
-    // Buttons should be enabled with valid tiles
-    expect(screen.getByTestId('run-wfc-button')).not.toBeDisabled();
-    
     // Update tile set by adding one more tile.
-    const updatedTiles = [createDummyTile(1), createDummyTile(2), createDummyTile(1)];
+    const updatedTiles = [ createDummyTile(1), createDummyTile(2), createDummyTile(1) ];
+    // New key forces reinitialization.
     rerender(<WFC tiles={updatedTiles} />);
     
-    // Wait for grid to reinitialize (cells should show possibility count of 3).
+    // Verify the new grid is fresh: each cell should be uncollapsed and display possibility count "3"
+    // (since updatedTiles has length 3, and rotation/mirror are disabled).
     await waitFor(() => {
-      cells = screen.getAllByTestId((content, element) =>
-        element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+      const cells = screen.getAllByTestId((content, element) =>
+        element.getAttribute("data-testid")?.startsWith("wfc-cell-")
       );
       cells.forEach(cell => {
-        expect(cell.textContent).toBe('3');
+        expect(cell.textContent).toBe("3");
+        expect(cell).toHaveClass("wfc-cell-uncollapsed");
+        expect(cell).not.toHaveClass("wfc-cell-collapsed");
       });
     });
   });
 
-  it('updates the grid when a tile is removed after algorithm run', async () => {
+  it('updates the grid when a tile is removed after algorithm run, resulting in a reset grid', async () => {
     // Start with a dummy tile set with two tiles.
-    const availableTiles = [createDummyTile(1), createDummyTile(1)];
+    const availableTiles = [ createDummyTile(1), createDummyTile(1) ];
     const { rerender } = render(<WFC tiles={availableTiles} />);
     
     // Run the algorithm.
@@ -150,24 +154,28 @@ describe('WFC Integration', () => {
     
     // Wait for the algorithm to complete.
     await waitFor(() => {
-      const cells = screen.getAllByTestId((content, element) =>
-        element.getAttribute('data-testid')?.startsWith('wfc-cell-')
-      ).filter(cell => cell.classList.contains('wfc-cell-collapsed'));
-      expect(cells.length).toBeGreaterThan(0);
+      const collapsedCells = screen.getAllByTestId((content, element) =>
+        element.getAttribute("data-testid")?.startsWith("wfc-cell-")
+      ).filter(cell => cell.classList.contains("wfc-cell-collapsed"));
+      expect(collapsedCells.length).toBeGreaterThan(0);
     });
     
-    // Remove one tile from the availableTiles.
-    const updatedTiles = [ availableTiles[1] ];  // now one tile remains
+    // Simulate tile removal – now only one tile remains.
+    const updatedTiles = [ availableTiles[1] ];
+    // We pass a new key so that the component is re-mounted.
     rerender(<WFC tiles={updatedTiles} />);
     
-    // After reinitialization, check that every cell now shows possibility count equal to 1.
+    // After reinitialization, every cell should be uncollapsed and show possibility count
+    // equal to the new processedTiles length. With one tile and no rotation/mirroring, possibilitySet will be [0] so each cell shows "1".
     await waitFor(() => {
       const cellsAfterReset = screen.getAllByTestId((content, element) =>
-        element.getAttribute('data-testid')?.startsWith('wfc-cell-')
+        element.getAttribute("data-testid")?.startsWith("wfc-cell-")
       );
       cellsAfterReset.forEach(cell => {
-        expect(cell.textContent).toBe('1');
-        expect(cell).toHaveClass('wfc-cell-uncollapsed');
+        expect(cell.textContent).toBe("1"); 
+        expect(cell).toHaveClass("wfc-cell-uncollapsed");
+        // No cell should carry the collapsed class.
+        expect(cell).not.toHaveClass("wfc-cell-collapsed");
       });
     });
   });
