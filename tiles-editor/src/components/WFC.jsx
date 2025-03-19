@@ -94,6 +94,7 @@ function WFC({ tiles }) {
 
     // Use a fresh copy of the grid state.
     let currentGrid = generateGrid();
+
     // Safety counter to avoid infinite loops.
     let iterations = 0;
     const maxIterations = 1000;
@@ -186,7 +187,7 @@ function WFC({ tiles }) {
     console.log("Initial possibility set:", possibilitySet);
 
     // Make a local copy of the grid.
-    let currentGrid = grid;
+    let currentGrid = generateGrid();
     // Stack to remember previous states for backtracking.
     // Each element will be an object: { grid, row, col, triedPossibilities }
     const historyStack = [];
