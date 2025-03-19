@@ -51,4 +51,23 @@ describe('Tile component', () => {
     expect(mirrorCheckbox.checked).toBe(true);
     expect(updatedTile.mirrorEnabled).toBe(true);
   });
+
+  it('updates tile weight when numeric field is changed', () => {
+    let updatedTile = null;
+    const handleUpdate = (tile) => { updatedTile = tile; };
+
+    const defaultTile = {
+      grid: Array(5).fill(null).map(() => Array(5).fill(false)),
+      rotationEnabled: false,
+      mirrorEnabled: false,
+      weight: 1,
+    };
+
+    render(<Tile tile={defaultTile} tileId={0} onUpdate={handleUpdate} />);
+    
+    const weightInput = screen.getByTestId('weight-input');
+    expect(weightInput.value).toBe("1");
+    fireEvent.change(weightInput, { target: { value: '5' } });
+    expect(updatedTile.weight).toBe(5);
+  });
 });

@@ -4,6 +4,7 @@ function Tile({ tile, tileId, onUpdate }) {
   const [grid, setGrid] = useState(tile.grid);
   const [rotationEnabled, setRotationEnabled] = useState(tile.rotationEnabled);
   const [mirrorEnabled, setMirrorEnabled] = useState(tile.mirrorEnabled);
+  const [weight, setWeight] = useState(tile.weight !== undefined ? tile.weight : 1);
 
   const handleCellClick = (row, col) => {
     const newGrid = grid.map((r, i) =>
@@ -19,7 +20,7 @@ function Tile({ tile, tileId, onUpdate }) {
     const newRotation = e.target.checked;
     setRotationEnabled(newRotation);
     if (onUpdate) {
-      onUpdate({ grid, rotationEnabled: newRotation, mirrorEnabled });
+      onUpdate({ grid, rotationEnabled: newRotation, mirrorEnabled, weight });
     }
   };
 
@@ -27,7 +28,15 @@ function Tile({ tile, tileId, onUpdate }) {
     const newMirror = e.target.checked;
     setMirrorEnabled(newMirror);
     if (onUpdate) {
-      onUpdate({ grid, rotationEnabled, mirrorEnabled: newMirror });
+      onUpdate({ grid, rotationEnabled, mirrorEnabled: newMirror, weight });
+    }
+  };
+
+  const handleWeightChange = (e) => {
+    const newWeight = Number(e.target.value);
+    setWeight(newWeight);
+    if (onUpdate) {
+      onUpdate({ grid, rotationEnabled, mirrorEnabled, weight: newWeight });
     }
   };
 
@@ -65,6 +74,17 @@ function Tile({ tile, tileId, onUpdate }) {
             data-testid="mirror-checkbox"
           />
           Mirror
+        </label>
+        <label style={{ marginLeft: "1rem" }}>
+          Weight:
+          <input
+            type="number"
+            value={weight}
+            onChange={handleWeightChange}
+            data-testid="weight-input"
+            min="0"
+            style={{ width: "4rem", marginLeft: "0.5rem" }}
+          />
         </label>
       </div>
     </div>
