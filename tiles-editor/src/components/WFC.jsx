@@ -92,8 +92,8 @@ function WFC({ tiles }) {
     console.log("Running WFC algorithm...");
     console.log("Available tiles:", processedTiles.length);
 
-    // Use a local copy of the grid state.
-    let currentGrid = grid;
+    // Use a fresh copy of the grid state.
+    let currentGrid = generateGrid();
     // Safety counter to avoid infinite loops.
     let iterations = 0;
     const maxIterations = 1000;
