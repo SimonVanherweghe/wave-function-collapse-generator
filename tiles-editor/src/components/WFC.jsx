@@ -9,7 +9,7 @@ import {
 } from "../wfcUtils";
 import TilePreview from "./TilePreview";
 
-function WFC({ tiles, numRows = 10, numCols = 10 }) {
+function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
   // Determine if we have tiles
   const hasTiles = tiles && tiles.length > 0;
 
@@ -352,9 +352,7 @@ function WFC({ tiles, numRows = 10, numCols = 10 }) {
               <div
                 key={`${rowIndex}-${colIndex}`}
                 data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
-                className={`wfc-cell ${
-                  cell.collapsed ? "wfc-cell-collapsed" : "wfc-cell-uncollapsed"
-                }`}
+                className={`wfc-cell ${!showGridlines ? 'wfc-cell--no-gridlines' : ''} ${cell.collapsed ? "wfc-cell-collapsed" : "wfc-cell-uncollapsed"}`}
               >
                 {cell.collapsed ? (
                   <TilePreview tile={processedTiles[cell.possibilities[0]]} />
