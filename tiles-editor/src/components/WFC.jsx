@@ -130,7 +130,7 @@ function WFC({ tiles }) {
         );
 
         // Collapse one cell: use collapseCell which returns a new grid
-        const newGrid = collapseCell(currentGrid);
+        const newGrid = collapseCell(currentGrid, processedTiles);
 
         // Find which cell was collapsed.
         let collapsedCell = null;

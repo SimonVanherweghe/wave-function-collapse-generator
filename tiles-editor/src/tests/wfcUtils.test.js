@@ -142,11 +142,14 @@ describe('WFC Collapse Logic', () => {
   });
 
   it('collapses the chosen cell to exactly one possibility and marks it as collapsed', () => {
+    const availableTiles = [
+      { weight: 1 }, { weight: 1 }, { weight: 1 }
+    ];
     const grid = [
       [ { possibilities: [0, 1, 2], collapsed: false }, { possibilities: [0], collapsed: true } ],
       [ { possibilities: [0, 1], collapsed: false }, { possibilities: [0], collapsed: true } ],
     ];
-    const newGrid = collapseCell(grid);
+    const newGrid = collapseCell(grid, availableTiles);
     const collapsedCell = newGrid[1][0];
     expect(collapsedCell.possibilities.length).toBe(1);
     expect([0, 1]).toContain(collapsedCell.possibilities[0]);
@@ -154,12 +157,31 @@ describe('WFC Collapse Logic', () => {
   });
 
   it('does not collapse cells that are already collapsed', () => {
+    const availableTiles = [
+      { weight: 1 }, { weight: 1 }, { weight: 1 }
+    ];
     const grid = [
       [ { possibilities: [0], collapsed: true }, { possibilities: [1], collapsed: true } ],
       [ { possibilities: [2], collapsed: true }, { possibilities: [3], collapsed: true } ],
     ];
-    const newGrid = collapseCell(grid);
+    const newGrid = collapseCell(grid, availableTiles);
     expect(newGrid).toEqual(grid);
+  });
+
+  it('selects tiles according to weight probabilities', () => {
+    const iterations = 10000;
+    const counts = { 0: 0, 1: 0 };
+    const availableTiles = [{ weight: 5 }, { weight: 1 }];
+    for (let i = 0; i < iterations; i++) {
+      // Create a 1x1 grid with both possibilities.
+      const grid = [[{ possibilities: [0, 1], collapsed: false }]];
+      const newGrid = collapseCell(grid, availableTiles);
+      const chosen = newGrid[0][0].possibilities[0];
+      counts[chosen]++;
+    }
+    // Expect tile 0 (weight 5) to be chosen significantly more often than tile 1.
+    // For example, tile 0's count should be roughly 5 times tile 1's count.
+    expect(counts[0]).toBeGreaterThan(counts[1] * 4);
   });
 });
 

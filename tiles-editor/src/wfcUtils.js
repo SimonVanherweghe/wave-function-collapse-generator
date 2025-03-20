@@ -116,22 +116,33 @@ export function findLowestEntropyCell(grid) {
 
 // Given a grid, collapse the cell with the lowest entropy by randomly choosing one possibility.
 // Returns a new grid (immutable update) with one cell collapsed.
-export function collapseCell(grid) {
+export function collapseCell(grid, availableTiles) {
   // Find the cell to collapse.
   const { row, col } = findLowestEntropyCell(grid);
   // If no cell is found (or no candidate qualifies), return the grid unchanged.
   if (row === -1 || col === -1) return grid;
 
   const cell = grid[row][col];
-  // Randomly pick one possibility.
-  const randomIndex = Math.floor(Math.random() * cell.possibilities.length);
-  const chosen = cell.possibilities[randomIndex];
-
+  // Implement weighted random selection based on tile weight.
+  const totalWeight = cell.possibilities.reduce(
+    (sum, tileIndex) => sum + (availableTiles[tileIndex].weight || 1),
+    0
+  );
+  let r = Math.random() * totalWeight;
+  let chosen;
+  for (let i = 0; i < cell.possibilities.length; i++) {
+    const tileIndex = cell.possibilities[i];
+    r -= (availableTiles[tileIndex].weight || 1);
+    if (r <= 0) {
+      chosen = tileIndex;
+      break;
+    }
+  }
   // Create a new grid with an updated cell.
   const newGrid = grid.map((r, i) =>
     r.map((cellObj, j) =>
       i === row && j === col
-        ? { possibilities: [chosen], collapsed: true } // collapse this cell and mark it as collapsed
+        ? { possibilities: [chosen], collapsed: true }
         : cellObj
     )
   );
