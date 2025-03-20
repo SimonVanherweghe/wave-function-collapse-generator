@@ -9,11 +9,7 @@ import {
 } from "../wfcUtils";
 import TilePreview from "./TilePreview";
 
-function WFC({ tiles }) {
-  // Define grid dimensions
-  const numRows = 10;
-  const numCols = 10;
-
+function WFC({ tiles, numRows = 10, numCols = 10 }) {
   // Determine if we have tiles
   const hasTiles = tiles && tiles.length > 0;
 
@@ -58,7 +54,7 @@ function WFC({ tiles }) {
     Array.from({ length: numRows }, () =>
       Array.from({ length: numCols }, () => ({
         possibilities: [...possibilitySet],
-        collapsed: false, // Add collapsed flag, initially false
+        collapsed: false,
       }))
     );
 

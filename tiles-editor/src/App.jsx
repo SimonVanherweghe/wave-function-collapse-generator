@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Tile from "./components/Tile";
 import EdgeOverview from "./components/EdgeOverview";
 import WFC from "./components/WFC";
@@ -70,10 +71,18 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <div data-testid="tile-overview" className="left-section">
-        <h2>Tile Overview</h2>
-        <div className="tiles-container">
+    <BrowserRouter>
+      <nav className="app-nav">
+        <Link to="/">Home</Link> | <Link to="/grid">Grid</Link>
+      </nav>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div className="app-container">
+              <div data-testid="tile-overview" className="left-section">
+                <h2>Tile Overview</h2>
+                <div className="tiles-container">
           {tiles.map((tile, index) => (
             <TileWrapper
               key={index}
@@ -84,21 +93,34 @@ function App() {
             />
           ))}
         </div>
-        <button onClick={handleAddTile} className="add-tile-button">
-          Add Tile
-        </button>
-        <div data-testid="tile-state" style={{ display: "none" }}>
-          {JSON.stringify(tiles)}
-        </div>
-      </div>
-      <div data-testid="edge-overview" className="right-section">
-        <h2>Edge Overview</h2>
-        <EdgeOverview tiles={tiles} />
+                <button onClick={handleAddTile} className="add-tile-button">
+                  Add Tile
+                </button>
+                <div data-testid="tile-state" style={{ display: "none" }}>
+                  {JSON.stringify(tiles)}
+                </div>
+              </div>
+              <div data-testid="edge-overview" className="right-section">
+                <h2>Edge Overview</h2>
+                <EdgeOverview tiles={tiles} />
 
-        <h2>Wave Function Collapse</h2>
-        <WFC tiles={tiles} key={JSON.stringify(tiles)} />
-      </div>
-    </div>
+                <h2>Wave Function Collapse</h2>
+                <WFC tiles={tiles} key={JSON.stringify(tiles)} />
+              </div>
+            </div>
+          }
+        />
+        <Route
+          path="/grid"
+          element={
+            <div className="grid-page">
+              <h2>Large Grid WFC</h2>
+              <WFC tiles={tiles} numRows={20} numCols={20} key={JSON.stringify(tiles)} />
+            </div>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
