@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   collapseCell,
   findLowestEntropyCell,
-  logGridState,
   mirrorTile,
   propagateConstraints,
   rotateTile,

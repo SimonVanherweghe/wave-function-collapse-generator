@@ -28,20 +28,6 @@ function arraysEqual(a, b) {
   return true;
 }
 
-// Helper function: logs the current state of the grid for debugging
-export function logGridState(grid) {
-  /* grid.forEach((row, i) => {
-    const rowStr = row
-      .map((cell) =>
-        cell.possibilities.length === 1
-          ? `[${cell.possibilities[0]}]`
-          : `(${cell.possibilities.length})`
-      )
-      .join(" ");
-    //console.log(`Row ${i}: ${rowStr}`);
-  }); */
-}
-
 /*
   edgesAreCompatible accepts either two complete tile objects or two already extracted edge arrays,
   plus a side parameter.
@@ -131,7 +117,7 @@ export function collapseCell(grid, availableTiles) {
   let chosen;
   for (let i = 0; i < cell.possibilities.length; i++) {
     const tileIndex = cell.possibilities[i];
-    r -= (availableTiles[tileIndex].weight || 1);
+    r -= availableTiles[tileIndex].weight || 1;
     if (r <= 0) {
       chosen = tileIndex;
       break;
@@ -195,12 +181,6 @@ export function propagateConstraints(grid, row, col, availableTiles) {
     // Store the current count to check if pruning occurs.
     const oldLength = neighborCell.possibilities.length;
 
-    // Get the edge of the collapsed tile that faces the neighbor
-    const collapsedEdge = getEdge(collapsedTile, dir.sideCollapsed);
-
-    // Filter neighbor possibilities by keeping only those candidate indices for which
-    // the edge of the collapsed tile on the given side is compatible with the candidate's complementary edge.
-    const beforePossibilities = [...neighborCell.possibilities];
     neighborCell.possibilities = neighborCell.possibilities.filter(
       (candidateIndex) => {
         const candidateTile = availableTiles[candidateIndex];
@@ -223,7 +203,6 @@ export function propagateConstraints(grid, row, col, availableTiles) {
         return isCompatible;
       }
     );
-
 
     // If the neighbor's possibilities were pruned, we need to propagate constraints recursively.
     if (neighborCell.possibilities.length < oldLength) {
