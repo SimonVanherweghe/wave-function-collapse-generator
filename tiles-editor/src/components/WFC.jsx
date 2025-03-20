@@ -282,8 +282,21 @@ function WFC({ tiles }) {
           continue;
         }
         // Randomly select from the available possibilities
-        const chosen =
-          possibleChoices[Math.floor(Math.random() * possibleChoices.length)];
+        // Weighted random selection for the backtracking branch.
+        let totalWeight = possibleChoices.reduce(
+          (sum, tileIndex) => sum + (processedTiles[tileIndex].weight || 1),
+          0
+        );
+        let r = Math.random() * totalWeight;
+        let chosen;
+        for (let i = 0; i < possibleChoices.length; i++) {
+          const tileIndex = possibleChoices[i];
+          r -= (processedTiles[tileIndex].weight || 1);
+          if (r <= 0) {
+            chosen = tileIndex;
+            break;
+          }
+        }
         console.log(`Collapsing cell (${row}, ${col}) to value: ${chosen}`);
 
         // Save current state along with the fact that we are trying this possibility.
