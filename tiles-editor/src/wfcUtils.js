@@ -30,7 +30,6 @@ function arraysEqual(a, b) {
 
 // Helper function: logs the current state of the grid for debugging
 export function logGridState(grid) {
-  console.log("Current grid state:");
   /* grid.forEach((row, i) => {
     const rowStr = row
       .map((cell) =>
@@ -198,10 +197,6 @@ export function propagateConstraints(grid, row, col, availableTiles) {
 
     // Get the edge of the collapsed tile that faces the neighbor
     const collapsedEdge = getEdge(collapsedTile, dir.sideCollapsed);
-    console.log(
-      `Cell (${row},${col}) with tile ${selectedTileIndex} has ${dir.sideCollapsed} edge:`,
-      collapsedEdge
-    );
 
     // Filter neighbor possibilities by keeping only those candidate indices for which
     // the edge of the collapsed tile on the given side is compatible with the candidate's complementary edge.
@@ -225,21 +220,10 @@ export function propagateConstraints(grid, row, col, availableTiles) {
           dir.sideCollapsed
         );
 
-        if (!isCompatible) {
-          console.log(
-            `Tile ${candidateIndex} is not compatible with tile ${selectedTileIndex} on ${dir.sideCollapsed} edge`
-          );
-        }
-
         return isCompatible;
       }
     );
 
-    console.log(
-      `Cell (${newRow},${newCol}) possibilities pruned from [${beforePossibilities.join(
-        ","
-      )}] to [${neighborCell.possibilities.join(",")}]`
-    );
 
     // If the neighbor's possibilities were pruned, we need to propagate constraints recursively.
     if (neighborCell.possibilities.length < oldLength) {
