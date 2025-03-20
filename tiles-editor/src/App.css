@@ -172,7 +172,8 @@
 
 .wfc-grid {
   display: grid;
-  grid-template-columns: repeat(10, 30px);
+  grid-template-columns: repeat(var(--grid-cols, 10), 30px);
+  grid-template-rows: repeat(var(--grid-rows, 10), 30px);
   gap: 2px;
   margin-bottom: 1.5rem;
   background-color: white;

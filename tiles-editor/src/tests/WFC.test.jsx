@@ -56,6 +56,19 @@ describe('WFC Component', () => {
     expect(screen.getByTestId('reset-button')).not.toBeDisabled();
   });
 
+  it('sets CSS custom properties based on numRows and numCols', () => {
+    const dummyTiles = [{
+      grid: [[false]],
+      rotationEnabled: false,
+      mirrorEnabled: false
+    }];
+    // Render WFC with custom grid dimensions.
+    render(<WFC tiles={dummyTiles} numRows={15} numCols={12} />);
+    const gridContainer = screen.getByTestId('wfc-grid-container');
+    expect(gridContainer.style.getPropertyValue('--grid-cols')).toBe("12");
+    expect(gridContainer.style.getPropertyValue('--grid-rows')).toBe("15");
+  });
+
   it('displays possibility count for uncollapsed cells when only one tile is present', () => {
     // Create a dummy tile array with one tile.
     const dummyTiles = [{

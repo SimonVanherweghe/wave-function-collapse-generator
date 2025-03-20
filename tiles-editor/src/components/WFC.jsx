@@ -341,7 +341,11 @@ function WFC({ tiles, numRows = 10, numCols = 10 }) {
 
   return (
     <div className="wfc-container" key={JSON.stringify(tiles)}>
-      <div className="wfc-grid">
+      <div
+        className="wfc-grid"
+        data-testid="wfc-grid-container"
+        style={{ '--grid-cols': numCols, '--grid-rows': numRows }}
+      >
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             return (
