@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router";
 import Tile from "./components/Tile";
 import EdgeOverview from "./components/EdgeOverview";
 import WFC from "./components/WFC";
@@ -83,16 +83,16 @@ function App() {
               <div data-testid="tile-overview" className="left-section">
                 <h2>Tile Overview</h2>
                 <div className="tiles-container">
-          {tiles.map((tile, index) => (
-            <TileWrapper
-              key={index}
-              tile={tile}
-              index={index}
-              handleTileUpdate={handleTileUpdate}
-              handleRemoveTile={handleRemoveTile}
-            />
-          ))}
-        </div>
+                  {tiles.map((tile, index) => (
+                    <TileWrapper
+                      key={index}
+                      tile={tile}
+                      index={index}
+                      handleTileUpdate={handleTileUpdate}
+                      handleRemoveTile={handleRemoveTile}
+                    />
+                  ))}
+                </div>
                 <button onClick={handleAddTile} className="add-tile-button">
                   Add Tile
                 </button>
@@ -115,7 +115,12 @@ function App() {
           element={
             <div className="grid-page">
               <h2>Large Grid WFC</h2>
-              <WFC tiles={tiles} numRows={20} numCols={20} key={JSON.stringify(tiles)} />
+              <WFC
+                tiles={tiles}
+                numRows={20}
+                numCols={20}
+                key={JSON.stringify(tiles)}
+              />
             </div>
           }
         />
