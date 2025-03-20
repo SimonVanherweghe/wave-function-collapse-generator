@@ -149,6 +149,14 @@
   background-color: white;
 }
 
+.wfc-grid--no-gridlines {
+  gap: 0;
+}
+
+.wfc-cell--no-gridlines {
+  border: none;
+}
+
 .refresh-button {
   margin-left: 1rem;
 }
