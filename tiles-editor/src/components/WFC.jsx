@@ -287,7 +287,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         let chosen;
         for (let i = 0; i < possibleChoices.length; i++) {
           const tileIndex = possibleChoices[i];
-          r -= (processedTiles[tileIndex].weight || 1);
+          r -= processedTiles[tileIndex].weight || 1;
           if (r <= 0) {
             chosen = tileIndex;
             break;
@@ -342,9 +342,9 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
   return (
     <div className="wfc-container" key={JSON.stringify(tiles)}>
       <div
-        className="wfc-grid"
+        className={`wfc-grid ${!showGridlines ? "wfc-grid--no-gridlines" : ""}`}
         data-testid="wfc-grid-container"
-        style={{ '--grid-cols': numCols, '--grid-rows': numRows }}
+        style={{ "--grid-cols": numCols, "--grid-rows": numRows }}
       >
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
@@ -352,7 +352,9 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
               <div
                 key={`${rowIndex}-${colIndex}`}
                 data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
-                className={`wfc-cell ${!showGridlines ? 'wfc-cell--no-gridlines' : ''} ${cell.collapsed ? "wfc-cell-collapsed" : "wfc-cell-uncollapsed"}`}
+                className={`wfc-cell ${
+                  cell.collapsed ? "wfc-cell-collapsed" : "wfc-cell-uncollapsed"
+                }`}
               >
                 {cell.collapsed ? (
                   <TilePreview tile={processedTiles[cell.possibilities[0]]} />

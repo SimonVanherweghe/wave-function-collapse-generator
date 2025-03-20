@@ -118,8 +118,9 @@ function App() {
               <WFC
                 tiles={tiles}
                 numRows={20}
-                numCols={20}
+                numCols={30}
                 key={JSON.stringify(tiles)}
+                showGridlines={false}
               />
             </div>
           }
