@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./Tile.css";
 
 function Tile({ tile, tileId, onUpdate }) {
   const [grid, setGrid] = useState(tile.grid);

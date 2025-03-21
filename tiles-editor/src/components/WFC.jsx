@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./WFC.css";
 import {
   collapseCell,
   findLowestEntropyCell,

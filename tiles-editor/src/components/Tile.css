@@ -1,0 +1,38 @@
+.tile-wrapper {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+}
+
+.tile-wrapper h3 {
+  margin: 0.5em 0;
+}
+
+/* Tile grid styles */
+.grid {
+  /* If additional grid-level styles are needed, add them here. */
+}
+
+.grid-row {
+  display: flex;
+  justify-content: center;
+}
+
+.grid-cell {
+  width: 20px;
+  height: 20px;
+  border: 1px solid black;
+  cursor: pointer;
+  background-color: white;
+}
+
+.grid-cell.active {
+  background-color: black;
+}
+
+/* Option controls (for rotation, mirror, weight) */
+.options label {
+  display: block;
+  text-align: left;
+}

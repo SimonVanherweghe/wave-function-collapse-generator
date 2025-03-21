@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import "./EdgeOverview.css";
 
 // Helper functions moved outside component to prevent recreation on each render
 const extractEdges = (grid) => {
