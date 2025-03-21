@@ -59,6 +59,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
   // Initialize the grid
   const [grid, setGrid] = useState(generateGrid());
+  const [isLoading, setIsLoading] = useState(false);
 
   // Helper function to check if the grid is fully collapsed or if a contradiction occurs.
   const gridStatus = (grid) => {
@@ -82,8 +83,12 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
   };
 
   // Original WFC algorithm without backtracking
-  const runWFCAlgorithm = () => {
+  const runWFCAlgorithm = async () => {
     if (!hasTiles) return; // Prevent running algorithm if no tiles.
+    
+    setIsLoading(true);
+    // Simulate asynchronous work to ensure spinner is visible
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Use a fresh copy of the grid state.
     let currentGrid = generateGrid();
@@ -145,11 +150,16 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
     // Finally, update component state
     setGrid(currentGrid);
+    setIsLoading(false);
   };
 
   // New backtracking version of the algorithm
-  const runWFCAlgorithmWithBacktracking = () => {
+  const runWFCAlgorithmWithBacktracking = async () => {
     if (!hasTiles) return;
+    
+    setIsLoading(true);
+    // Simulate asynchronous work to ensure spinner is visible
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Make a local copy of the grid.
     let currentGrid = generateGrid();
@@ -261,6 +271,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     }
 
     setGrid(currentGrid);
+    setIsLoading(false);
   };
 
   // Add a reset function to reinitialize the grid
@@ -270,11 +281,12 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
   return (
     <div className="wfc-container" key={JSON.stringify(tiles)}>
-      <div
-        className={`wfc-grid ${!showGridlines ? "wfc-grid--no-gridlines" : ""}`}
-        data-testid="wfc-grid-container"
-        style={{ "--grid-cols": numCols, "--grid-rows": numRows }}
-      >
+      <div className="wfc-grid-container" style={{ position: 'relative' }}>
+        <div
+          className={`wfc-grid ${!showGridlines ? "wfc-grid--no-gridlines" : ""}`}
+          data-testid="wfc-grid-container"
+          style={{ "--grid-cols": numCols, "--grid-rows": numRows }}
+        >
         {grid.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             return (
@@ -294,25 +306,46 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
             );
           })
         )}
+        </div>
+        {isLoading && (
+          <div
+            data-testid="wfc-spinner"
+            className="wfc-overlay"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(128,128,128,0.5)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 10,
+            }}
+          >
+            <div className="spinner">Loading…</div>
+          </div>
+        )}
       </div>
       <button
         onClick={runWFCAlgorithm}
-        data-testid="run-wfc-button"
-        disabled={!hasTiles}
+        data-testid="wfc-start-button"
+        disabled={!hasTiles || isLoading}
       >
         Run WFC
       </button>
       <button
         onClick={runWFCAlgorithmWithBacktracking}
         data-testid="run-wfc-backtracking-button"
-        disabled={!hasTiles}
+        disabled={!hasTiles || isLoading}
       >
         Run WFC with Backtracking
       </button>
       <button
         onClick={resetGrid}
         data-testid="reset-button"
-        disabled={!hasTiles}
+        disabled={!hasTiles || isLoading}
       >
         Reset
       </button>
