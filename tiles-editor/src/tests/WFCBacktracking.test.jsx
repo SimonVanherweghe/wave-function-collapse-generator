@@ -36,7 +36,7 @@ describe('WFC Backtracking Algorithm', () => {
       const cells = screen.getAllByTestId((content, element) =>
         element.getAttribute('data-testid')?.startsWith('wfc-cell-')
       );
-      // In this contradiction scenario, our simple backtracking will try to force a collapse.
+      // On backtracking, the failed collapse is undone and the cell's possibility set is reduced.
       // Verify that no cell remains with an empty possibility set.
       cells.forEach(cell => {
         // Every cell should be collapsed and contain a tile preview

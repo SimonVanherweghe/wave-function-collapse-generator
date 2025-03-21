@@ -95,7 +95,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     // Make a local copy of the grid.
     let currentGrid = generateGrid();
     // Stack to remember previous states for backtracking.
-    // Each element will be an object: { grid, row, col, triedPossibilities }
+    // Each element will be an object: { grid, row, col, originalPossibilities, tried }
     const historyStack = [];
     let iterations = 0;
     const maxIterations = 1000;
@@ -115,12 +115,19 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
             console.error("Backtracking exhausted - contradiction unresolved");
             break;
           }
-          const prev = historyStack.pop();
-          currentGrid = prev.grid;
+          const record = historyStack.pop();
+          const prevGrid = record.grid;
+          // Remove the previously tried possibility from the original possibilities.
+          const updatedPossibilities = record.originalPossibilities.filter(
+            (p) => p !== record.tried
+          );
+          // Update the cell in the restored grid with the reduced possibility set and mark it uncollapsed.
+          prevGrid[record.row][record.col] = {
+            possibilities: updatedPossibilities,
+            collapsed: false,
+          };
+          currentGrid = prevGrid;
           backtracks++;
-          // In a more complete solution, we would remove the previously tried possibility
-          // and try a different one in that cell. For simplicity, we assume the history
-          // already stored the "failed" collapse so that on backtracking, another collapse will occur.
           continue;
         }
         // Find cell with lowest entropy.
@@ -131,19 +138,8 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
         const cell = currentGrid[row][col];
         // If the cell is ambiguous (possibilities.length > 1), try a possibility.
-        // Try the first possibility that has not been tried for this cell.
-        let triedPossibilities = [];
-        // See if we already have a record for this cell in history.
-        const existingRecord = historyStack.find(
-          (rec) => rec.row === row && rec.col === col
-        );
-        if (existingRecord) {
-          triedPossibilities = existingRecord.triedPossibilities;
-        }
-        // Find a possibility not yet tried.
-        const possibleChoices = cell.possibilities.filter(
-          (p) => !triedPossibilities.includes(p)
-        );
+        // Find a possibility to try
+        const possibleChoices = cell.possibilities;
         if (possibleChoices.length === 0) {
           // Nothing left to try in this cell: contradiction; backtrack.
           if (historyStack.length === 0 || backtracks >= maxBacktracks) {
@@ -152,8 +148,18 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
             );
             break;
           }
-          const prev = historyStack.pop();
-          currentGrid = prev.grid;
+          const record = historyStack.pop();
+          const prevGrid = record.grid;
+          // Remove the previously tried possibility from the original possibilities.
+          const updatedPossibilities = record.originalPossibilities.filter(
+            (p) => p !== record.tried
+          );
+          // Update the cell in the restored grid with the reduced possibility set and mark it uncollapsed.
+          prevGrid[record.row][record.col] = {
+            possibilities: updatedPossibilities,
+            collapsed: false,
+          };
+          currentGrid = prevGrid;
           backtracks++;
           continue;
         }
@@ -175,10 +181,11 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         }
         // Save current state along with the fact that we are trying this possibility.
         historyStack.push({
-          grid: JSON.parse(JSON.stringify(currentGrid)), // Deep clone the grid
+          grid: JSON.parse(JSON.stringify(currentGrid)), // grid state before collapse
           row,
           col,
-          triedPossibilities: [...triedPossibilities, chosen],
+          originalPossibilities: [...cell.possibilities],
+          tried: chosen,
         });
         // Collapse the cell by forcing its possibilities to only the chosen.
         const newGrid = currentGrid.map((r, i) =>
