@@ -234,6 +234,71 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     setGrid(generateGrid());
   };
 
+  const downloadGridAsImage = () => {
+    // Warn and exit if not fully collapsed.
+    if (grid.flat().some(cell => !cell.collapsed)) {
+      console.warn("Grid is not fully collapsed yet.");
+      return;
+    }
+
+    // Use a fixed pixel size for each "pixel" in a tile.
+    const pixelSize = 20;
+    // Use the first collapsed cell to compute tile dimensions.
+    const sampleTile = processedTiles[grid[0][0].possibilities[0]];
+    const tileRows = sampleTile.grid.length;
+    const tileCols = sampleTile.grid[0].length;
+    const tileWidth = tileCols * pixelSize;
+    const tileHeight = tileRows * pixelSize;
+    const canvasWidth = numCols * tileWidth;
+    const canvasHeight = numRows * tileHeight;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    const ctx = canvas.getContext("2d");
+
+    // Iterate over every grid cell.
+    for (let i = 0; i < numRows; i++) {
+      for (let j = 0; j < numCols; j++) {
+        const cell = grid[i][j];
+        let tile;
+        if (cell.collapsed && cell.possibilities.length === 1) {
+          tile = processedTiles[cell.possibilities[0]];
+        } else {
+          // If not collapsed, fill with a blank (white) rectangle.
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(j * tileWidth, i * tileHeight, tileWidth, tileHeight);
+          continue;
+        }
+
+        // For each "pixel" in the tile's grid, draw a rectangle.
+        for (let r = 0; r < tileRows; r++) {
+          for (let c = 0; c < tileCols; c++) {
+            // For simplicity, assume truthy values (or numbers equal to 1) are black
+            // and falsy (or numbers not equal to 1) are white.
+            const value = tile.grid[r][c];
+            ctx.fillStyle = (value === true || value === 1) ? "#000000" : "#ffffff";
+            ctx.fillRect(
+              j * tileWidth + c * pixelSize,
+              i * tileHeight + r * pixelSize,
+              pixelSize,
+              pixelSize
+            );
+          }
+        }
+      }
+    }
+
+    // Trigger the download.
+    const dataURL = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = "WFC-result.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="wfc-container" key={JSON.stringify(tiles)}>
       <div className="wfc-grid-container" style={{ position: "relative" }}>
@@ -300,6 +365,13 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         disabled={!hasTiles || isLoading}
       >
         Reset
+      </button>
+      <button
+        onClick={downloadGridAsImage}
+        data-testid="download-image-button"
+        disabled={!grid.flat().every(cell => cell.collapsed) || isLoading}
+      >
+        Download Image
       </button>
       {!hasTiles && (
         <div className="wfc-warning">
