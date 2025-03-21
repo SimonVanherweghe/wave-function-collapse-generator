@@ -1,8 +1,8 @@
 import { useState } from "react";
 import "./WFC.css";
 import {
-  collapseCell,
   findLowestEntropyCell,
+  gridStatus,
   mirrorTile,
   propagateConstraints,
   rotateTile,
@@ -61,29 +61,6 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
   // Initialize the grid
   const [grid, setGrid] = useState(generateGrid());
   const [isLoading, setIsLoading] = useState(false);
-
-  // Helper function to check if the grid is fully collapsed or if a contradiction occurs.
-  const gridStatus = (grid) => {
-    let allCollapsed = true;
-    let contradiction = false;
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[0].length; j++) {
-        const cell = grid[i][j];
-        const len = cell.possibilities.length;
-        if (len === 0) {
-          console.log("[WFC] CONTRADICTION");
-          contradiction = true;
-          allCollapsed = false; // mark as not fully collapsed because of contradiction
-          break;
-        }
-        if (!cell.collapsed) {
-          allCollapsed = false;
-        }
-      }
-      if (contradiction) break;
-    }
-    return { allCollapsed, contradiction };
-  };
 
   // New backtracking version of the algorithm
   const runWFCAlgorithmWithBacktracking = async () => {
@@ -334,4 +311,3 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 }
 
 export default WFC;
-export { gridStatus };
