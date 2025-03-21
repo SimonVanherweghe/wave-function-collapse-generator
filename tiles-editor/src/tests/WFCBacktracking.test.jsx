@@ -14,6 +14,52 @@ const createDummyTile = (value) => ({
   mirrorEnabled: false
 });
 
+it("backtracks from an empty possibility cell and finishes the grid", async () => {
+  // Create two tiles that are fully incompatible:
+  // One with all edges equal to 1, and one with all edges equal to 2.
+  // When a cell is collapsed to one tile, its neighbors cannot use the other tile.
+  const tileA = {
+    grid: [
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1],
+    ],
+    rotationEnabled: false,
+    mirrorEnabled: false,
+  };
+  const tileB = {
+    grid: [
+      [2, 2, 2],
+      [2, 2, 2],
+      [2, 2, 2],
+    ],
+    rotationEnabled: false,
+    mirrorEnabled: false,
+  };
+
+  // Render the WFC component with the two incompatible tiles.
+  render(<WFC tiles={[tileA, tileB]} />);
+
+  // Click the Run WFC button.
+  const runButton = screen.getByTestId("run-wfc-button");
+  fireEvent.click(runButton);
+
+  // Wait until the algorithm completes.
+  await waitFor(() => {
+    const cells = screen.getAllByTestId((content, element) =>
+      element.getAttribute("data-testid")?.startsWith("wfc-cell-")
+    );
+    cells.forEach((cell) => {
+      // Check that every cell is collapsed.
+      expect(cell).toHaveClass("wfc-cell-collapsed");
+      // Verify that each collapsed cell contains a tile preview.
+      expect(cell.querySelector(".tile-preview")).not.toBeNull();
+      // And make sure that no cell is displaying "0" (which would indicate an empty possibility array).
+      expect(cell.textContent).not.toBe("0");
+    });
+  });
+});
+
 describe('WFC Backtracking Algorithm', () => {
   it('resolves a contradiction via backtracking', async () => {
     // Set up a tile set that could lead to a contradiction.
