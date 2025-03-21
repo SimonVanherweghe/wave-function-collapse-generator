@@ -71,6 +71,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         const cell = grid[i][j];
         const len = cell.possibilities.length;
         if (len === 0) {
+          console.log("[WFC] CONTRADICTION");
           contradiction = true;
           break;
         }
@@ -82,7 +83,6 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     }
     return { allCollapsed, contradiction };
   };
-
 
   // New backtracking version of the algorithm
   const runWFCAlgorithmWithBacktracking = async () => {
@@ -105,15 +105,22 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     try {
       while (iterations < maxIterations) {
         iterations++;
-        const collapsedCount = currentGrid.flat().filter(c => c.collapsed).length;
+        const collapsedCount = currentGrid
+          .flat()
+          .filter((c) => c.collapsed).length;
         const totalCells = currentGrid.length * currentGrid[0].length;
-        console.log(`[WFC] Iteration ${iterations}: ${collapsedCount}/${totalCells} collapsed`);
+        console.log(
+          `[WFC] Iteration ${iterations}: ${collapsedCount}/${totalCells} collapsed`
+        );
         const { allCollapsed, contradiction } = gridStatus(currentGrid);
         if (allCollapsed) {
+          console.log(`[WFC] ALL collapsed`);
           break; // finished!
         }
         if (contradiction) {
-          console.warn(`[WFC] Contradiction detected at iteration ${iterations}. Starting backtracking...`);
+          console.warn(
+            `[WFC] Contradiction detected at iteration ${iterations}. Starting backtracking...`
+          );
           // If contradiction occurs, backtrack if possible.
           if (historyStack.length === 0 || backtracks >= maxBacktracks) {
             console.error("Backtracking exhausted - contradiction unresolved");
@@ -125,7 +132,9 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           const updatedPossibilities = record.originalPossibilities.filter(
             (p) => p !== record.tried
           );
-          console.warn(`[WFC] Backtracking: at cell (${record.row}, ${record.col}), removing possibility ${record.tried}. Remaining: ${updatedPossibilities}`);
+          console.warn(
+            `[WFC] Backtracking: at cell (${record.row}, ${record.col}), removing possibility ${record.tried}. Remaining: ${updatedPossibilities}`
+          );
           // Update the cell in the restored grid with the reduced possibility set and mark it uncollapsed.
           prevGrid[record.row][record.col] = {
             possibilities: updatedPossibilities,
@@ -143,7 +152,9 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         }
 
         const cell = currentGrid[row][col];
-        console.log(`[WFC] Collapsing cell at (${row}, ${col}), with possibilities: ${cell.possibilities}`);
+        console.log(
+          `[WFC] Collapsing cell at (${row}, ${col}), with possibilities: ${cell.possibilities}`
+        );
         // If the cell is ambiguous (possibilities.length > 1), try a possibility.
         // Find a possibility to try
         const possibleChoices = cell.possibilities;
@@ -194,7 +205,9 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           originalPossibilities: [...cell.possibilities],
           tried: chosen,
         });
-        console.log(`[WFC] Choosing possibility ${chosen} at cell (${row}, ${col})`);
+        console.log(
+          `[WFC] Choosing possibility ${chosen} at cell (${row}, ${col})`
+        );
         // Collapse the cell by forcing its possibilities to only the chosen.
         const newGrid = currentGrid.map((r, i) =>
           r.map((cellObj, j) =>
@@ -207,8 +220,12 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         propagateConstraints(newGrid, row, col, processedTiles);
         currentGrid = newGrid;
         // Log how many cells are collapsed now.
-        const newCollapsedCount = currentGrid.flat().filter(c => c.collapsed).length;
-        console.log(`[WFC] After collapse at (${row}, ${col}): ${newCollapsedCount}/${totalCells} collapsed`);
+        const newCollapsedCount = currentGrid
+          .flat()
+          .filter((c) => c.collapsed).length;
+        console.log(
+          `[WFC] After collapse at (${row}, ${col}): ${newCollapsedCount}/${totalCells} collapsed`
+        );
       }
     } catch (error) {
       console.error(
@@ -217,10 +234,18 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
       );
     }
 
-    console.log(`[WFC] Finished after ${iterations} iterations and ${backtracks} backtracks.`);
-    const finalCollapsedCount = currentGrid.flat().filter(c => c.collapsed).length;
-    if(finalCollapsedCount !== currentGrid.length * currentGrid[0].length){
-      console.warn(`[WFC] Warning: Only ${finalCollapsedCount}/${currentGrid.length * currentGrid[0].length} cells collapsed.`);
+    console.log(
+      `[WFC] Finished after ${iterations} iterations and ${backtracks} backtracks.`
+    );
+    const finalCollapsedCount = currentGrid
+      .flat()
+      .filter((c) => c.collapsed).length;
+    if (finalCollapsedCount !== currentGrid.length * currentGrid[0].length) {
+      console.warn(
+        `[WFC] Warning: Only ${finalCollapsedCount}/${
+          currentGrid.length * currentGrid[0].length
+        } cells collapsed.`
+      );
     }
     setGrid(currentGrid);
     setIsLoading(false);
