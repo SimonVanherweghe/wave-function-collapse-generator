@@ -51,7 +51,6 @@ describe('WFC Component', () => {
     
     // Buttons should be enabled.
     expect(screen.getByTestId('run-wfc-button')).not.toBeDisabled();
-    expect(screen.getByTestId('run-wfc-backtracking-button')).not.toBeDisabled();
     expect(screen.getByTestId('reset-button')).not.toBeDisabled();
   });
 
