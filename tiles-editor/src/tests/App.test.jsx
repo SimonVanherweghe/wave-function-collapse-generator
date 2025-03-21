@@ -1,9 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, test } from 'vitest';
+import { BrowserRouter } from 'react-router-dom';
 import App from '../App';
 
+// Helper function to render App with Router
+const renderWithRouter = (ui) => {
+  return render(<BrowserRouter>{ui}</BrowserRouter>);
+};
+
 test('renders tile overview and edge overview sections', () => {
-  render(<App />);
+  renderWithRouter(<App />);
   const tileSection = screen.getByTestId('tile-overview');
   const edgeSection = screen.getByTestId('edge-overview');
   expect(tileSection).toBeInTheDocument();
@@ -12,7 +18,7 @@ test('renders tile overview and edge overview sections', () => {
 
 describe('App component', () => {
   it('increments the number of Tile components when clicking the "Add Tile" button', () => {
-    const { container } = render(<App />);
+    const { container } = renderWithRouter(<App />);
 
     // Get the initial count of rendered Tile components
     const initialTiles = container.querySelectorAll('.tile-wrapper');

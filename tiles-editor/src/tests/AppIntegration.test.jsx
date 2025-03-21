@@ -1,10 +1,16 @@
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
+import { BrowserRouter } from "react-router-dom";
 import App from "../App";
+
+// Helper function to render App with Router
+const renderWithRouter = (ui) => {
+  return render(<BrowserRouter>{ui}</BrowserRouter>);
+};
 
 describe("App Integration Tests", () => {
   it("updates EdgeOverview in real-time in auto-update mode", async () => {
-    render(<App />);
+    renderWithRouter(<App />);
 
     // By default, auto-update is enabled.
     // For a default tile, expecting the unique edge to have a count "Count: 4"
@@ -40,7 +46,7 @@ describe("App Integration Tests", () => {
   });
 
   it("does not update EdgeOverview in manual mode until refresh is clicked", async () => {
-    render(<App />);
+    renderWithRouter(<App />);
 
     // Toggle auto-update off using the test ID.
     const autoUpdateCheckbox = screen.getByTestId("auto-update-checkbox");

@@ -1,8 +1,14 @@
 import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import App from '../App';
 
+// Helper function to render App with Router
+const renderWithRouter = (ui) => {
+  return render(<BrowserRouter>{ui}</BrowserRouter>);
+};
+
 test('App initializes with one default tile with a 5x5 grid and disabled options', () => {
-  render(<App />);
+  renderWithRouter(<App />);
   // Get the hidden element containing the tile state
   const tileStateElement = screen.getByTestId('tile-state');
   const tileState = JSON.parse(tileStateElement.textContent);
