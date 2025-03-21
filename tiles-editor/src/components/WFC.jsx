@@ -73,6 +73,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         if (len === 0) {
           console.log("[WFC] CONTRADICTION");
           contradiction = true;
+          allCollapsed = false; // mark as not fully collapsed because of contradiction
           break;
         }
         if (!cell.collapsed) {
@@ -333,3 +334,4 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 }
 
 export default WFC;
+export { gridStatus };
