@@ -1,16 +1,10 @@
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import App from '../App';
+import { render, screen } from "@testing-library/react";
+import App from "../App";
 
-// Helper function to render App with Router
-const renderWithRouter = (ui) => {
-  return render(<BrowserRouter>{ui}</BrowserRouter>);
-};
-
-test('App initializes with one default tile with a 5x5 grid and disabled options', () => {
-  renderWithRouter(<App />);
+test("App initializes with one default tile with a 5x5 grid and disabled options", () => {
+  render(<App />);
   // Get the hidden element containing the tile state
-  const tileStateElement = screen.getByTestId('tile-state');
+  const tileStateElement = screen.getByTestId("tile-state");
   const tileState = JSON.parse(tileStateElement.textContent);
 
   // Assert that exactly one tile exists
@@ -20,10 +14,10 @@ test('App initializes with one default tile with a 5x5 grid and disabled options
   const defaultTile = tileState[0];
   expect(Array.isArray(defaultTile.grid)).toBe(true);
   expect(defaultTile.grid.length).toBe(5);
-  defaultTile.grid.forEach(row => {
+  defaultTile.grid.forEach((row) => {
     expect(Array.isArray(row)).toBe(true);
     expect(row.length).toBe(5);
-    row.forEach(cell => {
+    row.forEach((cell) => {
       expect(cell).toBe(false);
     });
   });

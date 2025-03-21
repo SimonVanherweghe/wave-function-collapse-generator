@@ -1,16 +1,10 @@
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import { BrowserRouter } from "react-router-dom";
 import App from "../App";
-
-// Helper function to render App with Router
-const renderWithRouter = (ui) => {
-  return render(<BrowserRouter>{ui}</BrowserRouter>);
-};
 
 describe("Remove Tile Feature", () => {
   it("removes a tile when the Remove Tile button is clicked", async () => {
-    renderWithRouter(<App />);
+    render(<App />);
 
     // Initially, the app must have one default tile.
     let startTileHeader = screen.getAllByText(/Tile \d+/);
