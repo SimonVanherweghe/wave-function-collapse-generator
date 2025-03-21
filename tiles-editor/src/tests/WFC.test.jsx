@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import WFC from '../components/WFC';
 import { describe, it, expect } from 'vitest';
+import { gridStatus } from '../wfcUtils';
 
 describe('WFC Component', () => {
   it('renders correctly and initializes a 10x10 grid when no tiles are provided', async () => {
@@ -97,7 +98,6 @@ describe('WFC Component', () => {
       [ { possibilities: [], collapsed: false } ]
     ];
     // Import gridStatus from WFC (since we exported it)
-    const { gridStatus } = require("../components/WFC");
     const status = gridStatus(testGrid);
     expect(status.contradiction).toBe(true);
     expect(status.allCollapsed).toBe(false);

@@ -240,3 +240,26 @@ export function mirrorTile(tile) {
   newTile.grid = newTile.grid.map((row) => row.slice().reverse());
   return newTile;
 }
+
+// Helper function to check if the grid is fully collapsed or if a contradiction occurs.
+export const gridStatus = (grid) => {
+  let allCollapsed = true;
+  let contradiction = false;
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[0].length; j++) {
+      const cell = grid[i][j];
+      const len = cell.possibilities.length;
+      if (len === 0) {
+        console.log("[WFC] CONTRADICTION");
+        contradiction = true;
+        allCollapsed = false; // mark as not fully collapsed because of contradiction
+        break;
+      }
+      if (!cell.collapsed) {
+        allCollapsed = false;
+      }
+    }
+    if (contradiction) break;
+  }
+  return { allCollapsed, contradiction };
+};
