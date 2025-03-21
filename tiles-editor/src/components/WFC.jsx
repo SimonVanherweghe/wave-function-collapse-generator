@@ -83,76 +83,6 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     return { allCollapsed, contradiction };
   };
 
-  // Original WFC algorithm without backtracking
-  const runWFCAlgorithm = async () => {
-    if (!hasTiles) return; // Prevent running algorithm if no tiles.
-
-    setIsLoading(true);
-    // Simulate asynchronous work to ensure spinner is visible
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // Use a fresh copy of the grid state.
-    let currentGrid = generateGrid();
-
-    // Safety counter to avoid infinite loops.
-    let iterations = 0;
-    const maxIterations = 1000;
-
-    try {
-      while (iterations < maxIterations) {
-        iterations++;
-        const { allCollapsed, contradiction } = gridStatus(currentGrid);
-        if (contradiction) {
-          console.error("Contradiction encountered – aborting algorithm");
-          break;
-        }
-        if (allCollapsed) {
-          break;
-        }
-
-        // Find cell with lowest entropy
-        const lowestEntropyCell = findLowestEntropyCell(currentGrid);
-        if (lowestEntropyCell.row === -1) {
-          break;
-        }
-
-        // Collapse one cell: use collapseCell which returns a new grid
-        const newGrid = collapseCell(currentGrid, processedTiles);
-
-        // Find which cell was collapsed.
-        let collapsedCell = null;
-        for (let i = 0; i < currentGrid.length; i++) {
-          for (let j = 0; j < currentGrid[0].length; j++) {
-            if (
-              currentGrid[i][j].possibilities.length > 1 &&
-              newGrid[i][j].possibilities.length === 1
-            ) {
-              collapsedCell = { row: i, col: j };
-              break;
-            }
-          }
-          if (collapsedCell) break;
-        }
-        // Propagate constraints from the collapsed cell.
-        if (collapsedCell) {
-          propagateConstraints(
-            newGrid,
-            collapsedCell.row,
-            collapsedCell.col,
-            processedTiles
-          );
-        }
-        // Update our current grid for next iteration.
-        currentGrid = newGrid;
-      }
-    } catch (error) {
-      console.error("Error occurred in runWFCAlgorithm:", error);
-    }
-
-    // Finally, update component state
-    setGrid(currentGrid);
-    setIsLoading(false);
-  };
 
   // New backtracking version of the algorithm
   const runWFCAlgorithmWithBacktracking = async () => {
@@ -334,18 +264,11 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         )}
       </div>
       <button
-        onClick={runWFCAlgorithm}
+        onClick={runWFCAlgorithmWithBacktracking}
         data-testid="run-wfc-button"
         disabled={!hasTiles || isLoading}
       >
         Run WFC
-      </button>
-      <button
-        onClick={runWFCAlgorithmWithBacktracking}
-        data-testid="run-wfc-backtracking-button"
-        disabled={!hasTiles || isLoading}
-      >
-        Run WFC with Backtracking
       </button>
       <button
         onClick={resetGrid}

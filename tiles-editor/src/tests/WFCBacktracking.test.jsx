@@ -27,7 +27,7 @@ describe('WFC Backtracking Algorithm', () => {
     // Render the WFC component with these available tiles.
     render(<WFC tiles={availableTiles} />);
     
-    // Click the Run WFC button to trigger the algorithm with backtracking.
+    // Click the Run WFC button to trigger the algorithm.
     const runButton = screen.getByTestId('run-wfc-button');
     fireEvent.click(runButton);
     

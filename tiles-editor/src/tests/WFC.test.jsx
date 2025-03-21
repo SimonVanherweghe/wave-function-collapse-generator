@@ -10,7 +10,6 @@ describe('WFC Component', () => {
     // Check that the "Run WFC" button is rendered and disabled.
     expect(screen.getByTestId('run-wfc-button')).toBeInTheDocument();
     expect(screen.getByTestId('run-wfc-button')).toBeDisabled();
-    expect(screen.getByTestId('run-wfc-backtracking-button')).toBeDisabled();
     expect(screen.getByTestId('reset-button')).toBeDisabled();
     
     // Check that the warning message is displayed.

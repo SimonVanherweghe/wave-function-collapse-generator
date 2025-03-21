@@ -18,11 +18,8 @@ describe("WFC Integration", () => {
     const initialTiles = [createDummyTile(1), createDummyTile(2)];
     const { rerender } = render(<WFC tiles={initialTiles} />);
 
-    // Buttons should be enabled initially.
+    // Button should be enabled initially.
     expect(screen.getByTestId("run-wfc-button")).not.toBeDisabled();
-    expect(
-      screen.getByTestId("run-wfc-backtracking-button")
-    ).not.toBeDisabled();
     expect(screen.getByTestId("reset-button")).not.toBeDisabled();
 
     // Remove all tiles.
@@ -30,7 +27,6 @@ describe("WFC Integration", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("run-wfc-button")).toBeDisabled();
-      expect(screen.getByTestId("run-wfc-backtracking-button")).toBeDisabled();
       expect(screen.getByTestId("reset-button")).toBeDisabled();
       expect(
         screen.getByText("Please add tiles to use the WFC algorithm")
@@ -42,9 +38,6 @@ describe("WFC Integration", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("run-wfc-button")).not.toBeDisabled();
-      expect(
-        screen.getByTestId("run-wfc-backtracking-button")
-      ).not.toBeDisabled();
       expect(screen.getByTestId("reset-button")).not.toBeDisabled();
       expect(
         screen.queryByText("Please add tiles to use the WFC algorithm")
@@ -102,12 +95,9 @@ describe("WFC Integration", () => {
     const availableTiles = [tileA, tileB];
     render(<WFC tiles={availableTiles} />);
 
-    // Use the backtracking algorithm if available.
-    // Assume we have a "runWFC-backtracking-button" when backtracking is enabled.
-    const runBacktrackingButton = screen.getByTestId(
-      "run-wfc-backtracking-button"
-    );
-    fireEvent.click(runBacktrackingButton);
+    // Use the WFC algorithm
+    const runButton = screen.getByTestId("run-wfc-button");
+    fireEvent.click(runButton);
 
     // Wait for the algorithm to finish.
     await waitFor(() => {
