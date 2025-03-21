@@ -86,7 +86,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
   // Original WFC algorithm without backtracking
   const runWFCAlgorithm = async () => {
     if (!hasTiles) return; // Prevent running algorithm if no tiles.
-    
+
     setIsLoading(true);
     // Simulate asynchronous work to ensure spinner is visible
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -157,7 +157,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
   // New backtracking version of the algorithm
   const runWFCAlgorithmWithBacktracking = async () => {
     if (!hasTiles) return;
-    
+
     setIsLoading(true);
     // Simulate asynchronous work to ensure spinner is visible
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -282,46 +282,50 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
   return (
     <div className="wfc-container" key={JSON.stringify(tiles)}>
-      <div className="wfc-grid-container" style={{ position: 'relative' }}>
+      <div className="wfc-grid-container" style={{ position: "relative" }}>
         <div
-          className={`wfc-grid ${!showGridlines ? "wfc-grid--no-gridlines" : ""}`}
+          className={`wfc-grid ${
+            !showGridlines ? "wfc-grid--no-gridlines" : ""
+          }`}
           data-testid="wfc-grid-container"
           style={{ "--grid-cols": numCols, "--grid-rows": numRows }}
         >
-        {grid.map((row, rowIndex) =>
-          row.map((cell, colIndex) => {
-            return (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
-                className={`wfc-cell ${
-                  cell.collapsed ? "wfc-cell-collapsed" : "wfc-cell-uncollapsed"
-                }`}
-              >
-                {cell.collapsed ? (
-                  <TilePreview tile={processedTiles[cell.possibilities[0]]} />
-                ) : (
-                  cell.possibilities.length
-                )}
-              </div>
-            );
-          })
-        )}
+          {grid.map((row, rowIndex) =>
+            row.map((cell, colIndex) => {
+              return (
+                <div
+                  key={`${rowIndex}-${colIndex}`}
+                  data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
+                  className={`wfc-cell ${
+                    cell.collapsed
+                      ? "wfc-cell-collapsed"
+                      : "wfc-cell-uncollapsed"
+                  }`}
+                >
+                  {cell.collapsed ? (
+                    <TilePreview tile={processedTiles[cell.possibilities[0]]} />
+                  ) : (
+                    cell.possibilities.length
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
         {isLoading && (
           <div
             data-testid="wfc-spinner"
             className="wfc-overlay"
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: 0,
               left: 0,
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'rgba(128,128,128,0.5)',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(128,128,128,0.5)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
               zIndex: 10,
             }}
           >
@@ -331,7 +335,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
       </div>
       <button
         onClick={runWFCAlgorithm}
-        data-testid="wfc-start-button"
+        data-testid="run-wfc-button"
         disabled={!hasTiles || isLoading}
       >
         Run WFC
