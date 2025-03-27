@@ -3,48 +3,36 @@ import "./EdgeOverview.css";
 
 // Helper functions moved outside component to prevent recreation on each render
 const extractEdges = (grid) => {
-  const top = grid[0].map((cell) => (cell ? 1 : 0));
-  const right = grid.map((row) => (row[4] ? 1 : 0));
-  const bottom = grid[4].map((cell) => (cell ? 1 : 0)).reverse();
-  const left = grid.map((row) => (row[0] ? 1 : 0)).reverse();
-
+  const rows = grid.length;
+  const cols = grid[0]?.length || 0;
+  const top = grid[0].map(cell => cell ? 1 : 0);
+  const right = grid.map(row => row[cols - 1] ? 1 : 0);
+  const bottom = grid[rows - 1].map(cell => cell ? 1 : 0).reverse();
+  const left = grid.map(row => row[0] ? 1 : 0).reverse();
   return [top, right, bottom, left];
 };
 
 // Rotate a tile grid by 90 degrees * times
 const rotateTile = (grid, times) => {
   let result = JSON.parse(JSON.stringify(grid));
+  const rows = grid.length;
+  const cols = grid[0]?.length || 0;
 
   for (let t = 0; t < times; t++) {
-    const newGrid = Array(5)
-      .fill(null)
-      .map(() => Array(5).fill(false));
-
-    for (let i = 0; i < 5; i++) {
-      for (let j = 0; j < 5; j++) {
-        newGrid[j][4 - i] = result[i][j];
+    const newGrid = Array(cols).fill(null).map(() => Array(rows).fill(false));
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        newGrid[j][rows - 1 - i] = result[i][j];
       }
     }
-
     result = newGrid;
   }
-
   return result;
 };
 
 // Mirror a tile grid horizontally
 const mirrorTile = (grid) => {
-  const newGrid = Array(5)
-    .fill(null)
-    .map(() => Array(5).fill(false));
-
-  for (let i = 0; i < 5; i++) {
-    for (let j = 0; j < 5; j++) {
-      newGrid[i][4 - j] = grid[i][j];
-    }
-  }
-
-  return newGrid;
+  return grid.map(row => row.slice().reverse());
 };
 
 // Get all variations of a tile based on rotation and mirroring
