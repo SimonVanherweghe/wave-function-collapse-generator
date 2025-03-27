@@ -102,4 +102,44 @@ describe('WFC Component', () => {
     expect(status.contradiction).toBe(true);
     expect(status.allCollapsed).toBe(false);
   });
+
+  it("renders a 6x6 tile correctly in the WFC grid", async () => {
+    // Create a dummy tile with a 6x6 grid – each cell set to "true" so it renders as active.
+    const dummyTile = {
+      grid: Array.from({ length: 6 }, () =>
+        Array.from({ length: 6 }, () => true)
+      ),
+      rotationEnabled: false,
+      mirrorEnabled: false,
+      weight: 1
+    };
+
+    // Render WFC with a 1x1 grid for simplicity,
+    // so the one cell will collapse to our single dummy tile.
+    render(<WFC tiles={[dummyTile]} numRows={1} numCols={1} />);
+
+    // Trigger the algorithm.
+    const runButton = screen.getByTestId("run-wfc-button");
+    fireEvent.click(runButton);
+
+    // Wait until the single grid cell is collapsed.
+    await waitFor(() => {
+      const cell = screen.getByTestId("wfc-cell-0-0");
+      expect(cell).toHaveClass("wfc-cell-collapsed");
+    });
+
+    // Locate the rendered TilePreview within that cell.
+    const preview = screen.getByTestId("wfc-cell-0-0").querySelector(".tile-preview");
+    expect(preview).not.toBeNull();
+
+    // The TilePreview should render 6 rows.
+    const rows = preview.querySelectorAll(".tile-preview-row");
+    expect(rows.length).toBe(6);
+
+    // And each row should have 6 cells.
+    rows.forEach(row => {
+      const cells = row.querySelectorAll(".tile-preview-cell");
+      expect(cells.length).toBe(6);
+    });
+  });
 });
