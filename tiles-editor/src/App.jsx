@@ -10,6 +10,20 @@ function App() {
     const saved = localStorage.getItem('tileSize');
     return saved ? parseInt(saved) : 5;
   });
+
+  // Update all tile grids when tile size changes
+  useEffect(() => {
+    setTiles((prevTiles) =>
+      prevTiles.map(tile => ({
+        ...tile,
+        grid: Array(tileSize)
+          .fill(null)
+          .map(() => Array(tileSize).fill(false)
+        )
+      }))
+    );
+  }, [tileSize]);
+  
   // TileWrapper component to properly handle hooks
   function TileWrapper({ tile, index, handleTileUpdate, handleRemoveTile }) {
     // Now we are inside a component, so we can safely use hooks.
