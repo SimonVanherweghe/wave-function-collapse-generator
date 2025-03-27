@@ -6,12 +6,8 @@ import WFC from "./components/WFC";
 import "./App.css";
 
 function App() {
-  const [tileRows, setTileRows] = useState(() => {
-    const saved = localStorage.getItem('tileRows');
-    return saved ? parseInt(saved) : 5;
-  });
-  const [tileCols, setTileCols] = useState(() => {
-    const saved = localStorage.getItem('tileCols');
+  const [tileSize, setTileSize] = useState(() => {
+    const saved = localStorage.getItem('tileSize');
     return saved ? parseInt(saved) : 5;
   });
   // TileWrapper component to properly handle hooks
@@ -41,9 +37,9 @@ function App() {
 
   // Create two different default tiles for better WFC results
   const defaultTileFalse = {
-    grid: Array(tileRows)
+    grid: Array(tileSize)
       .fill(null)
-      .map(() => Array(tileCols).fill(false)),
+      .map(() => Array(tileSize).fill(false)),
     rotationEnabled: false,
     mirrorEnabled: false,
   };
@@ -71,7 +67,7 @@ function App() {
   // Add a new tile
   const handleAddTile = () => {
     setTiles([...tiles, {
-      grid: Array(tileRows).fill(null).map(() => Array(tileCols).fill(false)),
+      grid: Array(tileSize).fill(null).map(() => Array(tileSize).fill(false)),
       rotationEnabled: false,
       mirrorEnabled: false,
       weight: 1
@@ -108,31 +104,17 @@ function App() {
                 </div>
                 <div className="tile-size-controls">
                   <label>
-                    Tile Rows:
+                    Tile Size:
                     <input
                       type="number"
-                      value={tileRows}
+                      value={tileSize}
                       min="1"
                       onChange={(e) => {
                         const val = Math.max(1, parseInt(e.target.value) || 1);
-                        setTileRows(val);
-                        localStorage.setItem('tileRows', val);
+                        setTileSize(val);
+                        localStorage.setItem('tileSize', val);
                       }}
-                      data-testid="tile-rows-input"
-                    />
-                  </label>
-                  <label>
-                    Tile Columns:
-                    <input
-                      type="number"
-                      value={tileCols}
-                      min="1"
-                      onChange={(e) => {
-                        const val = Math.max(1, parseInt(e.target.value) || 1);
-                        setTileCols(val);
-                        localStorage.setItem('tileCols', val);
-                      }}
-                      data-testid="tile-cols-input"
+                      data-testid="tile-size-input"
                     />
                   </label>
                 </div>

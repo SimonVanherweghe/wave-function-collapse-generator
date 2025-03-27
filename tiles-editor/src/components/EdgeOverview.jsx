@@ -14,15 +14,14 @@ const extractEdges = (grid) => {
 
 // Rotate a tile grid by 90 degrees * times
 const rotateTile = (grid, times) => {
+  const size = grid.length;
   let result = JSON.parse(JSON.stringify(grid));
-  const rows = grid.length;
-  const cols = grid[0]?.length || 0;
-
+  
   for (let t = 0; t < times; t++) {
-    const newGrid = Array(cols).fill(null).map(() => Array(rows).fill(false));
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        newGrid[j][rows - 1 - i] = result[i][j];
+    const newGrid = Array(size).fill(null).map(() => Array(size).fill(false));
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        newGrid[j][size - 1 - i] = result[i][j];
       }
     }
     result = newGrid;

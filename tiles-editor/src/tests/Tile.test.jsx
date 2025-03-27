@@ -3,8 +3,8 @@ import Tile from '../components/Tile';
 import { describe, it, expect } from 'vitest';
 
 // Helper function to create tiles with dynamic sizes
-const createDefaultTile = (rows = 5, cols = 5) => ({
-  grid: Array(rows).fill(null).map(() => Array(cols).fill(false)),
+const createDefaultTile = (size = 5) => ({
+  grid: Array(size).fill(null).map(() => Array(size).fill(false)),
   rotationEnabled: false,
   mirrorEnabled: false,
 });
@@ -33,7 +33,7 @@ describe('Tile component', () => {
   it('updates rotation and mirror options on checkbox toggle', () => {
     let updatedTile = null;
     const handleUpdate = (tile) => { updatedTile = tile; };
-    const defaultTile = createDefaultTile(3, 3); // Test with non-default size
+    const defaultTile = createDefaultTile(3); // Test with non-default size
     
     render(<Tile tile={defaultTile} tileId={0} onUpdate={handleUpdate} />);
     
@@ -60,7 +60,7 @@ describe('Tile component', () => {
     const handleUpdate = (tile) => { updatedTile = tile; };
 
     const defaultTile = {
-      ...createDefaultTile(4, 4), // Test with rectangular size
+      ...createDefaultTile(4), // Test with square size
       weight: 1,
     };
 
