@@ -2,17 +2,19 @@ import { render, fireEvent, screen } from '@testing-library/react';
 import Tile from '../components/Tile';
 import { describe, it, expect } from 'vitest';
 
-describe('Tile component', () => {
-  const defaultTile = {
-    grid: Array(5).fill(null).map(() => Array(5).fill(false)),
-    rotationEnabled: false,
-    mirrorEnabled: false,
-  };
+// Helper function to create tiles with dynamic sizes
+const createDefaultTile = (rows = 5, cols = 5) => ({
+  grid: Array(rows).fill(null).map(() => Array(cols).fill(false)),
+  rotationEnabled: false,
+  mirrorEnabled: false,
+});
 
+describe('Tile component', () => {
   it('toggles a cell state on click', () => {
     let updatedTile = null;
     const handleUpdate = (tile) => { updatedTile = tile; };
-
+    const defaultTile = createDefaultTile();
+    
     render(<Tile tile={defaultTile} tileId={0} onUpdate={handleUpdate} />);
     
     const cell = screen.getByTestId('tile-0-cell-0-0');
@@ -31,7 +33,8 @@ describe('Tile component', () => {
   it('updates rotation and mirror options on checkbox toggle', () => {
     let updatedTile = null;
     const handleUpdate = (tile) => { updatedTile = tile; };
-
+    const defaultTile = createDefaultTile(3, 3); // Test with non-default size
+    
     render(<Tile tile={defaultTile} tileId={0} onUpdate={handleUpdate} />);
     
     const rotationCheckbox = screen.getByTestId('rotation-checkbox');
@@ -57,9 +60,7 @@ describe('Tile component', () => {
     const handleUpdate = (tile) => { updatedTile = tile; };
 
     const defaultTile = {
-      grid: Array(5).fill(null).map(() => Array(5).fill(false)),
-      rotationEnabled: false,
-      mirrorEnabled: false,
+      ...createDefaultTile(4, 4), // Test with rectangular size
       weight: 1,
     };
 
