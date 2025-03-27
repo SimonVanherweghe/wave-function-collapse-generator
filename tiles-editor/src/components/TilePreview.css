@@ -1,6 +1,6 @@
 .tile-preview {
   display: grid;
-  grid-template-columns: repeat(5, 6px); /* assuming a 5x5 tile; adjust as needed */
+  grid-template-columns: repeat(var(--tile-cols, 5), 6px); /* using custom property with fallback */
 }
 
 .tile-preview-row {
