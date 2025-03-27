@@ -236,7 +236,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
   const downloadGridAsImage = () => {
     // Warn and exit if not fully collapsed.
-    if (grid.flat().some(cell => !cell.collapsed)) {
+    if (grid.flat().some((cell) => !cell.collapsed)) {
       console.warn("Grid is not fully collapsed yet.");
       return;
     }
@@ -277,7 +277,8 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
             // For simplicity, assume truthy values (or numbers equal to 1) are black
             // and falsy (or numbers not equal to 1) are white.
             const value = tile.grid[r][c];
-            ctx.fillStyle = (value === true || value === 1) ? "#000000" : "#ffffff";
+            ctx.fillStyle =
+              value === true || value === 1 ? "#000000" : "#ffffff";
             ctx.fillRect(
               j * tileWidth + c * pixelSize,
               i * tileHeight + r * pixelSize,
@@ -301,36 +302,30 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
   return (
     <div className="wfc-container" key={JSON.stringify(tiles)}>
-      <div className="wfc-grid-container" style={{ position: "relative" }}>
-        <div
-          className={`wfc-grid ${
-            !showGridlines ? "wfc-grid--no-gridlines" : ""
-          }`}
-          data-testid="wfc-grid-container"
-          style={{ "--grid-cols": numCols, "--grid-rows": numRows }}
-        >
-          {grid.map((row, rowIndex) =>
-            row.map((cell, colIndex) => {
-              return (
-                <div
-                  key={`${rowIndex}-${colIndex}`}
-                  data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
-                  className={`wfc-cell ${
-                    cell.collapsed
-                      ? "wfc-cell-collapsed"
-                      : "wfc-cell-uncollapsed"
-                  }`}
-                >
-                  {cell.collapsed ? (
-                    <TilePreview tile={processedTiles[cell.possibilities[0]]} />
-                  ) : (
-                    cell.possibilities.length
-                  )}
-                </div>
-              );
-            })
-          )}
-        </div>
+      <div
+        className={`wfc-grid ${!showGridlines ? "wfc-grid--no-gridlines" : ""}`}
+        data-testid="wfc-grid-container"
+        style={{ "--grid-cols": numCols, "--grid-rows": numRows }}
+      >
+        {grid.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            return (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
+                className={`wfc-cell ${
+                  cell.collapsed ? "wfc-cell-collapsed" : "wfc-cell-uncollapsed"
+                }`}
+              >
+                {cell.collapsed ? (
+                  <TilePreview tile={processedTiles[cell.possibilities[0]]} />
+                ) : (
+                  cell.possibilities.length
+                )}
+              </div>
+            );
+          })
+        )}
         {isLoading && (
           <div
             data-testid="wfc-spinner"
@@ -352,6 +347,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           </div>
         )}
       </div>
+
       <button
         onClick={runWFCAlgorithmWithBacktracking}
         data-testid="run-wfc-button"
@@ -369,7 +365,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
       <button
         onClick={downloadGridAsImage}
         data-testid="download-image-button"
-        disabled={!grid.flat().every(cell => cell.collapsed) || isLoading}
+        disabled={!grid.flat().every((cell) => cell.collapsed) || isLoading}
       >
         Download Image
       </button>

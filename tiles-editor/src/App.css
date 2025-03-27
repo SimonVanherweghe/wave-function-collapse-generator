@@ -35,8 +35,8 @@
 
 /* Tile styles */
 .tiles-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, 8.5rem);
+  display: flex;
+  flex-flow: row wrap;
   gap: 1rem;
   margin-bottom: 2rem;
 }

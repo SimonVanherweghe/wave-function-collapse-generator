@@ -8,18 +8,29 @@
   background-color: #f8f9fa;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  
 }
 
 .wfc-grid {
   display: grid;
-  grid-template-columns: repeat(var(--grid-cols, 10), 30px);
-  grid-template-rows: repeat(var(--grid-rows, 10), 30px);
-  gap: 2px;
+  grid-template-columns: repeat(var(--grid-cols, 10), 1fr);
+  grid-template-rows: repeat(var(--grid-rows, 10), 1fr);
+
+  width: 100%;
+  aspect-ratio: 1;
+
+  container-type: inline-size;
+  container-name: grid;
+
+
   margin-bottom: 1.5rem;
   background-color: white;
-  padding: 1rem;
+  
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+ position: relative; /* for the loading state */
 }
 
 .wfc-grid--no-gridlines {
@@ -31,8 +42,6 @@
 }
 
 .wfc-cell {
-  width: 30px;
-  height: 30px;
   border: 1px solid #ccc;
   display: flex;
   justify-content: center;

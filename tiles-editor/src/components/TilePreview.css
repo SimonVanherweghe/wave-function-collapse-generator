@@ -1,16 +1,20 @@
 .tile-preview {
   display: grid;
-  grid-template-columns: repeat(var(--tile-cols, 5), 6px); /* using custom property with fallback */
+  grid-template-columns: repeat(var(--tile-cols, 5),1fr); /* using custom property with fallback */
+  grid-template-rows: repeat(var(--tile-cols, 5),1fr); /* using custom property with fallback */
 }
 
 .tile-preview-row {
   display: contents;
 }
 
+
 .tile-preview-cell {
-  width: 6px;
-  height: 6px;
+  width: calc(100cqi / (var(--tile-cols) * var(--grid-cols)));
+  aspect-ratio: 1;
 }
+
+
 
 .tile-preview-cell.active {
   background-color: #333;
