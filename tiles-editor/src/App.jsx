@@ -11,16 +11,22 @@ function App() {
     return saved ? parseInt(saved) : 5;
   });
 
+
   // Update all tile grids when tile size changes
   useEffect(() => {
     setTiles((prevTiles) =>
-      prevTiles.map(tile => ({
-        ...tile,
-        grid: Array(tileSize)
-          .fill(null)
-          .map(() => Array(tileSize).fill(false)
-        )
-      }))
+      prevTiles.map((tile) => {
+        const oldGrid = tile.grid;
+        return {
+          ...tile,
+          grid: Array.from({ length: tileSize }, (_, i) =>
+            Array.from({ length: tileSize }, (_, j) =>
+              // For cells that exist in the old grid preserve their value; otherwise, default to false.
+              oldGrid[i] && oldGrid[i][j] !== undefined ? oldGrid[i][j] : false
+            )
+          ),
+        };
+      })
     );
   }, [tileSize]);
   
