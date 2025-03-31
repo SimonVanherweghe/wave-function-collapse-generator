@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { Routes, Route, NavLink } from "react-router";
-import HomePage from "./pages/HomePage/HomePage";
-import GridPage from "./pages/GridPage/GridPage";
-import TileVariantsPage from "./pages/TileVariantsPage/TileVariantsPage";
-import EdgeOverviewPage from "./pages/EdgeOverviewPage/EdgeOverviewPage";
+import HomePage from "./components/HomePage";
+import GridPage from "./components/GridPage";
+import TileVariants from "./components/TileVariants";
+import EdgeOverview from "./components/EdgeOverview";
 import "./App.css";
 
 function App() {
@@ -29,7 +29,6 @@ function App() {
       })
     );
   }, [tileSize]);
-
 
   // Create two different default tiles for better WFC results
   const defaultTileFalse = {
@@ -113,8 +112,8 @@ function App() {
           }
         />
         <Route path="/grid" element={<GridPage tiles={tiles} />} />
-        <Route path="/tile-variants" element={<TileVariantsPage tiles={tiles} />} />
-        <Route path="/edge-overview" element={<EdgeOverviewPage tiles={tiles} />} />
+        <Route path="/tile-variants" element={<TileVariants tiles={tiles} />} />
+        <Route path="/edge-overview" element={<EdgeOverview tiles={tiles} />} />
       </Routes>
     </>
   );
