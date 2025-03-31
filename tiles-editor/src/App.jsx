@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link } from "react-router";
 import Tile from "./components/Tile";
 import EdgeOverview from "./components/EdgeOverview";
 import WFC from "./components/WFC";
@@ -8,10 +8,9 @@ import "./App.css";
 
 function App() {
   const [tileSize, setTileSize] = useState(() => {
-    const saved = localStorage.getItem('tileSize');
+    const saved = localStorage.getItem("tileSize");
     return saved ? parseInt(saved) : 5;
   });
-
 
   // Update all tile grids when tile size changes
   useEffect(() => {
@@ -30,7 +29,7 @@ function App() {
       })
     );
   }, [tileSize]);
-  
+
   // TileWrapper component to properly handle hooks
   function TileWrapper({ tile, index, handleTileUpdate, handleRemoveTile }) {
     // Now we are inside a component, so we can safely use hooks.
@@ -87,12 +86,17 @@ function App() {
 
   // Add a new tile
   const handleAddTile = () => {
-    setTiles([...tiles, {
-      grid: Array(tileSize).fill(null).map(() => Array(tileSize).fill(false)),
-      rotationEnabled: false,
-      mirrorEnabled: false,
-      weight: 1
-    }]);
+    setTiles([
+      ...tiles,
+      {
+        grid: Array(tileSize)
+          .fill(null)
+          .map(() => Array(tileSize).fill(false)),
+        rotationEnabled: false,
+        mirrorEnabled: false,
+        weight: 1,
+      },
+    ]);
   };
 
   // Remove a specific tile
@@ -103,7 +107,8 @@ function App() {
   return (
     <BrowserRouter>
       <nav className="app-nav">
-        <Link to="/">Home</Link> | <Link to="/grid">Grid</Link> | <Link to="/tile-variants">Tile Variants</Link>
+        <Link to="/">Home</Link> | <Link to="/grid">Grid</Link> |{" "}
+        <Link to="/tile-variants">Tile Variants</Link>
       </nav>
       <Routes>
         <Route
@@ -133,7 +138,7 @@ function App() {
                       onChange={(e) => {
                         const val = Math.max(1, parseInt(e.target.value) || 1);
                         setTileSize(val);
-                        localStorage.setItem('tileSize', val);
+                        localStorage.setItem("tileSize", val);
                       }}
                       data-testid="tile-size-input"
                     />
