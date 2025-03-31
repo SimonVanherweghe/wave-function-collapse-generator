@@ -64,8 +64,8 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
       }))
     );
 
-  // Initialize the grid
-  const [grid, setGrid] = useState(generateGrid());
+  // Initialize the grid with memoized initial state
+  const [grid, setGrid] = useState(() => generateGrid());
   const [isLoading, setIsLoading] = useState(false);
 
   // New backtracking version of the algorithm
@@ -73,11 +73,12 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     if (!hasTiles) return;
 
     setIsLoading(true);
-    // Simulate asynchronous work to ensure spinner is visible
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    try {
+      // Simulate asynchronous work to ensure spinner is visible
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // Make a local copy of the grid.
-    let currentGrid = generateGrid();
+      // Make a local copy of the grid.
+      let currentGrid = generateGrid();
     // Stack to remember previous states for backtracking.
     // Each element will be an object: { grid, row, col, originalPossibilities, tried }
     const historyStack = [];
@@ -232,7 +233,9 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
       );
     }
     setGrid(currentGrid);
-    setIsLoading(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Canvas drawing logic
@@ -376,6 +379,14 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     document.body.removeChild(link);
   };
 
+  const handleRunWFC = () => {
+    runWFCAlgorithmWithBacktracking();
+  };
+
+  const handleDownload = () => {
+    downloadGridAsImage();
+  };
+
   return (
     <div className="wfc-container" key={JSON.stringify(tiles)}>
       <div className="wfc-canvas-container">
@@ -388,14 +399,14 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
       <div className="wfc-controls">
         <button
-          onClick={runWFCAlgorithmWithBacktracking}
+          onClick={handleRunWFC}
           data-testid="run-wfc-button"
           disabled={!hasTiles || isLoading}
         >
           Run WFC
         </button>
         <button
-          onClick={downloadGridAsImage}
+          onClick={handleDownload}
           data-testid="download-image-button"
           disabled={!grid.flat().every((cell) => cell.collapsed) || isLoading}
         >
