@@ -11,6 +11,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "dotting": "^2.1.13",
     "extend-expect": "^3.0.0",
     "lucide-react": "^0.486.0",
     "p5": "^1.11.3",

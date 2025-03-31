@@ -11,9 +11,10 @@ function HomePage({
   handleAddTile,
   handleTileUpdate,
   setTileSize,
+  handleRemoveTile,
 }) {
   // TileWrapper component to properly handle hooks
-  function TileWrapper({ tile, index, handleTileUpdate, handleRemoveTile }) {
+  function TileWrapper({ tile, index, handleTileUpdate }) {
     // Now we are inside a component, so we can safely use hooks.
     const onUpdateTile = useCallback(
       (updatedTile) => {
@@ -25,12 +26,7 @@ function HomePage({
     return (
       <div className="tile-wrapper">
         <h3>Tile {index + 1}</h3>
-        <Tile
-          tile={tile}
-          tileId={index}
-          onUpdate={onUpdateTile}
-          onRemoveTile={handleRemoveTile}
-        />
+        <Tile tile={tile} tileId={index} onUpdate={onUpdateTile} />
         <div className="controls-wrapper">
           <button
             onClick={() => handleRemoveTile(index)}
