@@ -1,19 +1,15 @@
-import { useState } from 'react';
 import WFC from "./WFC";
 import "./GridPage.css";
 
-function GridPage({ tiles }) {
-  const [numRows, setNumRows] = useState(20);
-  const [numCols, setNumCols] = useState(30);
-
+function GridPage({ tiles, gridSize, setGridSize }) {
   const handleRowsChange = (e) => {
     const value = Math.max(1, parseInt(e.target.value) || 1);
-    setNumRows(value);
+    setGridSize(prev => ({ ...prev, rows: value }));
   };
 
   const handleColsChange = (e) => {
     const value = Math.max(1, parseInt(e.target.value) || 1);
-    setNumCols(value);
+    setGridSize(prev => ({ ...prev, cols: value }));
   };
 
   return (
@@ -24,7 +20,7 @@ function GridPage({ tiles }) {
             Rows:
             <input
               type="number"
-              value={numRows}
+              value={gridSize.rows}
               onChange={handleRowsChange}
               min="1"
               className="grid-input"
@@ -35,7 +31,7 @@ function GridPage({ tiles }) {
             Columns:
             <input
               type="number"
-              value={numCols}
+              value={gridSize.cols}
               onChange={handleColsChange}
               min="1"
               className="grid-input"
@@ -48,9 +44,9 @@ function GridPage({ tiles }) {
       <h2>Large Grid WFC</h2>
       <WFC
         tiles={tiles}
-        numRows={numRows}
-        numCols={numCols}
-        key={JSON.stringify(tiles)}
+        numRows={gridSize.rows}
+        numCols={gridSize.cols}
+        key={`wfc-${gridSize.rows}-${gridSize.cols}-${JSON.stringify(tiles)}`}
         showGridlines={false}
       />
     </div>

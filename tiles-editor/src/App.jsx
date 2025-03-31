@@ -12,6 +12,17 @@ function App() {
     return saved ? parseInt(saved) : 5;
   });
 
+  // Add grid size state with localStorage persistence
+  const [gridSize, setGridSize] = useState(() => {
+    const saved = localStorage.getItem("gridSize");
+    return saved ? JSON.parse(saved) : { rows: 20, cols: 30 };
+  });
+
+  // Save grid size to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("gridSize", JSON.stringify(gridSize));
+  }, [gridSize]);
+
   // Update all tile grids when tile size changes
   useEffect(() => {
     setTiles((prevTiles) =>
@@ -111,7 +122,16 @@ function App() {
             />
           }
         />
-        <Route path="/grid" element={<GridPage tiles={tiles} />} />
+        <Route 
+          path="/grid" 
+          element={
+            <GridPage 
+              tiles={tiles} 
+              gridSize={gridSize} 
+              setGridSize={setGridSize} 
+            />
+          } 
+        />
         <Route path="/tile-variants" element={<TileVariants tiles={tiles} />} />
         <Route path="/edge-overview" element={<EdgeOverview tiles={tiles} />} />
       </Routes>
