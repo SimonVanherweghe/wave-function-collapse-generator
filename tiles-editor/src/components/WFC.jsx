@@ -245,7 +245,14 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     const canvas = canvasRef.current;
     if (!canvas || !hasTiles) return;
     
-    const ctx = canvas.getContext('2d');
+    let ctx;
+    try {
+      ctx = canvas.getContext('2d');
+      if (!ctx) return; // Exit if context is not available (e.g., in test environment)
+    } catch (e) {
+      console.warn('Canvas context not available:', e);
+      return; // Exit gracefully in test environments
+    }
     
     // If we have no tiles yet, just clear the canvas
     if (processedTiles.length === 0) {
