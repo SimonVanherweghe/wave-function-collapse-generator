@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import "./WFC.css";
 import {
   findLowestEntropyCell,
@@ -10,41 +10,47 @@ import {
 import TilePreview from "./TilePreview";
 
 function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
+  const canvasRef = useRef(null);
+  const [pixelSize] = useState(10);
+  
   // Determine if we have tiles
   const hasTiles = tiles && tiles.length > 0;
 
   // Process the effective tile list to include rotated and mirrored variants if enabled.
-  let processedTiles = [];
-  tiles.forEach((tile) => {
-    // Always include the original tile.
-    processedTiles.push(tile);
+  const processedTiles = useMemo(() => {
+    let processed = [];
+    tiles.forEach((tile) => {
+      // Always include the original tile.
+      processed.push(tile);
 
-    // If rotationEnabled, add rotated variants (only add unique ones)
-    if (tile.rotationEnabled) {
-      for (let i = 1; i < 4; i++) {
-        const rotated = rotateTile(tile, i);
-        // Check uniqueness by comparing stringified grids.
-        if (
-          !processedTiles.some(
-            (t) => JSON.stringify(t.grid) === JSON.stringify(rotated.grid)
-          )
-        ) {
-          processedTiles.push(rotated);
+      // If rotationEnabled, add rotated variants (only add unique ones)
+      if (tile.rotationEnabled) {
+        for (let i = 1; i < 4; i++) {
+          const rotated = rotateTile(tile, i);
+          // Check uniqueness by comparing stringified grids.
+          if (
+            !processed.some(
+              (t) => JSON.stringify(t.grid) === JSON.stringify(rotated.grid)
+            )
+          ) {
+            processed.push(rotated);
+          }
         }
       }
-    }
-    // If mirrorEnabled, add the mirrored variant.
-    if (tile.mirrorEnabled) {
-      const mirrored = mirrorTile(tile);
-      if (
-        !processedTiles.some(
-          (t) => JSON.stringify(t.grid) === JSON.stringify(mirrored.grid)
-        )
-      ) {
-        processedTiles.push(mirrored);
+      // If mirrorEnabled, add the mirrored variant.
+      if (tile.mirrorEnabled) {
+        const mirrored = mirrorTile(tile);
+        if (
+          !processed.some(
+            (t) => JSON.stringify(t.grid) === JSON.stringify(mirrored.grid)
+          )
+        ) {
+          processed.push(mirrored);
+        }
       }
-    }
-  });
+    });
+    return processed;
+  }, [tiles]);
 
   // Always compute possibility set from the processed tile list
   const possibilitySet = processedTiles.map((_, index) => index);
@@ -234,6 +240,98 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     setGrid(generateGrid());
   };
 
+  // Canvas drawing logic
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !hasTiles) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // If we have no tiles yet, just clear the canvas
+    if (processedTiles.length === 0) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+    
+    // Use the first tile to determine dimensions
+    const sampleTile = processedTiles[0];
+    const tileRows = sampleTile.grid.length;
+    const tileCols = sampleTile.grid[0].length;
+    
+    // Set canvas dimensions
+    canvas.width = numCols * tileCols * pixelSize;
+    canvas.height = numRows * tileRows * pixelSize;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw each cell
+    grid.forEach((row, i) => {
+      row.forEach((cell, j) => {
+        if (cell.collapsed && cell.possibilities.length === 1) {
+          const tile = processedTiles[cell.possibilities[0]];
+          // Draw tile grid
+          tile.grid.forEach((tileRow, r) => {
+            tileRow.forEach((value, c) => {
+              ctx.fillStyle = value ? '#000' : '#fff';
+              ctx.fillRect(
+                j * tileCols * pixelSize + c * pixelSize,
+                i * tileRows * pixelSize + r * pixelSize,
+                pixelSize,
+                pixelSize
+              );
+            });
+          });
+        } else {
+          // Draw uncollapsed cell background
+          ctx.fillStyle = '#eee';
+          ctx.fillRect(
+            j * tileCols * pixelSize,
+            i * tileRows * pixelSize,
+            tileCols * pixelSize,
+            tileRows * pixelSize
+          );
+          
+          // Draw the number of possibilities in the center
+          if (cell.possibilities.length > 0) {
+            ctx.fillStyle = '#333';
+            ctx.font = `${pixelSize * 2}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(
+              cell.possibilities.length.toString(),
+              j * tileCols * pixelSize + (tileCols * pixelSize) / 2,
+              i * tileRows * pixelSize + (tileRows * pixelSize) / 2
+            );
+          }
+        }
+
+        // Draw gridlines
+        if (showGridlines) {
+          ctx.strokeStyle = '#ccc';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(
+            j * tileCols * pixelSize,
+            i * tileRows * pixelSize,
+            tileCols * pixelSize,
+            tileRows * pixelSize
+          );
+        }
+      });
+    });
+    
+    // Draw loading overlay if needed
+    if (isLoading) {
+      ctx.fillStyle = 'rgba(128, 128, 128, 0.5)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = '#fff';
+      ctx.font = '24px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Loading...', canvas.width / 2, canvas.height / 2);
+    }
+  }, [grid, processedTiles, numRows, numCols, showGridlines, pixelSize, isLoading, hasTiles]);
+
   const downloadGridAsImage = () => {
     // Warn and exit if not fully collapsed.
     if (grid.flat().some((cell) => !cell.collapsed)) {
@@ -241,55 +339,10 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
       return;
     }
 
-    // Use a fixed pixel size for each "pixel" in a tile.
-    const pixelSize = 20;
-    // Use the first collapsed cell to compute tile dimensions.
-    const sampleTile = processedTiles[grid[0][0].possibilities[0]];
-    const tileRows = sampleTile.grid.length;
-    const tileCols = sampleTile.grid[0].length;
-    const tileWidth = tileCols * pixelSize;
-    const tileHeight = tileRows * pixelSize;
-    const canvasWidth = numCols * tileWidth;
-    const canvasHeight = numRows * tileHeight;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    const ctx = canvas.getContext("2d");
-
-    // Iterate over every grid cell.
-    for (let i = 0; i < numRows; i++) {
-      for (let j = 0; j < numCols; j++) {
-        const cell = grid[i][j];
-        let tile;
-        if (cell.collapsed && cell.possibilities.length === 1) {
-          tile = processedTiles[cell.possibilities[0]];
-        } else {
-          // If not collapsed, fill with a blank (white) rectangle.
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(j * tileWidth, i * tileHeight, tileWidth, tileHeight);
-          continue;
-        }
-
-        // For each "pixel" in the tile's grid, draw a rectangle.
-        for (let r = 0; r < tileRows; r++) {
-          for (let c = 0; c < tileCols; c++) {
-            // For simplicity, assume truthy values (or numbers equal to 1) are black
-            // and falsy (or numbers not equal to 1) are white.
-            const value = tile.grid[r][c];
-            ctx.fillStyle =
-              value === true || value === 1 ? "#000000" : "#ffffff";
-            ctx.fillRect(
-              j * tileWidth + c * pixelSize,
-              i * tileHeight + r * pixelSize,
-              pixelSize,
-              pixelSize
-            );
-          }
-        }
-      }
-    }
-
+    // Use the existing canvas for download
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     // Trigger the download.
     const dataURL = canvas.toDataURL("image/png");
     const link = document.createElement("a");
@@ -302,78 +355,42 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
   return (
     <div className="wfc-container" key={JSON.stringify(tiles)}>
-      <div
-        className={`wfc-grid ${!showGridlines ? "wfc-grid--no-gridlines" : ""}`}
-        data-testid="wfc-grid-container"
-        style={{ "--grid-cols": numCols, "--grid-rows": numRows }}
-      >
-        {grid.map((row, rowIndex) =>
-          row.map((cell, colIndex) => {
-            return (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                data-testid={`wfc-cell-${rowIndex}-${colIndex}`}
-                className={`wfc-cell ${
-                  cell.collapsed ? "wfc-cell-collapsed" : "wfc-cell-uncollapsed"
-                }`}
-              >
-                {cell.collapsed ? (
-                  <TilePreview tile={processedTiles[cell.possibilities[0]]} />
-                ) : (
-                  cell.possibilities.length
-                )}
-              </div>
-            );
-          })
-        )}
-        {isLoading && (
-          <div
-            data-testid="wfc-spinner"
-            className="wfc-overlay"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(128,128,128,0.5)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 10,
-            }}
-          >
-            <div className="spinner">Loading…</div>
+      <div className="wfc-canvas-container">
+        <canvas 
+          ref={canvasRef} 
+          className="wfc-canvas"
+          data-testid="wfc-canvas"
+        />
+      </div>
+
+      <div className="wfc-controls">
+        <button
+          onClick={runWFCAlgorithmWithBacktracking}
+          data-testid="run-wfc-button"
+          disabled={!hasTiles || isLoading}
+        >
+          Run WFC
+        </button>
+        <button
+          onClick={resetGrid}
+          data-testid="reset-button"
+          disabled={!hasTiles || isLoading}
+        >
+          Reset
+        </button>
+        <button
+          onClick={downloadGridAsImage}
+          data-testid="download-image-button"
+          disabled={!grid.flat().every((cell) => cell.collapsed) || isLoading}
+        >
+          Download Image
+        </button>
+        {!hasTiles && (
+          <div className="wfc-warning">
+            Please add tiles to use the WFC algorithm
           </div>
         )}
       </div>
-
-      <button
-        onClick={runWFCAlgorithmWithBacktracking}
-        data-testid="run-wfc-button"
-        disabled={!hasTiles || isLoading}
-      >
-        Run WFC
-      </button>
-      <button
-        onClick={resetGrid}
-        data-testid="reset-button"
-        disabled={!hasTiles || isLoading}
-      >
-        Reset
-      </button>
-      <button
-        onClick={downloadGridAsImage}
-        data-testid="download-image-button"
-        disabled={!grid.flat().every((cell) => cell.collapsed) || isLoading}
-      >
-        Download Image
-      </button>
-      {!hasTiles && (
-        <div className="wfc-warning">
-          Please add tiles to use the WFC algorithm
-        </div>
-      )}
     </div>
   );
 }

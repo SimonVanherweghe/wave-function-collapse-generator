@@ -8,61 +8,28 @@
   background-color: #f8f9fa;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  
 }
 
-.wfc-grid {
-  display: grid;
-  grid-template-columns: repeat(var(--grid-cols, 10), 1fr);
-  grid-template-rows: repeat(var(--grid-rows, 10), 1fr);
-
+.wfc-canvas-container {
   width: 100%;
-  aspect-ratio: var(--grid-cols, 10) / var(--grid-rows, 10);
-
-  container-type: inline-size;
-  container-name: grid;
-
-
   margin-bottom: 1.5rem;
-  background-color: white;
-  
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
- position: relative; /* for the loading state */
-}
-
-.wfc-grid--no-gridlines {
-  gap: 0;
-}
-
-.wfc-grid--no-gridlines .wfc-cell {
-  border: none;
-}
-
-.wfc-cell {
-  border: 1px solid #ccc;
   display: flex;
   justify-content: center;
-  align-items: center;
-  transition: background-color 0.2s ease;
 }
 
-/* For uncollapsed cells display possibility count */
-.wfc-cell-uncollapsed {
-  background-color: transparent;
-  font-weight: normal;
+.wfc-canvas {
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  max-width: 100%;
+  height: auto;
+  background-color: white;
 }
 
-/* For collapsed cells, display the tile preview */
-.wfc-cell-collapsed {
-  font-weight: bold;
-}
-
-.wfc-cell:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+.wfc-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .wfc-container button {
@@ -89,13 +56,8 @@
   background-color: #d32f2f;
 }
 
-.tile-preview-fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #eee;
-  font-size: 10px;
-  color: #888;
+.wfc-warning {
+  color: #d32f2f;
+  font-weight: bold;
+  margin-top: 1rem;
 }
