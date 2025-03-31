@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Tile from "./components/Tile";
 import EdgeOverview from "./components/EdgeOverview";
 import WFC from "./components/WFC";
+import TileVariants from "./components/TileVariants";
 import "./App.css";
 
 function App() {
@@ -102,7 +103,7 @@ function App() {
   return (
     <BrowserRouter>
       <nav className="app-nav">
-        <Link to="/">Home</Link> | <Link to="/grid">Grid</Link>
+        <Link to="/">Home</Link> | <Link to="/grid">Grid</Link> | <Link to="/tile-variants">Tile Variants</Link>
       </nav>
       <Routes>
         <Route
@@ -167,6 +168,14 @@ function App() {
                 key={JSON.stringify(tiles)}
                 showGridlines={false}
               />
+            </div>
+          }
+        />
+        <Route
+          path="/tile-variants"
+          element={
+            <div className="tile-variants-page">
+              <TileVariants tiles={tiles} />
             </div>
           }
         />

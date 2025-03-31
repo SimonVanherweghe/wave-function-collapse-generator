@@ -1,0 +1,75 @@
+.tile-variants-container {
+  padding: 1rem;
+}
+
+.variants-summary {
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.original-tile-section {
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.tile-settings {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.tile-setting {
+  padding: 0.3rem 0.6rem;
+  background-color: #e9ecef;
+  border-radius: 4px;
+}
+
+.variants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.variant-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 6px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.variant-item:hover {
+  transform: scale(1.05);
+}
+
+.variant-description {
+  margin-top: 0.8rem;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* Variant type styling */
+.variant-item.original {
+  border: 2px solid #4caf50;
+}
+
+.variant-item.rotation {
+  border: 2px solid #2196f3;
+}
+
+.variant-item.mirror {
+  border: 2px solid #ff9800;
+}
+
+.variant-item.rotation-mirror {
+  border: 2px solid #9c27b0;
+}
