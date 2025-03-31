@@ -89,11 +89,11 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     try {
       while (iterations < maxIterations) {
         iterations++;
-        const collapsedCount = currentGrid
+        /* const collapsedCount = currentGrid
           .flat()
           .filter((c) => c.collapsed).length;
         const totalCells = currentGrid.length * currentGrid[0].length;
-        /*         console.log(
+                console.log(
           `[WFC] Iteration ${iterations}: ${collapsedCount}/${totalCells} collapsed`
         ); */
         const { allCollapsed, contradiction } = gridStatus(currentGrid);
