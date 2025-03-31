@@ -359,11 +359,23 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Generate timestamp string YYYY-MM-DD_HH-MM-SS
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}-${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now
+      .getHours()
+      .toString()
+      .padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}-${now
+      .getSeconds()
+      .toString()
+      .padStart(2, '0')}`;
+
     // Trigger the download.
     const dataURL = canvas.toDataURL("image/png");
     const link = document.createElement("a");
     link.href = dataURL;
-    link.download = "WFC-result.png";
+    link.download = `WFC-result_${timestamp}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
