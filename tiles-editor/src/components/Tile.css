@@ -3,6 +3,24 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #f5f5f5;
+  position: relative;
+}
+
+.edit-icon-wrapper {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+}
+
+.edit-icon {
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.edit-icon:hover {
+  color: #000;
 }
 
 .tile-wrapper h3 {

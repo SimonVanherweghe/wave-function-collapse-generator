@@ -4,6 +4,7 @@ import HomePage from "./components/HomePage";
 import GridPage from "./components/GridPage";
 import TileVariants from "./components/TileVariants";
 import EdgeOverview from "./components/EdgeOverview";
+import TileEditPage from "./components/TileEditPage";
 import "./App.css";
 
 function App() {
@@ -134,6 +135,15 @@ function App() {
         />
         <Route path="/tile-variants" element={<TileVariants tiles={tiles} />} />
         <Route path="/edge-overview" element={<EdgeOverview tiles={tiles} />} />
+        <Route 
+          path="/tile-edit/:tileId" 
+          element={
+            <TileEditPage 
+              tiles={tiles} 
+              handleTileUpdate={handleTileUpdate} 
+            />
+          } 
+        />
       </Routes>
     </>
   );

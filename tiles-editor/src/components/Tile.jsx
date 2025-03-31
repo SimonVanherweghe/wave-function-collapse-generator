@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { IconEdit } from "@tabler/icons-react";
 import "./Tile.css";
 
 function Tile({ tile, tileId, onUpdate }) {
@@ -43,6 +44,14 @@ function Tile({ tile, tileId, onUpdate }) {
 
   return (
     <div className="tile-component">
+      <div className="edit-icon-wrapper">
+        <IconEdit 
+          className="edit-icon" 
+          size={18} 
+          onClick={() => window.location.href = `/tile-edit/${tileId}`}
+          data-testid={`edit-tile-${tileId}`}
+        />
+      </div>
       <div className="grid">
         {grid.map((row, rowIndex) => (
           <div key={rowIndex} className="grid-row">
