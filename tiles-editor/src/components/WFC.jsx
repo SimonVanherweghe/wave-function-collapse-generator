@@ -12,7 +12,7 @@ import TilePreview from "./TilePreview";
 function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
   const canvasRef = useRef(null);
   const [pixelSize] = useState(10);
-  
+
   // Determine if we have tiles
   const hasTiles = tiles && tiles.length > 0;
 
@@ -93,18 +93,18 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           .flat()
           .filter((c) => c.collapsed).length;
         const totalCells = currentGrid.length * currentGrid[0].length;
-        console.log(
+        /*         console.log(
           `[WFC] Iteration ${iterations}: ${collapsedCount}/${totalCells} collapsed`
-        );
+        ); */
         const { allCollapsed, contradiction } = gridStatus(currentGrid);
         if (allCollapsed) {
           console.log(`[WFC] ALL collapsed`);
           break; // finished!
         }
         if (contradiction) {
-          console.warn(
+          /*        console.warn(
             `[WFC] Contradiction detected at iteration ${iterations}. Starting backtracking...`
-          );
+          ); */
           // If contradiction occurs, backtrack if possible.
           if (historyStack.length === 0 || backtracks >= maxBacktracks) {
             console.error("Backtracking exhausted - contradiction unresolved");
@@ -116,9 +116,9 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           const updatedPossibilities = record.originalPossibilities.filter(
             (p) => p !== record.tried
           );
-          console.warn(
+          /*   console.warn(
             `[WFC] Backtracking: at cell (${record.row}, ${record.col}), removing possibility ${record.tried}. Remaining: ${updatedPossibilities}`
-          );
+          ); */
           // Update the cell in the restored grid with the reduced possibility set and mark it uncollapsed.
           prevGrid[record.row][record.col] = {
             possibilities: updatedPossibilities,
@@ -126,7 +126,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           };
           currentGrid = prevGrid;
           backtracks++;
-          console.log(`[WFC] Backtracked ${backtracks} times so far`);
+          /*     console.log(`[WFC] Backtracked ${backtracks} times so far`); */
           continue;
         }
         // Find cell with lowest entropy.
@@ -136,18 +136,18 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         }
 
         const cell = currentGrid[row][col];
-        console.log(
+        /*     console.log(
           `[WFC] Collapsing cell at (${row}, ${col}), with possibilities: ${cell.possibilities}`
-        );
+        ); */
         // If the cell is ambiguous (possibilities.length > 1), try a possibility.
         // Find a possibility to try
         const possibleChoices = cell.possibilities;
         if (possibleChoices.length === 0) {
           // Nothing left to try in this cell: contradiction; backtrack.
           if (historyStack.length === 0 || backtracks >= maxBacktracks) {
-            console.error(
+            /*     console.error(
               "No possibilities remain for cell - backtracking aborted"
-            );
+            ); */
             break;
           }
           const record = historyStack.pop();
@@ -189,9 +189,9 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           originalPossibilities: [...cell.possibilities],
           tried: chosen,
         });
-        console.log(
+        /*   console.log(
           `[WFC] Choosing possibility ${chosen} at cell (${row}, ${col})`
-        );
+        ); */
         // Collapse the cell by forcing its possibilities to only the chosen.
         const newGrid = currentGrid.map((r, i) =>
           r.map((cellObj, j) =>
@@ -204,12 +204,12 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         propagateConstraints(newGrid, row, col, processedTiles);
         currentGrid = newGrid;
         // Log how many cells are collapsed now.
-        const newCollapsedCount = currentGrid
+        /*   const newCollapsedCount = currentGrid
           .flat()
           .filter((c) => c.collapsed).length;
-        console.log(
+          console.log(
           `[WFC] After collapse at (${row}, ${col}): ${newCollapsedCount}/${totalCells} collapsed`
-        );
+        ); */
       }
     } catch (error) {
       console.error(
@@ -244,31 +244,31 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !hasTiles) return;
-    
+
     let ctx;
     try {
-      ctx = canvas.getContext('2d');
+      ctx = canvas.getContext("2d");
       if (!ctx) return; // Exit if context is not available (e.g., in test environment)
     } catch (e) {
-      console.warn('Canvas context not available:', e);
+      console.warn("Canvas context not available:", e);
       return; // Exit gracefully in test environments
     }
-    
+
     // If we have no tiles yet, just clear the canvas
     if (processedTiles.length === 0) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       return;
     }
-    
+
     // Use the first tile to determine dimensions
     const sampleTile = processedTiles[0];
     const tileRows = sampleTile.grid.length;
     const tileCols = sampleTile.grid[0].length;
-    
+
     // Set canvas dimensions
     canvas.width = numCols * tileCols * pixelSize;
     canvas.height = numRows * tileRows * pixelSize;
-    
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw each cell
@@ -279,7 +279,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           // Draw tile grid
           tile.grid.forEach((tileRow, r) => {
             tileRow.forEach((value, c) => {
-              ctx.fillStyle = value ? '#000' : '#fff';
+              ctx.fillStyle = value ? "#000" : "#fff";
               ctx.fillRect(
                 j * tileCols * pixelSize + c * pixelSize,
                 i * tileRows * pixelSize + r * pixelSize,
@@ -290,20 +290,20 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           });
         } else {
           // Draw uncollapsed cell background
-          ctx.fillStyle = '#eee';
+          ctx.fillStyle = "#eee";
           ctx.fillRect(
             j * tileCols * pixelSize,
             i * tileRows * pixelSize,
             tileCols * pixelSize,
             tileRows * pixelSize
           );
-          
+
           // Draw the number of possibilities in the center
           if (cell.possibilities.length > 0) {
-            ctx.fillStyle = '#333';
+            ctx.fillStyle = "#333";
             ctx.font = `${pixelSize * 2}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
             ctx.fillText(
               cell.possibilities.length.toString(),
               j * tileCols * pixelSize + (tileCols * pixelSize) / 2,
@@ -314,7 +314,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
 
         // Draw gridlines
         if (showGridlines) {
-          ctx.strokeStyle = '#ccc';
+          ctx.strokeStyle = "#ccc";
           ctx.lineWidth = 1;
           ctx.strokeRect(
             j * tileCols * pixelSize,
@@ -325,19 +325,28 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
         }
       });
     });
-    
+
     // Draw loading overlay if needed
     if (isLoading) {
-      ctx.fillStyle = 'rgba(128, 128, 128, 0.5)';
+      ctx.fillStyle = "rgba(128, 128, 128, 0.5)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      ctx.fillStyle = '#fff';
-      ctx.font = '24px Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('Loading...', canvas.width / 2, canvas.height / 2);
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "24px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("Loading...", canvas.width / 2, canvas.height / 2);
     }
-  }, [grid, processedTiles, numRows, numCols, showGridlines, pixelSize, isLoading, hasTiles]);
+  }, [
+    grid,
+    processedTiles,
+    numRows,
+    numCols,
+    showGridlines,
+    pixelSize,
+    isLoading,
+    hasTiles,
+  ]);
 
   const downloadGridAsImage = () => {
     // Warn and exit if not fully collapsed.
@@ -349,7 +358,7 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     // Use the existing canvas for download
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     // Trigger the download.
     const dataURL = canvas.toDataURL("image/png");
     const link = document.createElement("a");
@@ -363,8 +372,8 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
   return (
     <div className="wfc-container" key={JSON.stringify(tiles)}>
       <div className="wfc-canvas-container">
-        <canvas 
-          ref={canvasRef} 
+        <canvas
+          ref={canvasRef}
           className="wfc-canvas"
           data-testid="wfc-canvas"
         />
