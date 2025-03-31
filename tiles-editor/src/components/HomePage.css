@@ -7,11 +7,12 @@
 
 .left-section {
   flex: 2; /* 2 parts for tile overview */
-  overflow-y: scroll;
+  padding-right: 1rem;
 }
 
 .right-section {
   flex: 1; /* 1 part for edge overview */
+  padding-left: 1rem;
 }
 
 .left-section {
@@ -32,7 +33,6 @@
 }
 
 .add-tile-button {
-  margin-top: 1rem;
   padding: 0.5rem 1rem;
   background-color: #4caf50;
   color: white;
@@ -66,6 +66,8 @@
   background-color: #f8f9fa;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
 }
 
 .tile-size-controls label {

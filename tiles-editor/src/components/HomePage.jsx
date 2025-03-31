@@ -40,17 +40,6 @@ function HomePage({
     <div className="app-container app-container--main">
       <div data-testid="tile-overview" className="left-section">
         <h2>Tile Overview</h2>
-        <div className="tiles-container">
-          {tiles.map((tile, index) => (
-            <TileWrapper
-              key={index}
-              tile={tile}
-              index={index}
-              handleTileUpdate={handleTileUpdate}
-              handleRemoveTile={handleRemoveTile}
-            />
-          ))}
-        </div>
         <div className="tile-size-controls">
           <label>
             Tile Size:
@@ -66,10 +55,22 @@ function HomePage({
               data-testid="tile-size-input"
             />
           </label>
+          <button onClick={handleAddTile} className="add-tile-button">
+            Add Tile
+          </button>
         </div>
-        <button onClick={handleAddTile} className="add-tile-button">
-          Add Tile
-        </button>
+        <div className="tiles-container">
+          {tiles.map((tile, index) => (
+            <TileWrapper
+              key={index}
+              tile={tile}
+              index={index}
+              handleTileUpdate={handleTileUpdate}
+              handleRemoveTile={handleRemoveTile}
+            />
+          ))}
+        </div>
+
         <div data-testid="tile-state" style={{ display: "none" }}>
           {JSON.stringify(tiles)}
         </div>
