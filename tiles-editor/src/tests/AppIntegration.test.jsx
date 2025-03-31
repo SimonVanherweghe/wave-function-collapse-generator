@@ -1,16 +1,20 @@
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import App from "../App";
+import { MemoryRouter } from "react-router-dom";
 
 describe("App Integration Tests", () => {
-  it("updates EdgeOverview in real-time in auto-update mode", async () => {
-    render(<App />);
+  it("updates EdgeOverview in real-time when navigating to the edge patterns page", async () => {
+    render(
+      <MemoryRouter initialEntries={["/edge-overview"]}>
+        <App />
+      </MemoryRouter>
+    );
 
-    // By default, auto-update is enabled.
-    // For a default tile, expecting the unique edge to have a count "Count: 4"
+    // For a default tile, expecting the unique edge to have occurrences text
     await waitFor(() => {
       expect(
-        screen.getByText((content) => content.includes("Count: 4"))
+        screen.getByText((content) => content.includes("Occurrences: 4"))
       ).toBeInTheDocument();
     });
 
@@ -18,10 +22,10 @@ describe("App Integration Tests", () => {
     const addTileButton = screen.getByRole("button", { name: /add tile/i });
     fireEvent.click(addTileButton);
 
-    // With two default tiles, total edges count should update to "Count: 8".
+    // With two default tiles, total edges count should update to "Occurrences: 8".
     await waitFor(() => {
       expect(
-        screen.getByText((content) => content.includes("Count: 8"))
+        screen.getByText((content) => content.includes("Occurrences: 8"))
       ).toBeInTheDocument();
     });
 
@@ -29,48 +33,38 @@ describe("App Integration Tests", () => {
     const cell = screen.getByTestId("tile-0-cell-0-0");
     fireEvent.click(cell);
 
-    // In auto-update mode, the edge overview should update automatically.
+    // The edge overview should update automatically.
     // Since changing a cell can change the edge pattern, expect more than one unique edge.
     await waitFor(() => {
       const edgeItems = screen.getAllByText((content) =>
-        content.includes("Count:")
+        content.includes("Occurrences:")
       );
       expect(edgeItems.length).toBeGreaterThan(1);
     });
   });
 
-  it("does not update EdgeOverview in manual mode until refresh is clicked", async () => {
-    render(<App />);
+  it("shows edge patterns when navigating to the edge patterns page", async () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <App />
+      </MemoryRouter>
+    );
 
-    // Toggle auto-update off using the test ID.
-    const autoUpdateCheckbox = screen.getByTestId("auto-update-checkbox");
-    fireEvent.click(autoUpdateCheckbox);
-    expect(autoUpdateCheckbox.checked).toBe(false);
-
-    // With one tile, the unique edge count should be "Count: 4" initially.
+    // Initially we should be on the home page with WFC section
+    expect(screen.getByTestId("wfc-section")).toBeInTheDocument();
+    
+    // Navigate to edge patterns page
+    const edgePatternsLink = screen.getByText("Edge Patterns");
+    fireEvent.click(edgePatternsLink);
+    
+    // Now we should see the edge overview with occurrences
     await waitFor(() => {
       expect(
-        screen.getByText((content) => content.includes("Count: 4"))
+        screen.getByText("Edge Pattern Overview")
       ).toBeInTheDocument();
-    });
-
-    // Add a new tile.
-    const addTileButton = screen.getByRole("button", { name: /add tile/i });
-    fireEvent.click(addTileButton);
-
-    // Since auto-update is off, the EdgeOverview remains unchanged (still "Count: 4").
-    await new Promise((resolve) => setTimeout(resolve, 300)); // wait momentarily
-    let edgeItem = screen.getByText((content) => content.includes("Count: 4"));
-    expect(edgeItem).toBeInTheDocument();
-
-    // Click the Refresh button.
-    const refreshButton = screen.getByTestId("refresh-button");
-    fireEvent.click(refreshButton);
-
-    // After refresh, the edge count should update (now "Count: 8" for two default tiles).
-    await waitFor(() => {
+      
       expect(
-        screen.getByText((content) => content.includes("Count: 8"))
+        screen.getByText((content) => content.includes("Occurrences: 4"))
       ).toBeInTheDocument();
     });
   });

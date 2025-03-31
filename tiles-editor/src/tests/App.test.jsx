@@ -2,12 +2,12 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, test } from "vitest";
 import App from "../App";
 
-test("renders tile overview and edge overview sections", () => {
+test("renders tile overview and WFC sections", () => {
   render(<App />);
   const tileSection = screen.getByTestId("tile-overview");
-  const edgeSection = screen.getByTestId("edge-overview");
+  const wfcSection = screen.getByTestId("wfc-section");
   expect(tileSection).toBeInTheDocument();
-  expect(edgeSection).toBeInTheDocument();
+  expect(wfcSection).toBeInTheDocument();
 });
 
 describe("App component", () => {
