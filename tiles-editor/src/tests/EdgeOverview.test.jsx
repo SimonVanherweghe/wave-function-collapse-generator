@@ -1,12 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import EdgeOverview from "../components/EdgeOverview";
 
-describe("EdgeOverview component and edge calculations", () => {
-  // Create a custom tile with a known grid.
-  // This grid produces the same edge "10001" for all four sides:
-  // Top: [true,false,false,false,true] => "10001"
-  // Right: same, Bottom (reversed but equal), Left (reversed but equal)
+describe("EdgeOverview Component", () => {
+  // Create a custom tile with a known grid
   const customTile = {
     grid: [
       [true, false, false, false, true],
@@ -19,93 +16,46 @@ describe("EdgeOverview component and edge calculations", () => {
     mirrorEnabled: false,
   };
 
-  it("calculates unique edge correctly for a single tile", () => {
-    // For one tile, its four edges are all "10001".
-    // The aggregator collects these into one unique edge with a count of 4.
+  it("renders edge patterns correctly", () => {
     const { container } = render(<EdgeOverview tiles={[customTile]} />);
-
-    // Select each unique edge item element via the CSS class.
+    
+    // Verify edge cells are rendered
+    const edgeCells = screen.getAllByTestId("edge-cell");
+    expect(edgeCells.length).toBeGreaterThan(0);
+    
+    // There should be exactly 1 unique edge displayed
     const edgeItems = container.querySelectorAll(".edge-item");
-
-    // There should be exactly 1 unique edge displayed.
     expect(edgeItems.length).toBe(1);
-
-    // The count should be 4 (four edges for one tile).
-    expect(
-      edgeItems[0].textContent.includes("Count: 4") ||
-      edgeItems[0].querySelector(".edge-count")?.textContent.includes("Count: 4")
-    ).toBe(true);
+    
+    // The count should be 4 (four edges for one tile)
+    expect(screen.getByText("Occurrences: 4")).toBeInTheDocument();
   });
 
   it("aggregates edges from multiple tiles", () => {
-    // If we pass two identical tiles, each contributes four edges,
-    // so we expect one unique edge occurring 8 times.
     const { container } = render(
       <EdgeOverview tiles={[customTile, customTile]} />
     );
 
-    // Again, only one unique edge should be rendered.
+    // Again, only one unique edge should be rendered
     const edgeItems = container.querySelectorAll(".edge-item");
     expect(edgeItems.length).toBe(1);
 
-    // The count should now be 8 (4 edges per tile × 2 tiles).
-    expect(
-      edgeItems[0].textContent.includes("Count: 8") ||
-      edgeItems[0].querySelector(".edge-count")?.textContent.includes("Count: 8")
-    ).toBe(true);
+    // The count should now be 8 (4 edges per tile × 2 tiles)
+    expect(screen.getByText("Occurrences: 8")).toBeInTheDocument();
   });
 
-  it("toggles auto-update mode correctly", () => {
-    render(<EdgeOverview tiles={[customTile]} />);
-
-    // Auto-update should be enabled by default
-    const autoUpdateCheckbox = screen.getByTestId("auto-update-checkbox");
-    expect(autoUpdateCheckbox.checked).toBe(true);
-
-    // Refresh button should not be visible in auto-update mode
-    expect(screen.queryByTestId("refresh-button")).not.toBeInTheDocument();
-
-    // Toggle auto-update off
-    fireEvent.click(autoUpdateCheckbox);
-    expect(autoUpdateCheckbox.checked).toBe(false);
-
-    // Refresh button should now be visible
-    expect(screen.getByTestId("refresh-button")).toBeInTheDocument();
+  it("shows empty state when no tiles", () => {
+    render(<EdgeOverview tiles={[]} />);
+    expect(screen.getByTestId("no-edges-message")).toBeInTheDocument();
+    expect(screen.getByText(/No edge patterns found/)).toBeInTheDocument();
   });
 
-  it("only updates edges after refresh button click in manual mode", () => {
-    // Start with one tile
-    const { container, rerender } = render(
-      <EdgeOverview tiles={[customTile]} />
-    );
+  it("updates edges when tiles change", () => {
+    const { rerender } = render(<EdgeOverview tiles={[]} />);
+    expect(screen.getByTestId("no-edges-message")).toBeInTheDocument();
 
-    // Turn off auto-update
-    const autoUpdateCheckbox = screen.getByTestId("auto-update-checkbox");
-    fireEvent.click(autoUpdateCheckbox);
-
-    // Initial state: one unique edge with count 4
-    let edgeItems = container.querySelectorAll(".edge-item");
-    expect(edgeItems.length).toBe(1);
-    expect(edgeItems[0].textContent).toContain("Count: 4");
-
-    // Update props with two tiles, but don't refresh
-    rerender(<EdgeOverview tiles={[customTile, customTile]} />);
-
-    // Edge count should still be 4 since we're in manual mode and haven't refreshed
-    edgeItems = container.querySelectorAll(".edge-item");
-    expect(
-      edgeItems[0].textContent.includes("Count: 4") ||
-      edgeItems[0].querySelector(".edge-count")?.textContent.includes("Count: 4")
-    ).toBe(true);
-
-    // Click refresh button
-    fireEvent.click(screen.getByTestId("refresh-button"));
-
-    // Now the edge count should update to 8
-    edgeItems = container.querySelectorAll(".edge-item");
-    expect(
-      edgeItems[0].textContent.includes("Count: 8") ||
-      edgeItems[0].querySelector(".edge-count")?.textContent.includes("Count: 8")
-    ).toBe(true);
+    rerender(<EdgeOverview tiles={[customTile]} />);
+    expect(screen.queryByTestId("no-edges-message")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("edge-cell").length).toBeGreaterThan(0);
   });
 });

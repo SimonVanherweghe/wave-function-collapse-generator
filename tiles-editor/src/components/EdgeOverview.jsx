@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import "./EdgeOverview.css";
 
 // Helper functions moved outside component to prevent recreation on each render
@@ -61,10 +61,8 @@ const getTileVariations = (tile) => {
 };
 
 const EdgeOverview = ({ tiles }) => {
-  const [autoUpdate, setAutoUpdate] = useState(true);
-
-  // Compute edges from tiles whenever tiles change
-  const autoComputedEdges = useMemo(() => {
+  // Compute edges directly from tiles with useMemo
+  const edges = useMemo(() => {
     const extractedEdges = {};
 
     tiles.forEach((tile) => {
@@ -78,23 +76,13 @@ const EdgeOverview = ({ tiles }) => {
         // Add edges to the collection
         tileEdges.forEach((edge) => {
           const edgeKey = edge.join("");
-          if (extractedEdges[edgeKey]) {
-            extractedEdges[edgeKey]++;
-          } else {
-            extractedEdges[edgeKey] = 1;
-          }
+          extractedEdges[edgeKey] = (extractedEdges[edgeKey] || 0) + 1;
         });
       });
     });
 
     return extractedEdges;
   }, [tiles]);
-
-  // Store manual edges when autoUpdate is off
-  const [manualEdges, setManualEdges] = useState(autoComputedEdges);
-
-  // When in manual mode, choose which edges to render
-  const edgesToRender = autoUpdate ? autoComputedEdges : manualEdges;
 
   // Render edge visualization
   const renderEdge = (edge, count) => {
@@ -109,52 +97,29 @@ const EdgeOverview = ({ tiles }) => {
               className={`edge-cell ${
                 cell ? "edge-cell-black" : "edge-cell-white"
               }`}
+              data-testid="edge-cell"
             />
           ))}
         </div>
-        <div className="edge-count">Count: {count}</div>
+        <div className="edge-count">Occurrences: {count}</div>
       </div>
     );
   };
 
-  // Handle toggle of auto-update mode
-  const handleAutoUpdateToggle = (e) => {
-    setAutoUpdate(e.target.checked);
-  };
-
-  // Handle manual refresh button click
-  const handleRefresh = () => {
-    setManualEdges(autoComputedEdges);
-  };
-
   return (
     <div className="edge-overview">
-      <div className="edge-controls" style={{ marginBottom: "1rem" }}>
-        <label>
-          <input
-            type="checkbox"
-            checked={autoUpdate}
-            onChange={handleAutoUpdateToggle}
-            data-testid="auto-update-checkbox"
-          />
-          Auto-update
-        </label>
-        {!autoUpdate && (
-          <button
-            onClick={handleRefresh}
-            className="refresh-button"
-            data-testid="refresh-button"
-          >
-            Refresh
-          </button>
-        )}
-      </div>
-      <h3>Unique Edges</h3>
-      <div className="edges-container">
-        {Object.entries(edgesToRender).map(([edge, count]) =>
-          renderEdge(edge, count)
-        )}
-      </div>
+      <h2>Edge Pattern Overview</h2>
+      {Object.keys(edges).length > 0 ? (
+        <div className="edges-container">
+          {Object.entries(edges).map(([edge, count]) => 
+            renderEdge(edge, count)
+          )}
+        </div>
+      ) : (
+        <div className="no-edges-message" data-testid="no-edges-message">
+          No edge patterns found in current tile set
+        </div>
+      )}
     </div>
   );
 };

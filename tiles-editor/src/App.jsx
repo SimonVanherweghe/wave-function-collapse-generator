@@ -108,7 +108,8 @@ function App() {
     <BrowserRouter>
       <nav className="app-nav">
         <Link to="/">Home</Link> | <Link to="/grid">Grid</Link> |{" "}
-        <Link to="/tile-variants">Tile Variants</Link>
+        <Link to="/tile-variants">Tile Variants</Link> |{" "}
+        <Link to="/edge-overview">Edge Patterns</Link>
       </nav>
       <Routes>
         <Route
@@ -151,10 +152,7 @@ function App() {
                   {JSON.stringify(tiles)}
                 </div>
               </div>
-              <div data-testid="edge-overview" className="right-section">
-                <h2>Edge Overview</h2>
-                <EdgeOverview tiles={tiles} />
-
+              <div data-testid="wfc-section" className="right-section">
                 <h2>Wave Function Collapse</h2>
                 <WFC tiles={tiles} key={JSON.stringify(tiles)} />
               </div>
@@ -181,6 +179,14 @@ function App() {
           element={
             <div className="tile-variants-page">
               <TileVariants tiles={tiles} />
+            </div>
+          }
+        />
+        <Route
+          path="/edge-overview"
+          element={
+            <div className="edge-overview-page">
+              <EdgeOverview tiles={tiles} />
             </div>
           }
         />
