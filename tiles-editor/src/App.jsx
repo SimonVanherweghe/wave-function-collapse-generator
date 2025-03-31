@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { Routes, Route, Link, NavLink } from "react-router";
-import Tile from "./components/Tile";
-import EdgeOverview from "./components/EdgeOverview";
-import WFC from "./components/WFC";
-import TileVariants from "./components/TileVariants";
+import { Routes, Route, NavLink } from "react-router";
+import HomePage from "./pages/HomePage/HomePage";
+import GridPage from "./pages/GridPage/GridPage";
+import TileVariantsPage from "./pages/TileVariantsPage/TileVariantsPage";
+import EdgeOverviewPage from "./pages/EdgeOverviewPage/EdgeOverviewPage";
 import "./App.css";
 
 function App() {
@@ -30,30 +30,6 @@ function App() {
     );
   }, [tileSize]);
 
-  // TileWrapper component to properly handle hooks
-  function TileWrapper({ tile, index, handleTileUpdate, handleRemoveTile }) {
-    // Now we are inside a component, so we can safely use hooks.
-    const onUpdateTile = useCallback(
-      (updatedTile) => {
-        handleTileUpdate(index, updatedTile);
-      },
-      [handleTileUpdate, index]
-    );
-
-    return (
-      <div className="tile-wrapper">
-        <h3>Tile {index + 1}</h3>
-        <Tile tile={tile} tileId={index} onUpdate={onUpdateTile} />
-        <button
-          onClick={() => handleRemoveTile(index)}
-          className="remove-tile-button"
-          data-testid={`remove-tile-${index}`}
-        >
-          Remove Tile
-        </button>
-      </div>
-    );
-  }
 
   // Create two different default tiles for better WFC results
   const defaultTileFalse = {
@@ -126,81 +102,19 @@ function App() {
         <Route
           path="/"
           element={
-            <div className="app-container app-container--main">
-              <div data-testid="tile-overview" className="left-section">
-                <h2>Tile Overview</h2>
-                <div className="tiles-container">
-                  {tiles.map((tile, index) => (
-                    <TileWrapper
-                      key={index}
-                      tile={tile}
-                      index={index}
-                      handleTileUpdate={handleTileUpdate}
-                      handleRemoveTile={handleRemoveTile}
-                    />
-                  ))}
-                </div>
-                <div className="tile-size-controls">
-                  <label>
-                    Tile Size:
-                    <input
-                      type="number"
-                      value={tileSize}
-                      min="1"
-                      onChange={(e) => {
-                        const val = Math.max(1, parseInt(e.target.value) || 1);
-                        setTileSize(val);
-                        localStorage.setItem("tileSize", val);
-                      }}
-                      data-testid="tile-size-input"
-                    />
-                  </label>
-                </div>
-                <button onClick={handleAddTile} className="add-tile-button">
-                  Add Tile
-                </button>
-                <div data-testid="tile-state" style={{ display: "none" }}>
-                  {JSON.stringify(tiles)}
-                </div>
-              </div>
-              <div data-testid="wfc-section" className="right-section">
-                <h2>Wave Function Collapse</h2>
-                <WFC tiles={tiles} key={JSON.stringify(tiles)} />
-              </div>
-            </div>
+            <HomePage
+              tiles={tiles}
+              tileSize={tileSize}
+              handleAddTile={handleAddTile}
+              handleRemoveTile={handleRemoveTile}
+              handleTileUpdate={handleTileUpdate}
+              setTileSize={setTileSize}
+            />
           }
         />
-        <Route
-          path="/grid"
-          element={
-            <div className="grid-page">
-              <h2>Large Grid WFC</h2>
-              <WFC
-                tiles={tiles}
-                numRows={20}
-                numCols={30}
-                key={JSON.stringify(tiles)}
-                showGridlines={false}
-              />
-            </div>
-          }
-        />
-        <Route
-          path="/tile-variants"
-          element={
-            <div className="tile-variants-page">
-              <TileVariants tiles={tiles} />
-            </div>
-          }
-        />
-        <Route
-          path="/edge-overview"
-          element={
-            <div className="edge-overview-page">
-              <EdgeOverview tiles={tiles} />
-            </div>
-          }
-        />
+        <Route path="/grid" element={<GridPage tiles={tiles} />} />
+        <Route path="/tile-variants" element={<TileVariantsPage tiles={tiles} />} />
+        <Route path="/edge-overview" element={<EdgeOverviewPage tiles={tiles} />} />
       </Routes>
     </>
   );
