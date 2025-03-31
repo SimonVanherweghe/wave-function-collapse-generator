@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Routes, Route, Link } from "react-router";
+import { Routes, Route, Link, NavLink } from "react-router";
 import Tile from "./components/Tile";
 import EdgeOverview from "./components/EdgeOverview";
 import WFC from "./components/WFC";
@@ -107,15 +107,26 @@ function App() {
   return (
     <>
       <nav className="app-nav">
-        <Link to="/">Home</Link> | <Link to="/grid">Grid</Link> |{" "}
-        <Link to="/tile-variants">Tile Variants</Link> |{" "}
-        <Link to="/edge-overview">Edge Patterns</Link>
+        <ul>
+          <li>
+            <NavLink to="/">Home</NavLink>
+          </li>
+          <li>
+            <NavLink to="/grid">Grid</NavLink>
+          </li>
+          <li>
+            <NavLink to="/tile-variants">Tile Variants</NavLink>
+          </li>
+          <li>
+            <NavLink to="/edge-overview">Edge Patterns</NavLink>
+          </li>
+        </ul>
       </nav>
       <Routes>
         <Route
           path="/"
           element={
-            <div className="app-container">
+            <div className="app-container app-container--main">
               <div data-testid="tile-overview" className="left-section">
                 <h2>Tile Overview</h2>
                 <div className="tiles-container">

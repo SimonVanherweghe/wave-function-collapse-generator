@@ -1,28 +1,25 @@
 #root {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
-
-/* Layout styles */
-.app-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  display: grid;
+  grid-template-rows: auto 1fr;
   width: 100%;
   min-height: 100vh;
 }
 
-.left-section,
-.right-section {
+
+/* Layout styles */
+.app-container {
   padding: 1rem;
-  box-sizing: border-box;
-  overflow-y: auto;
+}
+
+.app-container--main {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .left-section {
   flex: 2; /* 2 parts for tile overview */
+  overflow-y: scroll;
 }
 
 .right-section {
@@ -94,18 +91,14 @@
   margin-bottom: 1rem;
 }
 
-.app-nav a {
-  margin: 0 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+.app-nav ul {
+  display: flex;
+  gap: 2rem;
 }
 
-.app-nav a:hover {
-  background-color: #0056b3;
+.app-nav .active {
+  font-weight: bold;
+  color: #007bff;
 }
 
 /* Tile size controls */
