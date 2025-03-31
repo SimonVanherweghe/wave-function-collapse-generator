@@ -10,7 +10,7 @@
 
 
 .tile-preview-cell {
-  width: calc(100cqi / (var(--tile-cols) * var(--grid-cols)));
+  width: round(down , calc(100cqi / (var(--tile-cols) * var(--grid-cols))), 1px);
   aspect-ratio: 1;
 }
 
