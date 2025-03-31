@@ -1,10 +1,15 @@
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import App from "../App";
+import { MemoryRouter } from "react-router";
 
 describe("Remove Tile Feature", () => {
   it("removes a tile when the Remove Tile button is clicked", async () => {
-    render(<App />);
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <App />
+      </MemoryRouter>
+    );
 
     // Initially, the app must have one default tile.
     let startTileHeader = screen.getAllByText(/Tile \d+/);

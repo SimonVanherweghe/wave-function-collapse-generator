@@ -1,9 +1,14 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, test } from "vitest";
 import App from "../App";
+import { MemoryRouter } from "react-router";
 
 test("renders tile overview and WFC sections", () => {
-  render(<App />);
+  render(
+    <MemoryRouter initialEntries={["/"]}>
+      <App />
+    </MemoryRouter>
+  );
   const tileSection = screen.getByTestId("tile-overview");
   const wfcSection = screen.getByTestId("wfc-section");
   expect(tileSection).toBeInTheDocument();
@@ -12,7 +17,11 @@ test("renders tile overview and WFC sections", () => {
 
 describe("App component", () => {
   it('increments the number of Tile components when clicking the "Add Tile" button', () => {
-    const { container } = render(<App />);
+    const { container } = render(
+      <MemoryRouter initialEntries={["/"]}>
+        <App />
+      </MemoryRouter>
+    );
 
     // Get the initial count of rendered Tile components
     const initialTiles = container.querySelectorAll(".tile-wrapper");

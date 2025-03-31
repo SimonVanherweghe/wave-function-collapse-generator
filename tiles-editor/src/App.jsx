@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router";
+import { Routes, Route, Link } from "react-router";
 import Tile from "./components/Tile";
 import EdgeOverview from "./components/EdgeOverview";
 import WFC from "./components/WFC";
@@ -105,7 +105,7 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
+    <>
       <nav className="app-nav">
         <Link to="/">Home</Link> | <Link to="/grid">Grid</Link> |{" "}
         <Link to="/tile-variants">Tile Variants</Link> |{" "}
@@ -191,7 +191,7 @@ function App() {
           }
         />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
 

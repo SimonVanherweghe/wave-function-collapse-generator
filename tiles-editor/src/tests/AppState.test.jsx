@@ -1,8 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import App from "../App";
+import { MemoryRouter } from "react-router";
+import { test, expect } from "vitest";
 
 test("App initializes with one default tile with a 5x5 grid and disabled options", () => {
-  render(<App />);
+  render(
+    <MemoryRouter initialEntries={["/"]}>
+      <App />
+    </MemoryRouter>
+  );
   // Get the hidden element containing the tile state
   const tileStateElement = screen.getByTestId("tile-state");
   const tileState = JSON.parse(tileStateElement.textContent);
