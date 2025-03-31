@@ -82,9 +82,10 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     // Stack to remember previous states for backtracking.
     // Each element will be an object: { grid, row, col, originalPossibilities, tried }
     const historyStack = [];
+    const totalCells = numRows * numCols;
     let iterations = 0;
-    const maxIterations = 1000;
-    const maxBacktracks = 50;
+    const maxIterations = Math.ceil(2 * totalCells); // 2x total cells
+    const maxBacktracks = Math.max(1, Math.ceil(0.05 * totalCells)); // 5% of total cells, minimum 1
     let backtracks = 0;
 
     try {
