@@ -6,31 +6,10 @@
   position: relative;
 }
 
-.edit-icon-wrapper {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 10;
-}
-
-.edit-icon {
-  cursor: pointer;
-  color: #555;
-  transition: color 0.2s;
-}
-
-.edit-icon:hover {
-  color: #000;
-}
-
 .tile-wrapper h3 {
   margin: 0.5em 0;
 }
 
-/* Tile grid styles */
-.grid {
-  /* If additional grid-level styles are needed, add them here. */
-}
 
 .grid-row {
   display: flex;

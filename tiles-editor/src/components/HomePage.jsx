@@ -2,12 +2,13 @@ import { useCallback } from "react";
 import Tile from "./Tile";
 import WFC from "./WFC";
 import "./HomePage.css";
+import { Trash2, Pencil } from "lucide-react";
+import { Link } from "react-router";
 
 function HomePage({
   tiles,
   tileSize,
   handleAddTile,
-  handleRemoveTile,
   handleTileUpdate,
   setTileSize,
 }) {
@@ -24,14 +25,30 @@ function HomePage({
     return (
       <div className="tile-wrapper">
         <h3>Tile {index + 1}</h3>
-        <Tile tile={tile} tileId={index} onUpdate={onUpdateTile} />
-        <button
-          onClick={() => handleRemoveTile(index)}
-          className="remove-tile-button"
-          data-testid={`remove-tile-${index}`}
-        >
-          Remove Tile
-        </button>
+        <Tile
+          tile={tile}
+          tileId={index}
+          onUpdate={onUpdateTile}
+          onRemoveTile={handleRemoveTile}
+        />
+        <div className="controls-wrapper">
+          <button
+            onClick={() => handleRemoveTile(index)}
+            className="remove-tile-button"
+            data-testid={`remove-tile-${index}`}
+          >
+            <Trash2 className="icon" />
+            Remove
+          </button>
+          <Link
+            className="edit-tile-button"
+            to={`/tile-edit/${index}`}
+            data-testid={`edit-tile-${index}`}
+          >
+            <Pencil className="icon" />
+            Edit
+          </Link>
+        </div>
       </div>
     );
   }
@@ -66,7 +83,6 @@ function HomePage({
               tile={tile}
               index={index}
               handleTileUpdate={handleTileUpdate}
-              handleRemoveTile={handleRemoveTile}
             />
           ))}
         </div>

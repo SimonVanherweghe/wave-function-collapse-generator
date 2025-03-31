@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { IconEdit } from "@tabler/icons-react";
 import "./Tile.css";
+import { Pencil } from "lucide-react";
+import { Link } from "react-router";
 
 function Tile({ tile, tileId, onUpdate }) {
   const [grid, setGrid] = useState(tile.grid);
   const [rotationEnabled, setRotationEnabled] = useState(tile.rotationEnabled);
   const [mirrorEnabled, setMirrorEnabled] = useState(tile.mirrorEnabled);
-  const [weight, setWeight] = useState(tile.weight !== undefined ? tile.weight : 1);
+  const [weight, setWeight] = useState(
+    tile.weight !== undefined ? tile.weight : 1
+  );
 
   const handleCellClick = (row, col) => {
     const newGrid = grid.map((r, i) =>
@@ -44,14 +47,6 @@ function Tile({ tile, tileId, onUpdate }) {
 
   return (
     <div className="tile-component">
-      <div className="edit-icon-wrapper">
-        <IconEdit 
-          className="edit-icon" 
-          size={18} 
-          onClick={() => window.location.href = `/tile-edit/${tileId}`}
-          data-testid={`edit-tile-${tileId}`}
-        />
-      </div>
       <div className="grid">
         {grid.map((row, rowIndex) => (
           <div key={rowIndex} className="grid-row">
