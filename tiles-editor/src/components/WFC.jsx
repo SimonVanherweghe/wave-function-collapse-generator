@@ -235,11 +235,6 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
     setIsLoading(false);
   };
 
-  // Add a reset function to reinitialize the grid
-  const resetGrid = () => {
-    setGrid(generateGrid());
-  };
-
   // Canvas drawing logic
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -398,13 +393,6 @@ function WFC({ tiles, numRows = 10, numCols = 10, showGridlines = true }) {
           disabled={!hasTiles || isLoading}
         >
           Run WFC
-        </button>
-        <button
-          onClick={resetGrid}
-          data-testid="reset-button"
-          disabled={!hasTiles || isLoading}
-        >
-          Reset
         </button>
         <button
           onClick={downloadGridAsImage}
